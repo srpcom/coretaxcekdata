@@ -3,21 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- PERUBAHAN: Judul di <title> -->
-    <title>Permohonan Cek Data Coretax</title>
+    <title>PERMOHONAN CEK DATA CORETAX</title>
     <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/srpcom/koesmaparkir/main/new%20logo%20rsud%202025%20kecil.png">
     <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
     <style>
         :root {
             --primary-color: #005A9C; --secondary-color: #F0F8FF; --border-color: #DCDCDC;
             --text-color: #333; --success-color: #28a745; --error-color: #dc3545;
-            
-            /* PENAMBAHAN: Variabel CSS untuk Status */
+            /* [BARU] Warna Status */
             --pending-bg: #fffbe6; --pending-color: #9c6f00; --pending-border: #ffe58f;
             --completed-bg: #f6ffed; --completed-color: #389e0d; --completed-border: #b7eb8f;
-            /* --rejected-bg: #fff1f0; --rejected-color: #cf1322; --rejected-border: #ffa39e; */
-            /* PENAMBAHAN: Status biru "Telah Disesuaikan" */
-            --adjusted-bg: #e6f7ff; --adjusted-color: #005A9C; --adjusted-border: #b7e3ff;
+            --adjusted-bg: #e6f7ff; --adjusted-color: #005A9C; --adjusted-border: #91d5ff;
             
             --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
         }
@@ -54,14 +50,8 @@
         .keterangan-text { margin: 0; font-size: 0.9em; color: #333; line-height: 1.5; }
 
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); z-index: 1000; display: none; justify-content: center; align-items: center; padding: 15px; box-sizing: border-box; backdrop-filter: blur(5px); }
-        /* Style untuk modal-box di dalam overlay */
-        .modal-box { background: white; padding: 20px 30px; border-radius: 12px; max-width: 500px; width: 100%; box-shadow: 0 5px 15px rgba(0,0,0,0.3); text-align: left; }
-        .modal-box h2 { margin-top: 0; color: var(--primary-color); text-align: center; border-bottom: 2px solid #eee; padding-bottom: 15px; }
-        .modal-box p { font-size: 1em; line-height: 1.6; color: #333; }
-        .modal-box .modal-buttons { display: flex; justify-content: space-between; margin-top: 25px; gap: 15px; }
-        .modal-box .modal-buttons button { width: 100%; padding: 12px; }
-        .modal-box .modal-buttons .button-secondary { background-color: #6c757d; }
-        .modal-box .modal-buttons .button-primary { background-color: var(--success-color); }
+        /* [PERUBAHAN] z-index dinaikkan agar di depan modal lain */
+        #loading-overlay { z-index: 2000; }
 
         .spinner { border: 8px solid #f3f3f3; border-top: 8px solid var(--primary-color); border-radius: 50%; width: 60px; height: 60px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -70,9 +60,50 @@
         #summary-content p { margin: 8px 0; }
         #summary-content .summary-label { font-weight: 600; color: #555; }
         #summary-content .summary-value { color: #000; }
+        
+        /* [BARU] Style untuk semua modal box agar solid */
+        .modal-box {
+            background: white; 
+            padding: 20px 30px; 
+            border-radius: 12px; 
+            max-width: 500px; 
+            width: 100%; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            text-align: left;
+        }
+        .modal-box h2 {
+            margin-top:0; 
+            color: var(--primary-color); 
+            text-align: center; 
+            border-bottom: 2px solid #eee; 
+            padding-bottom: 15px;
+        }
+        .modal-buttons {
+            display: flex; 
+            justify-content: space-between; 
+            margin-top: 25px; 
+            gap: 15px;
+        }
+        .modal-buttons button {
+            width: 100%;
+            padding: 12px;
+        }
+        .modal-box textarea {
+            width: 100%;
+            min-height: 80px;
+            box-sizing: border-box;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            padding: 10px;
+            font-size: 1em;
+        }
 
         .admin-section { padding: 20px; border-bottom: 1px solid #eee; }
         .admin-section h2 { margin-top: 0; color: var(--primary-color); }
+        .admin-section .form-group { margin-bottom: 10px; } /* Mengurangi margin di admin */
+        .admin-section label { margin-bottom: 5px; font-size: 0.9em; }
+        .admin-section button { width: auto; padding: 8px 15px; font-size: 0.9em; }
+        
         .toggle-switch { display: flex; align-items: center; gap: 10px; }
         #form-status-toggle { width: 50px; height: 26px; position: relative; cursor: pointer; }
         #form-status-toggle span { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 26px; }
@@ -86,7 +117,7 @@
         #submissions-table td { white-space: normal; }
 
         .table-container { max-height: 500px; overflow-x: auto; }
-        #logout-button { background-color: var(--error-color); margin-top: 20px; }
+        #logout-button { background-color: var(--error-color); margin-top: 20px; width: 100%; }
         .admin-controls { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 15px; align-items: center; }
         #search-input, #status-filter { padding: 8px; font-size: 0.9em; border-radius: 5px; border: 1px solid #ccc; }
         #search-input { flex-grow: 1; }
@@ -94,16 +125,18 @@
         .pagination-controls { display: flex; justify-content: center; align-items: center; gap: 5px; margin-top: 15px; }
         .pagination-controls button { width: auto; padding: 5px 10px; font-size: 0.9em; }
         .pagination-controls .page-info { font-size: 0.9em; }
-
-        /* PENAMBAHAN: CSS untuk pewarnaan dropdown status */
-        #submissions-table td select { padding: 6px; border-radius: 5px; width:100%; font-weight: bold; border-width: 1px; transition: background-color 0.3s, border-color 0.3s; font-size: 1em; }
+        
+        /* [BARU] CSS untuk pewarnaan dropdown status */
+        #submissions-table td select { padding: 6px; border-radius: 5px; width:100%; font-weight: bold; border-width: 1px; transition: background-color 0.3s, border-color 0.3s; font-size: 1em; appearance: none; -webkit-appearance: none; -moz-appearance: none; background-position: right 5px center; background-repeat: no-repeat; background-image: url('data:image/svg+xml;utf8,<svg fill="%23333" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>'); padding-right: 25px; box-sizing: border-box; }
         .status-pending { background-color: var(--pending-bg); color: var(--pending-color); border-color: var(--pending-border); }
-        .status-selesai { background-color: var(--completed-bg); color: var(--completed-color); border-color: var(--completed-border); }
-        /* .status-ditolak { background-color: var(--rejected-bg); color: var(--rejected-color); border-color: var(--rejected-border); } */
-        .status-disesuaikan { background-color: var(--adjusted-bg); color: var(--adjusted-color); border-color: var(--adjusted-border); }
+        .status-completed { background-color: var(--completed-bg); color: var(--completed-color); border-color: var(--completed-border); }
+        .status-adjusted { background-color: var(--adjusted-bg); color: var(--adjusted-color); border-color: var(--adjusted-border); }
         
         .input-hint { font-size: 0.8em; color: #555; margin-top: 5px; }
-        .input-hint.error { color: var(--error-color); font-weight: 600; }
+        .input-hint.error {
+            color: var(--error-color);
+            font-weight: 600;
+        }
 
         body.admin-view { padding: 0; background-image: none; background-color: #f0f2f5; }
 
@@ -129,13 +162,15 @@
 <body>
     <div id="loading-overlay" class="overlay"><div class="spinner"></div><p>Mohon tunggu...</p></div>
 
-    <!-- PENAMBAHAN: Modal Popup Selamat Datang -->
+    <!-- [BARU] Popup Selamat Datang / Informasi -->
     <div id="welcome-modal" class="overlay">
         <div class="modal-box">
             <h2>Informasi</h2>
-            <p id="welcome-message-content" style="white-space: pre-wrap; line-height: 1.6;">(Isi pesan dari admin)</p>
-            <div style="display: flex; justify-content: flex-end; margin-top: 25px;">
-                <button id="close-welcome-modal-btn" style="width: auto; padding: 10px 25px;">Tutup</button>
+            <p id="welcome-message-content" style="line-height: 1.6; max-height: 60vh; overflow-y: auto;">
+                Memuat informasi...
+            </p>
+            <div class="modal-buttons" style="justify-content: center;">
+                <button id="close-welcome-btn" style="width: 150px;">Tutup</button>
             </div>
         </div>
     </div>
@@ -149,23 +184,24 @@
             </div>
             <p style="font-size: 0.9em; color: #555; text-align: center; margin-top: 20px;">Pastikan semua data yang Anda isikan sudah benar sebelum mengirim.</p>
             <div class="modal-buttons">
-                <button id="edit-data-btn" class="button-secondary">Perbaiki Data</button>
-                <button id="confirm-submit-btn" class="button-primary">Ya, Kirim Data</button>
+                <button id="edit-data-btn" style="background-color: #6c757d;">Perbaiki Data</button>
+                <button id="confirm-submit-btn" style="background-color: var(--success-color);">Ya, Kirim Data</button>
             </div>
         </div>
     </div>
     
-    <!-- PENAMBAHAN: Modal Keterangan Perubahan Status -->
+    <!-- [BARU] Modal Keterangan Perubahan Status -->
     <div id="status-keterangan-modal" class="overlay">
         <div class="modal-box">
             <h2>Keterangan Perubahan Status</h2>
-            <div class="form-group" style="margin-top: 15px;">
+            <p style="font-size: 0.9em; color: #555; margin-top: 0; margin-bottom: 15px;">Berikan keterangan untuk perubahan status ini.</p>
+            <div class="form-group">
                 <label for="status-keterangan-input">Keterangan:</label>
-                <textarea id="status-keterangan-input" rows="4"></textarea>
+                <textarea id="status-keterangan-input"></textarea>
             </div>
             <div class="modal-buttons">
-                <button id="cancel-status-btn" class="button-secondary">Batal</button>
-                <button id="confirm-status-btn" class="button-primary">Simpan</button>
+                <button id="cancel-status-btn" style="background-color: #6c757d;">Batal</button>
+                <button id="confirm-status-btn" style="background-color: var(--success-color);">Simpan</button>
             </div>
         </div>
     </div>
@@ -174,7 +210,7 @@
          <div class="container">
             <header>
                 <img src="https://raw.githubusercontent.com/srpcom/koesmaparkir/main/new%20logo%20rsud%202025%20kecil.png" alt="Logo" class="logo-image">
-                <!-- PERUBAHAN: Judul di <h1> -->
+                <!-- Perubahan: Judul diubah -->
                 <h1>PERMOHONAN CEK DATA CORETAX<br>RSUD dr. R. KOESMA</h1>
             </header>
             <div id="form-closed-message" class="admin-container hidden" style="text-align: center; padding: 40px;">
@@ -216,7 +252,7 @@
                             <option value="INSTALASI FARMASI">INSTALASI FARMASI</option>
                             <option value="INSTALASI RADIOLOGI">INSTALASI RADIOLOGI</option>
                             <option value="INSTALASI BEDAH SENTRAL">INSTALASI BEDAH SENTRAL</option>
-                            <option value="INSTALASI GAWAT DARURAT">INSTALASI GAWAT DARURAT</option>
+                            <option value="INSTALASI GAWAT DARAT">INSTALASI GAWAT DARAT</option>
                             <option value="ICU">ICU</option>
                             <option value="ICCU">ICCU</option>
                             <option value="HCU">HCU</option>
@@ -267,7 +303,7 @@
                             <option value="BAGIAN PROGPEL">BAGIAN PROGPEL</option>
                             <option value="BAGIAN KEUANGAN">BAGIAN KEUANGAN</option>
                             <option value="BAGIAN ADMINISTRASI DAN UMUM">BAGIAN ADMINISTRASI DAN UMUM</option>
-                            <option value="BIDANG PELAYANAN MEDIK">BIDANG PELAYANAN MEDIK</option>
+                            <option value_commented_out="BIDANG PELAYANAN MEDIK">BIDANG PELAYANAN MEDIK</option_commented_out>
                             <option value="BIDANG KEPERAWATAN">BIDANG KEPERAWATAN</option>
                             <option value="BIDANG PELAYANAN PENUNJANG">BIDANG PENUNJANG</option>
                             <option value="KOMITE MEDIK">KOMITE MEDIK</option>
@@ -278,7 +314,7 @@
                             <option value="UNIT AMBULAN">UNIT AMBULAN</option>
                             <option value="UNIT LOUNDRY">UNIT LOUNDRY</option>
                             <option value="UNIT CSSD">UNIT CSSD</option>
-                            <option value="UNIT PENGADUAN">UNIT PENGADUAN</option>
+                            <option value="UNIT PENGADUAN">UNIT PENGADUAN</Soption>
                             <option value="UNIT DIKLAT">UNIT DIKLAT</option>
                             <option value="UNIT KLAIM DAN PENJAMINAN">UNIT KLAIM DAN PENJAMINAN</option>
                             <option value="LAINNYA">Lainnya...</option>
@@ -289,7 +325,7 @@
                         <input type="text" id="ruanganLainnya" name="ruanganLainnya">
                     </div>
 
-                    <!-- PENAMBAHAN: Dropdown Status Kepegawaian -->
+                    <!-- [BARU] Kolom Status Kepegawaian -->
                     <div class="form-group">
                         <label for="statusKepegawaian">STATUS KEPEGAWAIAN</label>
                         <select id="statusKepegawaian" name="statusKepegawaian" required>
@@ -298,6 +334,7 @@
                             <option value="NON ASN">NON ASN</option>
                         </select>
                     </div>
+
                 </fieldset>
                 
                 <button type="submit" id="submit-button">Kirim Permohonan</button>
@@ -320,6 +357,7 @@
         <div class="container">
             <header><h1>Dashboard Admin</h1></header>
             <div class="admin-container">
+                
                 <div class="admin-section">
                     <h2>Pengaturan Formulir</h2>
                     <div class="toggle-switch">
@@ -327,13 +365,18 @@
                         <div id="form-status-toggle" onclick="toggleFormStatus()"><span></span></div>
                         <strong id="form-status-text"></strong>
                     </div>
-                    <!-- PENAMBAHAN: Pengaturan Pesan Popup -->
-                    <div class="form-group" style="margin-top: 15px;">
-                        <label for="popup-message-input">Pesan Popup Selamat Datang (Kosongkan untuk menonaktifkan)</label>
+                </div>
+
+                <!-- [BARU] Pengaturan Popup Selamat Datang -->
+                <div class="admin-section">
+                    <h2>Pengaturan Pesan Informasi (Popup)</h2>
+                    <div class="form-group">
+                        <label for="popup-message-input">Tulis pesan yang akan tampil saat halaman dibuka:</label>
                         <textarea id="popup-message-input" rows="4"></textarea>
                     </div>
-                    <button id="save-popup-message-btn" style="width: auto; padding: 10px 15px; font-size: 0.9em;">Simpan Pesan</button>
+                    <button id="save-popup-message-btn" onclick="savePopupMessage()">Simpan Pesan</button>
                 </div>
+
                 <div class="admin-section">
                     <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
                         <h2>Data Submisi</h2>
@@ -341,13 +384,13 @@
                     </div>
                     <div class="admin-controls">
                         <input type="text" id="search-input" placeholder="Cari data...">
-                        <!-- PENAMBAHAN: Filter Status -->
+                        <!-- [BARU] Filter Status -->
                         <select id="status-filter">
                             <option value="Semua">Semua Status</option>
                             <option value="Dalam Proses">Dalam Proses</option>
                             <option value="Sudah Sesuai">Sudah Sesuai</option>
                             <option value="Telah Disesuaikan">Telah Disesuaikan</option>
-                        </select> 
+                        </select>
                         <button id="download-xlsx" class="download-button">Unduh .xlsx</button>
                     </div>
                     <div class="table-container">
@@ -364,21 +407,19 @@
     </div>
     <!-- HALAMAN ADMIN BERAKHIR DI SINI -->
 
-    <footer style="text-align: center; color: #fff; font-size: 0.8em; padding: 10px; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">ver 1.7 | Developed with ❤️ by : syam</footer>
+    <footer style="text-align: center; color: #fff; font-size: 0.8em; padding: 10px; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">ver 2.0 | Developed with ❤️ by : syam</footer>
 
     <script>
         // Variabel global
-        const webAppUrl = 'https://script.google.com/macros/s/AKfycbzJqB-NxrHIOUB9kRH5Q6dFuY0aQTHLQB5ZxwadaQtU0vHk0LiKr82XVCtw_GLb5luT/exec'; // PERUBAHAN: URL Web App diperbarui
+        const webAppUrl = 'https://script.google.com/macros/s/AKfycbzJqB-NxrHIOUB9kRH5Q6dFuY0aQTHLQB5ZxwadaQtU0vHk0LiKr82XVCtw_GLb5luT/exec';
         let formDataToSubmit = null; 
         let submissionHeaders = [];
         let currentPage = 1;
-        
-        // PENAMBAHAN: Konteks untuk modal perubahan status
+        // [BARU] Konteks untuk modal status
         let statusChangeContext = {
             rowIndex: null,
             selectElement: null,
-            previousValue: '',
-            newValue: ''
+            previousValue: ''
         };
         
         // Elemen DOM
@@ -386,9 +427,13 @@
         const adminLoginPage = document.getElementById('admin-login-page');
         const adminDashboard = document.getElementById('admin-dashboard');
         const searchInput = document.getElementById('search-input');
-        // PENAMBAHAN: Filter Status
         const statusFilter = document.getElementById('status-filter');
         const downloadButton = document.getElementById('download-xlsx');
+        const welcomeModal = document.getElementById('welcome-modal');
+        const closeWelcomeBtn = document.getElementById('close-welcome-btn');
+        const welcomeMessageContent = document.getElementById('welcome-message-content');
+        const statusKeteranganModal = document.getElementById('status-keterangan-modal');
+        const statusKeteranganInput = document.getElementById('status-keterangan-input');
 
         // --- ROUTING APLIKASI ---
         window.addEventListener('hashchange', handleRouteChange);
@@ -401,20 +446,25 @@
                 showMainForm();
             }
         }
-        function showMainForm() { mainFormContainer.classList.remove('hidden'); adminLoginPage.classList.add('hidden'); adminDashboard.classList.add('hidden'); document.body.classList.remove('admin-view'); checkFormStatusForUser(); }
+        function showMainForm() { mainFormContainer.classList.remove('hidden'); adminLoginPage.classList.add('hidden'); adminDashboard.classList.add('hidden'); document.body.classList.remove('admin-view'); checkFormStatusAndSettingsForUser(); }
         function showAdminLogin() { mainFormContainer.classList.add('hidden'); adminLoginPage.classList.remove('hidden'); adminDashboard.classList.add('hidden'); document.body.classList.remove('admin-view'); }
         function showDashboard() { mainFormContainer.classList.add('hidden'); adminLoginPage.classList.add('hidden'); adminDashboard.classList.remove('hidden'); document.body.classList.add('admin-view'); loadAdminData(); }
         
         // --- LOGIKA FORMULIR PENGGUNA ---
         document.getElementById('parkingForm').addEventListener('submit', function(e) {
             e.preventDefault();
+            // Validasi kustom sederhana
             if (!this.checkValidity()) {
-                alert('Mohon lengkapi semua kolom yang wajib diisi.');
+                alert('Mohon lengkapi semua kolom yang wajib diisi (ditandai).');
+                // Fokus ke elemen pertama yang tidak valid
+                const firstInvalid = this.querySelector(':invalid');
+                if (firstInvalid) firstInvalid.focus();
                 return;
             }
             formDataToSubmit = new FormData(this);
             displayConfirmationSummary(formDataToSubmit);
         });
+
         function displayConfirmationSummary(formData) {
             const summaryContainer = document.getElementById('summary-content');
             let summaryHTML = '';
@@ -426,10 +476,9 @@
                 nomorHp: 'NOMOR HP',
                 ruangan: 'RUANGAN',
                 ruanganLainnya: 'RUANGAN (Lainnya)',
-                statusKepegawaian: 'STATUS KEPEGAWAIAN', // PENAMBAHAN
-                fileKtp: 'File Identitas'
+                statusKepegawaian: 'STATUS KEPEGAWAIAN' // [BARU]
             };
- 
+
             for (let [key, value] of formData.entries()) {
                 if (value && value.toString().trim() !== '') {
                     let displayValue = value instanceof File ? value.name : value;
@@ -458,15 +507,16 @@
             showLoading(true, "Mengirim data...");
             const formDataObject = Object.fromEntries(formData.entries());
             try {
-                const fileInput = formData.get('fileKtp');
-                if (fileInput && fileInput.size > 0) {
-                    formDataObject.fileKtp = await compressAndReadFile(fileInput);
-                }
+                // Logika kompresi file (jika ada) bisa ditambahkan di sini
+                // const fileInput = formData.get('fileKtp');
+                // if (fileInput && fileInput.size > 0) {
+                //     formDataObject.fileKtp = await compressAndReadFile(fileInput);
+                // }
                 
                 const response = await fetch(webAppUrl, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(formDataObject) });
                 const result = await response.json();
                 if (result.status === 'success') {
-                    alert('Permohonan Anda telah berhasil dicatat!'); // PERUBAHAN: Teks notifikasi
+                    alert('Permohonan Anda telah berhasil dicatat!');
                     document.getElementById('parkingForm').reset();
                     handleRuanganChange(document.getElementById('ruangan')); // Reset dropdown ruangan
                 } else { throw new Error(result.message || 'Terjadi kesalahan di server.'); }
@@ -483,12 +533,8 @@
         document.getElementById('admin-login-button').addEventListener('click', adminLogin);
         document.getElementById('logout-button').addEventListener('click', adminLogout);
         searchInput.addEventListener('keyup', () => fetchPage(1));
-        // PENAMBAHAN: Event listener filter status
         statusFilter.addEventListener('change', () => fetchPage(1));
         downloadButton.addEventListener('click', downloadXLSX);
-        // PENAMBAHAN: Event listener tombol simpan pesan popup
-        document.getElementById('save-popup-message-btn').addEventListener('click', savePopupMessage);
-
 
         async function adminLogin() {
             const password = document.getElementById('admin-password').value;
@@ -517,13 +563,13 @@
                 const response = await fetch(`${webAppUrl}?action=getSettings`);
                 const result = await response.json();
                 if (result.status === 'success') {
-                    // Status Formulir
+                    // Pengaturan Form Status
                     const status = result.data.formStatus;
                     const toggle = document.getElementById('form-status-toggle');
                     toggle.classList.toggle('on', status === 'ON');
                     document.getElementById('form-status-text').textContent = status;
 
-                    // PENAMBAHAN: Pesan Popup
+                    // [BARU] Pengaturan Pesan Popup
                     const popupMessage = result.data.popupMessage || '';
                     document.getElementById('popup-message-input').value = popupMessage;
                 }
@@ -532,22 +578,30 @@
 
         async function toggleFormStatus() {
             const newStatus = document.getElementById('form-status-toggle').classList.contains('on') ? 'OFF' : 'ON';
-            showLoading(true, 'Memperbarui status formulir...');
+            showLoading(true, 'Memperbarui...');
             try {
-                await fetch(`${webAppUrl}?action=updateSettings&formStatus=${newStatus}`);
-                await loadSettings();
+                // Menggunakan URLSearchParams untuk mengirim data
+                const params = new URLSearchParams();
+                params.append('action', 'updateSettings');
+                params.append('formStatus', newStatus);
+                
+                await fetch(webAppUrl, { method: 'POST', body: params });
+                await loadSettings(); // Muat ulang settings untuk konfirmasi
             } catch (e) { console.error("Gagal mengubah status:", e); }
             finally { showLoading(false); }
         }
-
-        // PENAMBAHAN: Fungsi simpan pesan popup
+        
+        // [BARU] Fungsi untuk menyimpan pesan popup
         async function savePopupMessage() {
             const newMessage = document.getElementById('popup-message-input').value;
             showLoading(true, 'Menyimpan pesan...');
             try {
-                const encodedMessage = encodeURIComponent(newMessage);
-                await fetch(`${webAppUrl}?action=updateSettings&popupMessage=${encodedMessage}`);
-                alert('Pesan popup berhasil disimpan.');
+                const params = new URLSearchParams();
+                params.append('action', 'updateSettings');
+                params.append('popupMessage', newMessage);
+                
+                await fetch(webAppUrl, { method: 'POST', body: params });
+                alert('Pesan berhasil disimpan!');
             } catch (e) { 
                 console.error("Gagal menyimpan pesan:", e); 
                 alert('Gagal menyimpan pesan.');
@@ -558,7 +612,6 @@
         async function fetchPage(page) {
             currentPage = page;
             const searchTerm = searchInput.value;
-            // PENAMBAHAN: Filter Status
             const status = statusFilter.value;
             showLoading(true, "Memuat data...");
             const tableBody = document.querySelector('#submissions-table tbody');
@@ -568,7 +621,6 @@
                 url.searchParams.append('action', 'getSubmissions');
                 url.searchParams.append('page', page);
                 url.searchParams.append('searchTerm', searchTerm);
-                // PENAMBAHAN: Mengirim filter status
                 url.searchParams.append('statusFilter', status);
                 const response = await fetch(url);
                 const result = await response.json();
@@ -596,19 +648,19 @@
                 const tr = document.createElement('tr');
                 rowData.forEach((cell, cellIndex) => {
                     const td = document.createElement('td');
-                    const header = submissionHeaders[cellIndex];
+                    const header = submissionHeaders[cellIndex]; 
                     td.setAttribute('data-label', header);
                     
-                    // PENAMBAHAN: Logika dropdown status
+                    // [BARU] Logika dropdown status
                     if (header === 'Status') {
                         const select = document.createElement('select');
                         select.innerHTML = `
                             <option value="Dalam Proses">Dalam Proses</option>
                             <option value="Sudah Sesuai">Sudah Sesuai</option>
                             <option value="Telah Disesuaikan">Telah Disesuaikan</option>
-                        `;
-                        select.value = cell || 'Dalam Proses'; // Default jika kosong
-                        select.dataset.previousValue = select.value; // Simpan nilai awal
+                            <option value="Hapus">Hapus</option>`;
+                        select.value = cell;
+                        select.setAttribute('data-previous-value', cell);
                         select.onchange = (event) => handleStatusChange(event.target, originalIndex);
                         td.appendChild(select);
                         updateSelectColor(select);
@@ -629,78 +681,118 @@
             paginationControls.innerHTML = `<button onclick="fetchPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>«</button><span class="page-info">Hal ${currentPage} dari ${totalPages}</span><button onclick="fetchPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>»</button>`;
         }
         
-        // --- PENAMBAHAN: Fungsi-fungsi Status ---
-
-        // Dipanggil saat admin mengubah dropdown
+        // [BARU] Logika modal status
         function handleStatusChange(selectElement, rowIndex) {
             const newValue = selectElement.value;
-            const previousValue = selectElement.dataset.previousValue;
+            const previousValue = selectElement.getAttribute('data-previous-value');
+            
+            if (newValue === "Hapus") {
+                if (!confirm("Apakah Anda yakin ingin menghapus data ini secara permanen?")) {
+                    selectElement.value = previousValue; // Kembalikan jika batal
+                    return;
+                }
+                // Langsung proses hapus
+                updateStatus("Hapus", rowIndex, "Data dihapus oleh admin");
+                return;
+            }
 
             // Simpan konteks untuk modal
             statusChangeContext = {
                 rowIndex: rowIndex,
                 selectElement: selectElement,
-                previousValue: previousValue,
-                newValue: newValue
+                previousValue: previousValue
             };
-
-            // Isi keterangan default di modal
-            document.getElementById('status-keterangan-input').value = newValue;
-            // Tampilkan modal
-            document.getElementById('status-keterangan-modal').style.display = 'flex';
+            
+            // Set default keterangan di modal
+            statusKeteranganInput.value = newValue; // Default text
+            statusKeteranganModal.style.display = 'flex';
         }
-
-        // Dipanggil saat admin klik "Simpan" di modal keterangan
-        async function confirmStatusChange() {
-            const { rowIndex, selectElement, newValue } = statusChangeContext;
-            const keterangan = document.getElementById('status-keterangan-input').value;
-
-            showLoading(true, 'Memperbarui status...');
-            try {
-                await updateStatus(newValue, rowIndex, keterangan);
-                // Sukses: update nilai 'previous' di dropdown
-                selectElement.dataset.previousValue = newValue;
-                updateSelectColor(selectElement); // Update warna
-                alert('Status berhasil diperbarui.');
-            } catch (error) {
-                // Gagal: kembalikan dropdown ke nilai lama
-                selectElement.value = statusChangeContext.previousValue;
-                alert('Gagal memperbarui status: ' + error.message);
-            } finally {
-                showLoading(false);
-                document.getElementById('status-keterangan-modal').style.display = 'none';
+        
+        // [BARU] Logika tombol di modal status
+        document.getElementById('cancel-status-btn').addEventListener('click', () => {
+            // Kembalikan dropdown ke nilai sebelumnya
+            if (statusChangeContext.selectElement) {
+                statusChangeContext.selectElement.value = statusChangeContext.previousValue;
+                updateSelectColor(statusChangeContext.selectElement); // Perbarui warna
             }
-        }
-
-        // Fungsi kirim data status ke server
-        async function updateStatus(newStatus, rowIndex, keterangan) {
-            const url = new URL(webAppUrl);
-            url.searchParams.append('action', 'updateStatus');
-            url.searchParams.append('status', newStatus);
-            url.searchParams.append('rowIndex', rowIndex);
-            url.searchParams.append('keterangan', encodeURIComponent(keterangan));
-
-            const response = await fetch(url);
-            const result = await response.json();
-            if (result.status !== 'success') {
-                throw new Error(result.message || 'Server error');
+            statusKeteranganModal.style.display = 'none';
+            statusChangeContext = {}; // Reset konteks
+        });
+        
+        document.getElementById('confirm-status-btn').addEventListener('click', () => {
+            const newStatus = statusChangeContext.selectElement.value;
+            const keterangan = statusKeteranganInput.value.trim();
+            
+            if (keterangan === "") {
+                alert("Keterangan tidak boleh kosong.");
+                return;
             }
-            return result;
-        }
+            
+            // Lanjutkan update
+            updateStatus(newStatus, statusChangeContext.rowIndex, keterangan);
+            statusKeteranganModal.style.display = 'none';
+            statusChangeContext = {}; // Reset konteks
+        });
 
-        // Fungsi untuk mewarnai dropdown
+        // [BARU] Fungsi updateSelectColor
         function updateSelectColor(selectElement) {
-            selectElement.classList.remove('status-pending', 'status-selesai', 'status-disesuaikan');
+            selectElement.classList.remove('status-pending', 'status-completed', 'status-adjusted');
             if (selectElement.value === 'Dalam Proses') {
                 selectElement.classList.add('status-pending');
             } else if (selectElement.value === 'Sudah Sesuai') {
-                selectElement.classList.add('status-selesai');
+                selectElement.classList.add('status-completed');
             } else if (selectElement.value === 'Telah Disesuaikan') {
-                selectElement.classList.add('status-disesuaikan');
+                selectElement.classList.add('status-adjusted');
             }
         }
         
-        // --- Akhir Fungsi Status ---
+        // [BARU] Fungsi updateStatus
+        async function updateStatus(newStatus, rowIndex, keterangan) {
+            showLoading(true, 'Memperbarui status...');
+            try {
+                const params = new URLSearchParams();
+                params.append('action', 'updateStatus');
+                params.append('rowIndex', rowIndex);
+                params.append('newStatus', newStatus);
+                params.append('keterangan', keterangan);
+
+                const response = await fetch(webAppUrl, { method: 'POST', body: params });
+                const result = await response.json();
+                
+                if (result.status !== 'success') {
+                    throw new Error(result.message || 'Gagal memperbarui status di server.');
+                }
+                
+                // Jika sukses, perbarui UI
+                if (newStatus === "Hapus") {
+                    // Hapus baris dari tabel
+                    if (statusChangeContext.selectElement) {
+                        statusChangeContext.selectElement.closest('tr').remove();
+                    } else {
+                        // Jika 'Hapus' ditekan tanpa konteks (misal dari handleStatusChange langsung)
+                        // kita perlu refresh halaman
+                        fetchPage(currentPage);
+                    }
+                } else {
+                    // Update nilai 'previous' di dropdown
+                    if (statusChangeContext.selectElement) {
+                        statusChangeContext.selectElement.setAttribute('data-previous-value', newStatus);
+                        updateSelectColor(statusChangeContext.selectElement);
+                    }
+                }
+                
+            } catch (e) {
+                console.error("Gagal update status:", e);
+                alert('Gagal memperbarui status: ' + e.message);
+                // Kembalikan dropdown jika gagal
+                if (statusChangeContext.selectElement) {
+                    statusChangeContext.selectElement.value = statusChangeContext.previousValue;
+                    updateSelectColor(statusChangeContext.selectElement);
+                }
+            } finally {
+                showLoading(false);
+            }
+        }
 
         async function downloadXLSX() {
             showLoading(true, "Mempersiapkan unduhan...");
@@ -708,7 +800,6 @@
                 const url = new URL(webAppUrl);
                 url.searchParams.append('action', 'downloadData');
                 url.searchParams.append('searchTerm', searchInput.value);
-                // PENAMBAHAN: Filter Status
                 url.searchParams.append('statusFilter', statusFilter.value);
                 const response = await fetch(url);
                 const result = await response.json();
@@ -717,32 +808,35 @@
                     const worksheet = XLSX.utils.aoa_to_sheet([headers, ...rows]);
                     const workbook = XLSX.utils.book_new();
                     XLSX.utils.book_append_sheet(workbook, worksheet, "Submisi");
-                    XLSX.writeFile(workbook, "Data_Permohonan_Coretax.xlsx"); // PERUBAHAN: Nama file
+                    XLSX.writeFile(workbook, "Data_Permohonan_Coretax.xlsx");
                 } else { alert("Tidak ada data untuk diunduh."); }
             } catch(e) { alert("Gagal mengunduh data."); } 
             finally { showLoading(false); }
         }
 
         // --- FUNGSI HELPERS & INISIALISASI ---
-        async function checkFormStatusForUser() { 
+        async function checkFormStatusAndSettingsForUser() { 
             try { 
                 const response = await fetch(`${webAppUrl}?action=getSettings`); 
                 const result = await response.json(); 
-                if (result.status !== 'success') return;
+                
+                if (result.status === 'success') {
+                    // Cek Status Form
+                    const isOff = result.data.formStatus === 'OFF'; 
+                    document.getElementById('parkingForm').classList.toggle('hidden', isOff); 
+                    document.getElementById('form-closed-message').classList.toggle('hidden', !isOff);
 
-                // Cek status form
-                const isOff = result.data.formStatus === 'OFF'; 
-                document.getElementById('parkingForm').classList.toggle('hidden', isOff); 
-                document.getElementById('form-closed-message').classList.toggle('hidden', !isOff); 
-            
-                // PENAMBAHAN: Tampilkan popup selamat datang
-                const popupMessage = result.data.popupMessage;
-                if (popupMessage && popupMessage.trim() !== '') {
-                    document.getElementById('welcome-message-content').textContent = popupMessage;
-                    document.getElementById('welcome-modal').style.display = 'flex';
+                    // [BARU] Tampilkan Popup Selamat Datang
+                    const popupMessage = result.data.popupMessage;
+                    if (popupMessage && popupMessage.trim() !== "") {
+                        welcomeMessageContent.innerText = popupMessage; // Gunakan innerText agar aman
+                        welcomeModal.style.display = 'flex';
+                    }
+
                 }
-
-            } catch(e) { console.error("Gagal memeriksa status form.", e); } 
+            } catch(e) { 
+                console.error("Gagal memeriksa status form.", e); 
+            } 
         }
         
         function handleRadioStyle(radioElement) { if (!radioElement) return; const radioName = radioElement.name; const allLabels = document.querySelectorAll(`input[name="${radioName}"]`); allLabels.forEach(radio => { radio.parentElement.classList.remove('selected-label'); }); radioElement.parentElement.classList.add('selected-label'); }
@@ -756,30 +850,20 @@
             if (!isLainnya) lainnyaInput.value = ''; 
         }
 
+        // Fungsi kompresi (jika diperlukan)
         function compressAndReadFile(file){ return new Promise((resolve, reject) => { if (!file.type.startsWith('image/')) { const reader = new FileReader(); reader.onload = () => resolve({ base64: reader.result.split(',')[1], type: file.type, name: file.name }); reader.onerror = reject; reader.readAsDataURL(file); return; } const reader = new FileReader(); reader.onload = e => { const img = new Image(); img.onload = () => { const canvas = document.createElement('canvas'); const ctx = canvas.getContext('2d'); const MAX_WIDTH = 1024; const scaleSize = MAX_WIDTH / img.width; canvas.width = MAX_WIDTH; canvas.height = img.height * scaleSize; ctx.drawImage(img, 0, 0, canvas.width, canvas.height); const dataUrl = canvas.toDataURL('image/jpeg', 0.8); resolve({ base64: dataUrl.split(',')[1], type: 'image/jpeg', name: 'compressed_id.jpg' }); }; img.src = e.target.result; }; reader.onerror = reject; reader.readAsDataURL(file); }); }
+        
         function showLoading(show, message = "Mohon tunggu...") { const overlay = document.getElementById('loading-overlay'); overlay.style.display = show ? 'flex' : 'none'; overlay.querySelector('p').textContent = message; }
         
         window.addEventListener('load', () => { 
             handleRouteChange(); 
 
-            // PENAMBAHAN: Event listener untuk modal popup
-            document.getElementById('close-welcome-modal-btn').addEventListener('click', () => {
-                document.getElementById('welcome-modal').style.display = 'none';
+            // [BARU] Tombol tutup popup selamat datang
+            closeWelcomeBtn.addEventListener('click', () => {
+                welcomeModal.style.display = 'none';
             });
 
-            // PENAMBAHAN: Event listener untuk modal status
-            document.getElementById('cancel-status-btn').addEventListener('click', () => {
-                // Kembalikan dropdown ke nilai lama
-                const { selectElement, previousValue } = statusChangeContext;
-                if (selectElement) {
-                    selectElement.value = previousValue;
-                }
-                document.getElementById('status-keterangan-modal').style.display = 'none';
-            });
-
-            document.getElementById('confirm-status-btn').addEventListener('click', confirmStatusChange);
-
-            // --- FUNGSI BARU: Menambahkan event listener untuk hints ---
+            // --- Fungsi untuk hints ---
             function setupHint(inputId, hintId) {
                 const input = document.getElementById(inputId);
                 const hint = document.getElementById(hintId);
@@ -793,6 +877,7 @@
             setupHint('email', 'email-hint');
             setupHint('nomorHp', 'nomorHp-hint');
 
+            // --- Validasi NIK Dinamis ---
             const nikInput = document.getElementById('nik');
             const nikHint = document.getElementById('nik-hint');
 
