@@ -288,6 +288,16 @@
                         <label for="ruanganLainnya">Tulis Nama Unit Anda</label>
                         <input type="text" id="ruanganLainnya" name="ruanganLainnya">
                     </div>
+
+                    <!-- PENAMBAHAN: Dropdown Status Kepegawaian -->
+                    <div class="form-group">
+                        <label for="statusKepegawaian">STATUS KEPEGAWAIAN</label>
+                        <select id="statusKepegawaian" name="statusKepegawaian" required>
+                            <option value="">-- Pilih Status --</option>
+                            <option value="ASN">ASN</option>
+                            <option value="NON ASN">NON ASN</option>
+                        </select>
+                    </div>
                 </fieldset>
                 
                 <button type="submit" id="submit-button">Kirim Permohonan</button>
@@ -358,7 +368,7 @@
 
     <script>
         // Variabel global
-        const webAppUrl = 'https://script.google.com/macros/s/AKfycbzJqB-NxrHIOUB9kRH5Q6dFuY0aQTHLQB5ZxwadaQtU0vHk0LiKr82XVCtw_GLb5luT/exec';
+        const webAppUrl = 'https://script.google.com/macros/s/AKfycbxDeMKoEFVbdquVQ3MM9Dhme54vJEQI6He8BJ7Dhtax6h3dzz6hXtJdOwpge8NfbRwoDw/exec';
         let formDataToSubmit = null; 
         let submissionHeaders = [];
         let currentPage = 1;
@@ -416,9 +426,10 @@
                 nomorHp: 'NOMOR HP',
                 ruangan: 'RUANGAN',
                 ruanganLainnya: 'RUANGAN (Lainnya)',
+                statusKepegawaian: 'STATUS KEPEGAWAIAN', // PENAMBAHAN
                 fileKtp: 'File Identitas'
             };
-
+ 
             for (let [key, value] of formData.entries()) {
                 if (value && value.toString().trim() !== '') {
                     let displayValue = value instanceof File ? value.name : value;
@@ -803,3 +814,4 @@
     </script>
 </body>
 </html>
+
