@@ -3,109 +3,311 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PERMOHONAN CEK DATA CORETAX</title>
+    <!-- [PERUBAHAN] Judul diubah -->
+    <title>Aplikasi Evaluasi SPT CoreTax</title>
     <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/srpcom/koesmaparkir/main/new%20logo%20rsud%202025%20kecil.png">
     <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
     <style>
         :root {
-            --primary-color: #005A9C; --secondary-color: #F0F8FF; --border-color: #DCDCDC;
-            --text-color: #333; --success-color: #28a745; --error-color: #dc3545;
-            /* [BARU] Warna Status */
-            --pending-bg: #fffbe6; --pending-color: #9c6f00; --pending-border: #ffe58f;
-            --completed-bg: #f6ffed; --completed-color: #389e0d; --completed-border: #b7eb8f;
-            --adjusted-bg: #e6f7ff; --adjusted-color: #005A9C; --adjusted-border: #91d5ff;
-            /* [BARU] Warna Status Lainnya */
-            --other-bg: #f5f5f5; --other-color: #595959; --other-border: #d9d9d9;
-            
+            --primary-color: #005A9C;
+            --secondary-color: #F0F8FF;
+            --border-color: #DCDCDC;
+            --text-color: #333;
+            --success-color: #28a745;
+            --error-color: #dc3545;
+            --warning-bg: #fffbe6; --warning-color: #9c6f00; --warning-border: #ffe58f;
+            --success-bg: #f6ffed; --success-color-dark: #389e0d; --success-border: #b7eb8f;
+            --info-bg: #e6f7ff; --info-color: #096dd9; --info-border: #91d5ff;
+            --danger-bg: #fff1f0; --danger-color: #cf1322; --danger-border: #ffa39e;
             --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
         }
-        body { font-family: var(--font-family); background-image: url('https://raw.githubusercontent.com/srpcom/koesmaparkir/refs/heads/main/foto%20ipit.jpg'); background-size: cover; background-position: center; background-attachment: fixed; color: var(--text-color); margin: 0; padding: 10px; transition: background-color 0.3s; }
-        .container { max-width: 800px; width: 100%; margin: 20px auto; background-color: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-radius: 12px; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); border: 1px solid rgba(255, 255, 255, 0.3); }
+        body {
+            font-family: var(--font-family);
+            background-image: url('https://raw.githubusercontent.com/srpcom/koesmaparkir/refs/heads/main/foto%20ipit.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: var(--text-color);
+            margin: 0;
+            padding: 10px;
+            transition: background-color 0.3s;
+        }
+        .container {
+            max-width: 800px;
+            width: 100%;
+            margin: 20px auto;
+            background-color: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 12px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            overflow: hidden; /* Menampung border-radius header */
+        }
         
-        #main-form-container .container {
+        .main-form-container .container {
             background-color: rgba(255, 255, 255, 0.5); 
             backdrop-filter: blur(12px); 
             -webkit-backdrop-filter: blur(12px);
         }
 
-        header { background-color: var(--primary-color); color: white; padding: 20px; text-align: center; border-bottom: 5px solid #00487a; border-radius: 12px 12px 0 0; }
-        header .logo-image { width: 70px; margin: 0 auto 15px auto; display: block; }
-        header h1 { margin: 0; font-size: 1.5em; line-height: 1.3; }
-        header p { margin: 5px 0 0; opacity: 0.9; font-size: 0.9em; }
-        form, .admin-container { padding: 20px; }
-        fieldset { border: 1px solid var(--border-color); border-radius: 8px; padding: 20px 15px; margin-bottom: 25px; background-color: rgba(255, 255, 255, 0.5); }
-        legend { font-weight: bold; font-size: 1.2em; color: var(--primary-color); padding: 5px 15px; border-radius: 20px; background-color: #fff; border: 1px solid var(--border-color); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .form-group { margin-bottom: 20px; }
-        label { display: block; margin-bottom: 8px; font-weight: 600; }
-        input[type="text"], input[type="tel"], input[type="password"], select, textarea, input[type="file"], input[type="date"], input[type="email"] { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 6px; box-sizing: border-box; font-size: 16px; background-color: rgba(255, 255, 255, 0.9); }
-        .radio-group label { display: flex; align-items: center; margin-bottom: 10px; font-weight: normal; cursor: pointer; transition: all 0.2s ease-in-out; }
-        .radio-group input { margin-right: 10px; flex-shrink: 0; }
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-bottom: 5px solid #00487a;
+            /* border-radius: 12px 12px 0 0; */ /* Dihapus agar penuh */
+        }
+        header .logo-image {
+            width: 70px;
+            margin: 0 auto 15px auto;
+            display: block;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 1.5em;
+            line-height: 1.3;
+        }
+        header p {
+            margin: 5px 0 0;
+            opacity: 0.9;
+            font-size: 0.9em;
+        }
         
-        .radio-group label.selected-label { font-weight: 700; color: var(--primary-color); }
+        /* [BARU] Kontainer untuk Pilihan Awal */
+        #pilihan-awal-container {
+            padding: 30px;
+            text-align: center;
+        }
+        #pilihan-awal-container h2 {
+            font-size: 1.8em;
+            color: var(--primary-color);
+            margin-top: 10px;
+            margin-bottom: 30px;
+        }
+        .pilihan-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .pilihan-buttons button {
+            padding: 20px;
+            font-size: 1.3em;
+            font-weight: bold;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        #btn-sudah {
+            background-color: var(--success-color);
+            color: white;
+        }
+        #btn-sudah:hover {
+            background-color: #218838;
+            transform: translateY(-3px);
+        }
+        #btn-belum {
+            background-color: var(--error-color);
+            color: white;
+        }
+        #btn-belum:hover {
+            background-color: #c82333;
+            transform: translateY(-3px);
+        }
+        
+        /* --- Kontainer Form --- */
+        form, .admin-container, .form-container {
+            padding: 20px;
+        }
+        /* [BARU] Tombol Kembali */
+        .btn-kembali {
+            background: none;
+            border: 1px solid #ccc;
+            color: #555;
+            padding: 8px 12px;
+            font-size: 0.9em;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-bottom: 20px;
+        }
+        .btn-kembali:hover {
+            background-color: #f0f0f0;
+            border-color: #aaa;
+        }
+        
+        fieldset {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px 15px;
+            margin-bottom: 25px;
+            background-color: rgba(255, 255, 255, 0.5);
+        }
+        legend {
+            font-weight: bold;
+            font-size: 1.2em;
+            color: var(--primary-color);
+            padding: 5px 15px;
+            border-radius: 20px;
+            background-color: #fff;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        input[type="text"], input[type="tel"], input[type="password"], 
+        select, textarea, input[type="file"], input[type="date"], input[type="email"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 16px;
+            background-color: rgba(255, 255, 255, 0.9);
+        }
+        
+        /* [BARU] Styling untuk input file */
+        input[type="file"] {
+            padding: 5px;
+            background-color: #f9f9f9;
+        }
+        input[type="file"]::file-selector-button {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 5px;
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            margin-right: 10px;
+            transition: background-color 0.2s ease;
+        }
+        input[type="file"]::file-selector-button:hover {
+            background-color: #00487a;
+        }
 
-        button { width: 100%; padding: 15px; background-color: var(--primary-color); color: white; border: none; border-radius: 6px; font-size: 1.1em; font-weight: bold; cursor: pointer; transition: background-color 0.3s, transform 0.2s; }
-        button:hover:not(:disabled) { background-color: #00487a; transform: translateY(-2px); }
-        button:disabled { background-color: #a0a0a0; cursor: not-allowed; }
-        .hidden { display: none; }
-
-        .keterangan-box { margin-top: 15px; padding: 15px; background-color: rgba(240, 248, 255, 0.85); border-radius: 8px; border-left: 5px solid var(--primary-color); transition: all 0.3s ease-in-out; }
-        .keterangan-text { margin: 0; font-size: 0.9em; color: #333; line-height: 1.5; }
-
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); z-index: 1000; display: none; justify-content: center; align-items: center; padding: 15px; box-sizing: border-box; backdrop-filter: blur(5px); }
+        button[type="submit"] {
+            width: 100%;
+            padding: 15px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+        button[type="submit"]:hover:not(:disabled) {
+            background-color: #00487a;
+            transform: translateY(-2px);
+        }
+        button:disabled {
+            background-color: #a0a0a0;
+            cursor: not-allowed;
+        }
+        .hidden {
+            display: none;
+        }
+        
+        /* --- MODAL --- */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+            box-sizing: border-box;
+            backdrop-filter: blur(5px);
+        }
         /* [PERUBAHAN] z-index dinaikkan agar di depan modal lain */
-        #loading-overlay { z-index: 2000; }
-
-        .spinner { border: 8px solid #f3f3f3; border-top: 8px solid var(--primary-color); border-radius: 50%; width: 60px; height: 60px; animation: spin 1s linear infinite; }
+        #loading-overlay {
+            z-index: 2000;
+        }
+        .spinner {
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid var(--primary-color);
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+        }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        #loading-overlay p { color: white; margin-top: 20px; font-size: 1.2em; }
-        
-        #summary-content p { margin: 8px 0; }
-        #summary-content .summary-label { font-weight: 600; color: #555; }
-        #summary-content .summary-value { color: #000; }
-        
-        /* [BARU] Style untuk semua modal box agar solid */
+        #loading-overlay p {
+            color: white;
+            margin-top: 20px;
+            font-size: 1.2em;
+        }
+
+        /* [BARU] Styling Box Modal Universal */
         .modal-box {
-            background: white; 
-            padding: 20px 30px; 
-            border-radius: 12px; 
-            max-width: 500px; 
-            width: 100%; 
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-            text-align: left;
+            background: white;
+            padding: 25px 30px;
+            border-radius: 12px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
         }
         .modal-box h2 {
-            margin-top:0; 
-            color: var(--primary-color); 
-            text-align: center; 
-            border-bottom: 2px solid #eee; 
+            margin-top: 0;
+            color: var(--primary-color);
+            text-align: center;
+            border-bottom: 2px solid #eee;
             padding-bottom: 15px;
         }
+        .modal-box .modal-content {
+            text-align: left;
+            line-height: 1.8;
+            max-height: 60vh;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+        .modal-box p.modal-info {
+            font-size: 0.9em;
+            color: #555;
+            text-align: center;
+            margin-top: 20px;
+        }
         .modal-buttons {
-            display: flex; 
-            justify-content: space-between; 
-            margin-top: 25px; 
+            display: flex;
+            justify-content: space-between;
+            margin-top: 25px;
             gap: 15px;
         }
         .modal-buttons button {
             width: 100%;
             padding: 12px;
-        }
-        .modal-box textarea {
-            width: 100%;
-            min-height: 80px;
-            box-sizing: border-box;
-            border-radius: 6px;
-            border: 1px solid var(--border-color);
-            padding: 10px;
             font-size: 1em;
+            font-weight: 600;
         }
+        #confirm-submit-btn { background-color: var(--success-color); }
+        #edit-data-btn { background-color: #6c757d; }
+        #confirm-rejection-btn, #simpan-keterangan-btn { background-color: var(--primary-color); }
+        #cancel-rejection-btn, #batal-keterangan-btn { background-color: #6c757d; }
+        #welcome-modal-close-btn { background-color: var(--primary-color); width: 100%; }
 
+        #summary-content p { margin: 8px 0; }
+        #summary-content .summary-label { font-weight: 600; color: #555; }
+        #summary-content .summary-value { color: #000; }
+
+        /* --- ADMIN --- */
         .admin-section { padding: 20px; border-bottom: 1px solid #eee; }
         .admin-section h2 { margin-top: 0; color: var(--primary-color); }
-        .admin-section .form-group { margin-bottom: 10px; } /* Mengurangi margin di admin */
-        .admin-section label { margin-bottom: 5px; font-size: 0.9em; }
-        .admin-section button { width: auto; padding: 8px 15px; font-size: 0.9em; }
-        
         .toggle-switch { display: flex; align-items: center; gap: 10px; }
         #form-status-toggle { width: 50px; height: 26px; position: relative; cursor: pointer; }
         #form-status-toggle span { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 26px; }
@@ -113,13 +315,19 @@
         #form-status-toggle.on span { background-color: var(--success-color); }
         #form-status-toggle.on span:before { transform: translateX(24px); }
         
+        /* [BARU] Pengaturan Admin Tambahan */
+        .admin-setting-group { margin-top: 20px; }
+        .admin-setting-group label { font-weight: bold; color: var(--primary-color); }
+        .admin-setting-group textarea { width: 100%; min-height: 100px; margin-top: 10px; box-sizing: border-box; }
+        .admin-setting-group button { width: auto; padding: 8px 15px; margin-top: 10px; font-size: 0.9em; }
+
         #submissions-table { width: 100%; border-collapse: collapse; margin-top: 20px; table-layout: fixed; font-family: 'Arial Narrow', Arial, sans-serif; }
         #submissions-table th, #submissions-table td { border: 1px solid #ddd; padding: 6px 8px; text-align: left; font-size: 0.85em; word-break: break-word; }
         #submissions-table th { background-color: #f2f2f2; white-space: normal; vertical-align: middle; }
         #submissions-table td { white-space: normal; }
 
         .table-container { max-height: 500px; overflow-x: auto; }
-        #logout-button { background-color: var(--error-color); margin-top: 20px; width: 100%; }
+        #logout-button { background-color: var(--error-color); margin-top: 20px; }
         .admin-controls { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 15px; align-items: center; }
         #search-input, #status-filter { padding: 8px; font-size: 0.9em; border-radius: 5px; border: 1px solid #ccc; }
         #search-input { flex-grow: 1; }
@@ -128,19 +336,15 @@
         .pagination-controls button { width: auto; padding: 5px 10px; font-size: 0.9em; }
         .pagination-controls .page-info { font-size: 0.9em; }
         
-        /* [BARU] CSS untuk pewarnaan dropdown status */
-        #submissions-table td select { padding: 6px; border-radius: 5px; width:100%; font-weight: bold; border-width: 1px; transition: background-color 0.3s, border-color 0.3s; font-size: 1em; appearance: none; -webkit-appearance: none; -moz-appearance: none; background-position: right 5px center; background-repeat: no-repeat; background-image: url('data:image/svg+xml;utf8,<svg fill="%23333" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>'); padding-right: 25px; box-sizing: border-box; }
-        .status-pending { background-color: var(--pending-bg); color: var(--pending-color); border-color: var(--pending-border); }
-        .status-completed { background-color: var(--completed-bg); color: var(--completed-color); border-color: var(--completed-border); }
-        .status-adjusted { background-color: var(--adjusted-bg); color: var(--adjusted-color); border-color: var(--adjusted-border); }
-        .status-other { background-color: var(--other-bg); color: var(--other-color); border-color: var(--other-border); } /* [BARU] */
+        /* [DIKEMBALIKAN] CSS Status */
+        #submissions-table td select { padding: 6px; border-radius: 5px; width:100%; font-weight: bold; border-width: 1px; transition: background-color 0.3s, border-color 0.3s; font-size: 1em; }
+        .status-dalam-proses { background-color: var(--warning-bg); color: var(--warning-color); border-color: var(--warning-border); }
+        .status-sudah-sesuai { background-color: var(--success-bg); color: var(--success-color-dark); border-color: var(--success-border); }
+        .status-telah-disesuaikan { background-color: var(--info-bg); color: var(--info-color); border-color: var(--info-border); }
+        .status-lainnya { background-color: var(--danger-bg); color: var(--danger-color); border-color: var(--danger-border); }
         
         .input-hint { font-size: 0.8em; color: #555; margin-top: 5px; }
-        .input-hint.error {
-            color: var(--error-color);
-            font-weight: 600;
-        }
-
+        .input-hint.error { color: var(--error-color); font-weight: 600; }
         body.admin-view { padding: 0; background-image: none; background-color: #f0f2f5; }
 
         @media (min-width: 769px) { #admin-dashboard .container { max-width: none; width: 100%; min-height: 100vh; margin: 0; border-radius: 0; box-shadow: none; } }
@@ -148,8 +352,14 @@
             body { padding: 5px; }
             .container { margin: 10px auto; padding: 0; }
             #admin-dashboard .container, #admin-login-page .container { width: 100%; margin: 5px 0; padding: 0; border: none; border-radius: 0; background-color: transparent; backdrop-filter: none; box-shadow: none; }
-            #admin-dashboard .admin-container, #admin-login-page .admin-container { padding: 10px; background-color: #f9f9f9; border-radius: 8px; }
-            #admin-dashboard header { border-radius: 8px 8px 0 0; }
+            #admin-dashboard .admin-container, #admin-login-page .admin-container, .main-form-container .form-container { padding: 10px; background-color: #f9f9f9; border-radius: 8px; }
+            #admin-dashboard header, .main-form-container header { border-radius: 8px 8px 0 0; }
+            
+            /* [BARU] Styling Pilihan Awal di Mobile */
+            #pilihan-awal-container { padding: 20px; background-color: #f9f9f9; border-radius: 8px; }
+            #pilihan-awal-container h2 { font-size: 1.5em; margin-bottom: 20px;}
+            .pilihan-buttons button { padding: 15px; font-size: 1.1em; }
+
             .table-container { overflow-x: hidden; max-height: none; }
             #submissions-table, #submissions-table thead, #submissions-table tbody, #submissions-table th, #submissions-table td, #submissions-table tr { display: block; }
             #submissions-table thead { display: none; }
@@ -165,15 +375,15 @@
 <body>
     <div id="loading-overlay" class="overlay"><div class="spinner"></div><p>Mohon tunggu...</p></div>
 
-    <!-- [BARU] Popup Selamat Datang / Informasi -->
+    <!-- [BARU] Modal Selamat Datang -->
     <div id="welcome-modal" class="overlay">
         <div class="modal-box">
             <h2>Informasi</h2>
-            <p id="welcome-message-content" style="line-height: 1.6; max-height: 60vh; overflow-y: auto;">
-                Memuat informasi...
-            </p>
-            <div class="modal-buttons" style="justify-content: center;">
-                <button id="close-welcome-btn" style="width: 150px;">Tutup</button>
+            <div id="welcome-message-content" class="modal-content">
+                <p>Memuat pesan...</p>
+            </div>
+            <div class="modal-buttons">
+                <button id="welcome-modal-close-btn" class="button">Tutup</button>
             </div>
         </div>
     </div>
@@ -182,165 +392,114 @@
     <div id="confirmation-modal" class="overlay">
         <div class="modal-box">
             <h2>Konfirmasi Data Anda</h2>
-            <div id="summary-content" style="text-align: left; line-height: 1.8; max-height: 60vh; overflow-y: auto; padding-right: 10px;">
+            <div id="summary-content" class="modal-content">
                 <!-- Ringkasan data akan dimasukkan di sini oleh JavaScript -->
             </div>
-            <p style="font-size: 0.9em; color: #555; text-align: center; margin-top: 20px;">Pastikan semua data yang Anda isikan sudah benar sebelum mengirim.</p>
+            <p class="modal-info">Pastikan semua data yang Anda isikan sudah benar sebelum mengirim.</p>
             <div class="modal-buttons">
-                <button id="edit-data-btn" style="background-color: #6c757d;">Perbaiki Data</button>
-                <button id="confirm-submit-btn" style="background-color: var(--success-color);">Ya, Kirim Data</button>
+                <button id="edit-data-btn" class="button">Perbaiki Data</button>
+                <button id="confirm-submit-btn" class="button">Ya, Kirim Data</button>
             </div>
         </div>
     </div>
     
-    <!-- [BARU] Modal Keterangan Perubahan Status -->
+    <!-- Modal Keterangan Status -->
     <div id="status-keterangan-modal" class="overlay">
         <div class="modal-box">
             <h2>Keterangan Perubahan Status</h2>
-            <p style="font-size: 0.9em; color: #555; margin-top: 0; margin-bottom: 15px;">Berikan keterangan untuk perubahan status ini.</p>
-            <div class="form-group">
-                <label for="status-keterangan-input">Keterangan:</label>
-                <textarea id="status-keterangan-input"></textarea>
+            <div class="modal-content">
+                <label for="keterangan-text">Mohon berikan keterangan (alasan) perubahan status:</label>
+                <textarea id="keterangan-text" style="width: 100%; min-height: 80px; margin-top: 10px; box-sizing: border-box;"></textarea>
             </div>
             <div class="modal-buttons">
-                <button id="cancel-status-btn" style="background-color: #6c757d;">Batal</button>
-                <button id="confirm-status-btn" style="background-color: var(--success-color);">Simpan</button>
+                <button id="batal-keterangan-btn" class="button">Batal</button>
+                <button id="simpan-keterangan-btn" class="button">Simpan</button>
             </div>
         </div>
     </div>
 
-    <div id="main-form-container">
-         <div class="container">
-            <header>
-                <img src="https://raw.githubusercontent.com/srpcom/koesmaparkir/main/new%20logo%20rsud%202025%20kecil.png" alt="Logo" class="logo-image">
-                <!-- Perubahan: Judul diubah -->
-                <h1>PERMOHONAN CEK DATA CORETAX<br>RSUD dr. R. KOESMA</h1>
-            </header>
-            <div id="form-closed-message" class="admin-container hidden" style="text-align: center; padding: 40px;">
+
+    <!-- [PERUBAHAN] Struktur Kontainer Utama -->
+    <div class="container main-form-container">
+        <header>
+            <img src="https://raw.githubusercontent.com/srpcom/koesmaparkir/main/new%20logo%20rsud%202025%20kecil.png" alt="Logo" class="logo-image">
+            <!-- [PERUBAHAN] Judul diubah -->
+            <h1>Aplikasi Evaluasi Pelaporan SPT melalui CoreTax</h1>
+            <p>RSUD dr. R. Koesma</p>
+        </header>
+
+        <!-- [BARU] Halaman Pilihan Awal -->
+        <div id="pilihan-awal-container">
+            <h2>Apakah Anda sudah dapat login ke aplikasi Coretax?</h2>
+            <div class="pilihan-buttons">
+                <button id="btn-sudah">SUDAH</button>
+                <button id="btn-belum">BELUM</button>
+            </div>
+        </div>
+
+        <!-- [BARU] Halaman Form "SUDAH" -->
+        <div id="form-sudah-container" class="form-container hidden">
+            <button class="btn-kembali">&laquo; Kembali ke Pilihan Awal</button>
+            <h2 style="text-align: center; color: var(--primary-color);">KONFIRMASI SUDAH DAPAT LOGIN KE CORETAX</h2>
+            <div id="form-closed-message-sudah" class="admin-container hidden" style="text-align: center; padding: 40px;">
                 <h2>Formulir Ditutup</h2>
                 <p>Mohon maaf, saat ini formulir sedang ditutup sementara oleh administrator.</p>
             </div>
-            <form id="parkingForm" novalidate>
-                 <fieldset>
-                    <legend>Data Pemohon</legend>
-                    
-                    <div class="form-group">
-                        <label for="nama">NAMA</label>
-                        <input type="text" id="nama" name="nama" required>
-                        <p id="nama-hint" class="input-hint hidden">masukkan nama SESUAI KTP</p>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="email">EMAIL</label>
-                        <input type="email" id="email" name="email" required>
-                        <p id="email-hint" class="input-hint hidden">masukkan email</p>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="nik">NIK</label>
-                        <input type="text" id="nik" name="nik" pattern="[0-9]{16}" maxlength="16" inputmode="numeric" required title="NIK harus terdiri dari 16 digit angka">
-                        <p id="nik-hint" class="input-hint hidden">masukkan 16 DIGIT NIK / Nomor KTP anda.</p>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="nomorHp">NOMOR HP</label>
-                        <input type="tel" id="nomorHp" name="nomorHp" required>
-                        <p id="nomorHp-hint" class="input-hint hidden">contoh format: 081330639240</p>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="ruangan">RUANGAN</label>
-                        <select id="ruangan" name="ruangan" onchange="handleRuanganChange(this)" required>
-                            <option value="">-- Pilih Unit / Bagian --</option>
-                            <option value="INSTALASI FARMASI">INSTALASI FARMASI</option>
-                            <option value="INSTALASI RADIOLOGI">INSTALASI RADIOLOGI</option>
-                            <option value="INSTALASI BEDAH SENTRAL">INSTALASI BEDAH SENTRAL</option>
-                            <option value="INSTALASI GAWAT DARAT">INSTALASI GAWAT DARAT</option>
-                            <option value="ICU">ICU</option>
-                            <option value="ICCU">ICCU</option>
-                            <option value="HCU">HCU</option>
-                            <option value="INSTALASI LABORATORIUM">INSTALASI LABORATORIUM</option>
-                            <option value="INSTALASI HEMODIALISA">INSTALASI HEMODIALISA</option>
-                            <option value="INSTALASI GIZI">INSTALASI GIZI</option>
-                            <option value="INSTALASI REKAM MEDIK">INSTALASI REKAM MEDIK</option>
-                            <option value="INSTALASI PEMELIHARAAN SARANA">INSTALASI PEMELIHARAAN SARANA</option>
-                            <option value="INSTALASI PENYEHATAN LINGKUNGAN">INSTALASI PENYEHATAN LINGKUNGAN</option>
-                            <option value="INSTALASI FORENSIK DAN MEDIKOLEGAL">INSTALASI FORENSIK DAN MEDIKOLEGAL</option>
-                            <option value="INSTALASI DIAGNOSTIK DAN INTERVENSI KORDIOVASKULER">INSTALASI DIAGNOSTIK DAN INTERVENSI KORDIOVASKULER</option>
-                            <option value="INSTALASI MATERNAL DAN PERINATAL">INSTALASI MATERNAL DAN PERINATAL</option>
-                            <option value="INSTALASI REHABILITASI MEDIK">INSTALASI REHABILITASI MEDIK</option>
-                            <option value="INSTALASI SIM RS">INSTALASI SIM RS</option>
-                            <option value="INSTALASI PKRS">INSTALASI PKRS</option>
-                            <option value="POLI KIR">POLI KIR</option>
-                            <option value="POLI EKSKUTIF">POLI EKSKUTIF</option>
-                            <option value="POLI TMS">POLI TMS</option>
-                            <option value="POLI EEG">POLI EEG</option>
-                            <option value="POLI ENDOSKOPI">POLI ENDOSKOPI</option>
-                            <option value="POLI ESWL">POLI ESWL</option>
-                            <option value="RUANG MAWAR/ASTER">RUANG MAWAR/ASTER</option>
-                            <option value="RUANG ANYELIR/MELATI">RUANG ANYELIR/MELATI</option>
-                            <option value="RUANG ANGGREK/DAHLIA">RUANG ANGGREK/DAHLIA</option>
-                            <option value="RUANG BOUGENVILLE">RUANG BOUGENVILLE</option>
-                            <option value="RUANG TERATAI/ASOKA">RUANG TERATAI/ASOKA</option>
-                            <option value="RUANG LILY">RUANG LILY</option>
-                            <option value="RUANG FLAMBOYAN">RUANG FLAMBOYAN</option>
-                            <option value="POLI ANAK">POLI ANAK</option>
-                            <option value="POLI PENYAKIT DALAM">POLI PENYAKIT DALAM</option>
-                            <option value="POLI BEDAH">POLI BEDAH</option>
-                            <option value="POLI MATA">POLI MATA</option>
-                            <option value="POLI THT">POLI THT</option>
-                            <option value="POLI SYARAF">POLI SYARAF</option>
-                            <option value="POLI JANTUNG">POLI JANTUNG</option>
-                            <option value="POLI PARU">POLI PARU</option>
-                            <option value="POLI GIGI">POLI GIGI</option>
-                            <option value="POLI KULIT DAN KELAMIN">POLI KULit DAN KELAMIN</option>
-                            <option value="POLI JIWA">POLI JIWA</option>
-                            <option value="POLI TB">POLI TB</option>
-                            <option value="POLI VCT">POLI VCT</option>
-                            <option value="POLI UMUM">POLI UMUM</option>
-                            <option value="POLI GERIATRI">POLI GERIATRI</option>
-                            <option value="POLI UROLOGI">POLI UROLOGI</option>
-                            <option value="POLI ORTHOPEDI">POLI ORTHOPEDI</option>
-                            <option value="POLI OBSGYN">POLI OBSGYN</option>
-                            <option value="POLI BEDAH SYARAF">POLI BEDAH SYARAF</option>
-                            <option value="BAGIAN PROGPEL">BAGIAN PROGPEL</option>
-                            <option value="BAGIAN KEUANGAN">BAGIAN KEUANGAN</option>
-                            <option value="BAGIAN ADMINISTRASI DAN UMUM">BAGIAN ADMINISTRASI DAN UMUM</option>
-                            <option value_commented_out="BIDANG PELAYANAN MEDIK">BIDANG PELAYANAN MEDIK</option_commented_out>
-                            <option value="BIDANG KEPERAWATAN">BIDANG KEPERAWATAN</option>
-                            <option value="BIDANG PELAYANAN PENUNJANG">BIDANG PENUNJANG</option>
-                            <option value="KOMITE MEDIK">KOMITE MEDIK</option>
-                            <option value="KOMITE KEPERAWATAN">KOMITE KEPERAWATAN</option>
-                            <option value="KOMITE PPI">KOMITE PPI</option>
-                            <option value="KOMITE KESEHATAN DAN KESELAMATAN KERJA">KOMITE KESEHATAN DAN KESELAMATAN KERJA</option>
-                            <option value="SATUAN PEMERIKSAAN INTERNAL">SATUAN PEMERIKSAAN INTERNAL</option>
-                            <option value="UNIT AMBULAN">UNIT AMBULAN</option>
-                            <option value="UNIT LOUNDRY">UNIT LOUNDRY</option>
-                            <option value="UNIT CSSD">UNIT CSSD</option>
-                            <option value="UNIT PENGADUAN">UNIT PENGADUAN</Soption>
-                            <option value="UNIT DIKLAT">UNIT DIKLAT</option>
-                            <option value="UNIT KLAIM DAN PENJAMINAN">UNIT KLAIM DAN PENJAMINAN</option>
-                            <option value="LAINNYA">Lainnya...</option>
-                        </select>
-                    </div>
-                    <div class="form-group hidden" id="ruanganLainnya-group">
-                        <label for="ruanganLainnya">Tulis Nama Unit Anda</label>
-                        <input type="text" id="ruanganLainnya" name="ruanganLainnya">
-                    </div>
-
-                    <!-- [BARU] Kolom Status Kepegawaian -->
-                    <div class="form-group">
-                        <label for="statusKepegawaian">STATUS KEPEGAWAIAN</label>
-                        <select id="statusKepegawaian" name="statusKepegawaian" required>
-                            <option value="">-- Pilih Status --</option>
-                            <option value="ASN">ASN</option>
-                            <option value="NON ASN">NON ASN</option>
-                        </select>
-                    </div>
-
+            
+            <form id="form-sudah" novalidate>
+                <!-- Input tersembunyi untuk tipe laporan -->
+                <input type="hidden" name="tipe_laporan" value="SUDAH">
+                
+                <fieldset>
+                    <legend>Data Pelapor</legend>
+                    <div class="form-group"><label for="nama-sudah">NAMA</label><input type="text" id="nama-sudah" name="nama" required><p id="nama-hint-sudah" class="input-hint hidden">masukkan nama SESUAI KTP</p></div>
+                    <div class="form-group"><label for="email-sudah">EMAIL</label><input type="email" id="email-sudah" name="email" required><p id="email-hint-sudah" class="input-hint hidden">masukkan email</p></div>
+                    <div class="form-group"><label for="nik-sudah">NIK</label><input type="text" id="nik-sudah" name="nik" pattern="[0-9]{16}" maxlength="16" inputmode="numeric" required title="NIK harus 16 digit"><p id="nik-hint-sudah" class="input-hint hidden">masukkan 16 DIGIT NIK</p></div>
+                    <div class="form-group"><label for="nomorHp-sudah">NOMOR HP</label><input type="tel" id="nomorHp-sudah" name="nomorHp" required><p id="nomorHp-hint-sudah" class="input-hint hidden">contoh: 081234567890</p></div>
+                    <div class="form-group"><label for="ruangan-sudah">RUANGAN</label><select id="ruangan-sudah" name="ruangan" onchange="handleRuanganChange(this, 'ruanganLainnya-group-sudah', 'ruanganLainnya-sudah')" required><option value="">-- Pilih Unit / Bagian --</option><option value="INSTALASI FARMASI">INSTALASI FARMASI</option><option value="INSTALASI RADIOLOGI">INSTALASI RADIOLOGI</option><option value="INSTALASI BEDAH SENTRAL">INSTALASI BEDAH SENTRAL</option><option value="INSTALASI GAWAT DARURAT">INSTALASI GAWAT DARURAT</option><option value="ICU">ICU</option><option value="ICCU">ICCU</option><option value="HCU">HCU</option><option value="INSTALASI LABORATORIUM">INSTALASI LABORATORIUM</option><option value="INSTALASI HEMODIALISA">INSTALASI HEMODIALISA</option><option value="INSTALASI GIZI">INSTALASI GIZI</option><option value="INSTALASI REKAM MEDIK">INSTALASI REKAM MEDIK</option><option value="INSTALASI PEMELIHARAAN SARANA">INSTALASI PEMELIHARAAN SARANA</option><option value="INSTALASI PENYEHATAN LINGKUNGAN">INSTALASI PENYEHATAN LINGKUNGAN</option><option value="INSTALASI FORENSIK DAN MEDIKOLEGAL">INSTALASI FORENSIK DAN MEDIKOLEGAL</option><option value="INSTALASI DIAGNOSTIK DAN INTERVENSI KORDIOVASKULER">INSTALASI DIAGNOSTIK DAN INTERVENSI KORDIOVASKULER</option><option value="INSTALASI MATERNAL DAN PERINATAL">INSTALASI MATERNAL DAN PERINATAL</option><option value="INSTALASI REHABILITASI MEDIK">INSTALASI REHABILITASI MEDIK</option><option value="INSTALASI SIM RS">INSTALASI SIM RS</option><option value="INSTALASI PKRS">INSTALASI PKRS</option><option value="POLI KIR">POLI KIR</option><option value="POLI EKSKUTIF">POLI EKSKUTIF</option><option value="POLI TMS">POLI TMS</option><option value="POLI EEG">POLI EEG</option><option value="POLI ENDOSKOPI">POLI ENDOSKOPI</option><option value="POLI ESWL">POLI ESWL</option><option value="RUANG MAWAR/ASTER">RUANG MAWAR/ASTER</option><option value="RUANG ANYELIR/MELATI">RUANG ANYELIR/MELATI</option><option value="RUANG ANGGREK/DAHLIA">RUANG ANGGREK/DAHLIA</option><option value="RUANG BOUGENVILLE">RUANG BOUGENVILLE</option><option value="RUANG TERATAI/ASOKA">RUANG TERATAI/ASOKA</option><option value="RUANG LILY">RUANG LILY</option><option value="RUANG FLAMBOYAN">RUANG FLAMBOYAN</option><option value="POLI ANAK">POLI ANAK</option><option value="POLI PENYAKIT DALAM">POLI PENYAKIT DALAM</option><option value="POLI BEDAH">POLI BEDAH</option><option value="POLI MATA">POLI MATA</option><option value="POLI THT">POLI THT</option><option value="POLI SYARAF">POLI SYARAF</option><option value="POLI JANTUNG">POLI JANTUNG</option><option value="POLI PARU">POLI PARU</option><option value="POLI GIGI">POLI GIGI</option><option value="POLI KULIT DAN KELAMIN">POLI KULit DAN KELAMIN</option><option value="POLI JIWA">POLI JIWA</option><option value="POLI TB">POLI TB</option><option value="POLI VCT">POLI VCT</option><option value="POLI UMUM">POLI UMUM</option><option value="POLI GERIATRI">POLI GERIATRI</option><option value="POLI UROLOGI">POLI UROLOGI</option><option value="POLI ORTHOPEDI">POLI ORTHOPEDI</option><option value="POLI OBSGYN">POLI OBSGYN</option><option value="POLI BEDAH SYARAF">POLI BEDAH SYARAF</option><option valueB="BAGIAN PROGPEL">BAGIAN PROGPEL</option><option value="BAGIAN KEUANGAN">BAGIAN KEUANGAN</option><option value="BAGIAN ADMINISTRASI DAN UMUM">BAGIAN ADMINISTRASI DAN UMUM</option><option value="BIDANG PELAYANAN MEDIK">BIDANG PELAYANAN MEDIK</option><option value="BIDANG KEPERAWATAN">BIDANG KEPERAWATAN</option><option value="BIDANG PELAYANAN PENUNJANG">BIDANG PENUNJANG</option><option value="KOMITE MEDIK">KOMITE MEDIK</option><option value="KOMITE KEPERAWATAN">KOMITE KEPERAWATAN</option><option value="KOMITE PPI">KOMITE PPI</option><option value="KOMITE KESEHATAN DAN KESELAMATAN KERJA">KOMITE KESEHATAN DAN KESELAMATAN KERJA</option><option value="SATUAN PEMERIKSAAN INTERNAL">SATUAN PEMERIKSAAN INTERNAL</option><option value="UNIT AMBULAN">UNIT AMBULAN</option><option value="UNIT LOUNDRY">UNIT LOUNDRY</option><option value="UNIT CSSD">UNIT CSSD</option><option value="UNIT PENGADUAN">UNIT PENGADUAN</option><option value="UNIT DIKLAT">UNIT DIKLAT</option><option value="UNIT KLAIM DAN PENJAMINAN">UNIT KLAIM DAN PENJAMINAN</option><option value="LAINNYA">Lainnya...</option></select></div>
+                    <div class="form-group hidden" id="ruanganLainnya-group-sudah"><label for="ruanganLainnya-sudah">Tulis Nama Unit Anda</label><input type="text" id="ruanganLainnya-sudah" name="ruanganLainnya"></div>
+                    <div class="form-group"><label for="statusKepegawaian-sudah">STATUS KEPEGAWAIAN</label><select id="statusKepegawaian-sudah" name="statusKepegawaian" required><option value="">-- Pilih Status --</option><option value="ASN">ASN</option><option value="NON ASN">NON ASN</option></select></div>
                 </fieldset>
                 
-                <button type="submit" id="submit-button">Kirim Permohonan</button>
+                <fieldset>
+                    <legend>Bukti Login</legend>
+                    <div class="form-group">
+                        <label for="fileBukti">UPLOAD BUKTI SCREENSHOT</label>
+                        <input type="file" id="fileBukti" name="fileBukti" accept=".jpg,.jpeg,.png,.pdf" required>
+                        <p class="input-hint">Upload screenshot yang menunjukkan Anda berhasil login. (Max 2MB)</p>
+                    </div>
+                </fieldset>
+                
+                <button type="submit" id="submit-button-sudah">Kirim Konfirmasi</button>
+            </form>
+        </div>
+
+        <!-- [DIMODIFIKASI] Halaman Form "BELUM" -->
+        <div id="form-belum-container" class="form-container hidden">
+            <button class="btn-kembali">&laquo; Kembali ke Pilihan Awal</button>
+            <!-- [PERUBAHAN] Judul diubah -->
+            <h2 style="text-align: center; color: var(--primary-color);">PERMOHONAN CEK DATA CORETAX</h2>
+            <div id="form-closed-message-belum" class="admin-container hidden" style="text-align: center; padding: 40px;">
+                <h2>Formulir Ditutup</h2>
+                <p>Mohon maaf, saat ini formulir sedang ditutup sementara oleh administrator.</p>
+            </div>
+            
+            <form id="form-belum" novalidate>
+                <!-- Input tersembunyi untuk tipe laporan -->
+                <input type="hidden" name="tipe_laporan" value="BELUM">
+
+                 <fieldset>
+                    <legend>Data Pemohon</legend>
+                    <div class="form-group"><label for="nama-belum">NAMA</label><input type="text" id="nama-belum" name="nama" required><p id="nama-hint-belum" class="input-hint hidden">masukkan nama SESUAI KTP</p></div>
+                    <div class="form-group"><label for="email-belum">EMAIL</label><input type="email" id="email-belum" name="email" required><p id="email-hint-belum" class="input-hint hidden">masukkan email</p></div>
+                    <div class="form-group"><label for="nik-belum">NIK</label><input type="text" id="nik-belum" name="nik" pattern="[0-9]{16}" maxlength="16" inputmode="numeric" required title="NIK harus 16 digit"><p id="nik-hint-belum" class="input-hint hidden">masukkan 16 DIGIT NIK</p></div>
+                    <div class="form-group"><label for="nomorHp-belum">NOMOR HP</label><input type="tel" id="nomorHp-belum" name="nomorHp" required><p id="nomorHp-hint-belum" class="input-hint hidden">contoh: 081234567890</p></div>
+                    <div class="form-group"><label for="ruangan-belum">RUANGAN</label><select id="ruangan-belum" name="ruangan" onchange="handleRuanganChange(this, 'ruanganLainnya-group-belum', 'ruanganLainnya-belum')" required><option value="">-- Pilih Unit / Bagian --</option><option value="INSTALASI FARMASI">INSTALASI FARMASI</option><option value="INSTALASI RADIOLOGI">INSTALASI RADIOLOGI</option><option value="INSTALASI BEDAH SENTRAL">INSTALASI BEDAH SENTRAL</option><option value="INSTALASI GAWAT DARURAT">INSTALASI GAWAT DARURAT</option><option value="ICU">ICU</option><option value="ICCU">ICCU</option><option value="HCU">HCU</option><option value="INSTALASI LABORATORIUM">INSTALASI LABORATORIUM</option><option value="INSTALASI HEMODIALISA">INSTALASI HEMODIALISA</option><option value="INSTALASI GIZI">INSTALASI GIZI</option><option value="INSTALASI REKAM MEDIK">INSTALASI REKAM MEDIK</option><option value="INSTALASI PEMELIHARAAN SARANA">INSTALASI PEMELIHARAAN SARANA</option><option value="INSTALASI PENYEHATAN LINGKUNGAN">INSTALASI PENYEHATAN LINGKUNGAN</option><option value="INSTALASI FORENSIK DAN MEDIKOLEGAL">INSTALASI FORENSIK DAN MEDIKOLEGAL</option><option value="INSTALASI DIAGNOSTIK DAN INTERVENSI KORDIOVASKULER">INSTALASI DIAGNOSTIK DAN INTERVENSI KORDIOVASKULER</option><option value="INSTALASI MATERNAL DAN PERINATAL">INSTALASI MATERNAL DAN PERINATAL</option><option value="INSTALASI REHABILITASI MEDIK">INSTALASI REHABILITASI MEDIK</option><option value="INSTALASI SIM RS">INSTALASI SIM RS</option><option value="INSTALASI PKRS">INSTALASI PKRS</option><option value="POLI KIR">POLI KIR</option><option value="POLI EKSKUTIF">POLI EKSKUTIF</option><option value="POLI TMS">POLI TMS</option><option value="POLI EEG">POLI EEG</option><option value="POLI ENDOSKOPI">POLI ENDOSKOPI</option><option value="POLI ESWL">POLI ESWL</option><option value="RUANG MAWAR/ASTER">RUANG MAWAR/ASTER</option><option value="RUANG ANYELIR/MELATI">RUANG ANYELIR/MELATI</option><option value="RUANG ANGGREK/DAHLIA">RUANG ANGGREK/DAHLIA</option><option value="RUANG BOUGENVILLE">RUANG BOUGENVILLE</option><option value="RUANG TERATAI/ASOKA">RUANG TERATAI/ASOKA</option><option value="RUANG LILY">RUANG LILY</option><option value="RUANG FLAMBOYAN">RUANG FLAMBOYAN</option><option value="POLI ANAK">POLI ANAK</option><option value="POLI PENYAKIT DALAM">POLI PENYAKIT DALAM</option><option value="POLI BEDAH">POLI BEDAH</option><option value="POLI MATA">POLI MATA</option><option value="POLI THT">POLI THT</option><option value="POLI SYARAF">POLI SYARAF</option><option value="POLI JANTUNG">POLI JANTUNG</option><option value="POLI PARU">POLI PARU</option><option value="POLI GIGI">POLI GIGI</option><option value="POLI KULIT DAN KELAMIN">POLI KULit DAN KELAMIN</option><option value="POLI JIWA">POLI JIWA</option><option value="POLI TB">POLI TB</option><option value="POLI VCT">POLI VCT</option><option value="POLI UMUM">POLI UMUM</option><option value="POLI GERIATRI">POLI GERIATRI</option><option value="POLI UROLOGI">POLI UROLOGI</option><option value="POLI ORTHOPEDI">POLI ORTHOPEDI</option><option value="POLI OBSGYN">POLI OBSGYN</option><option value="POLI BEDAH SYARAF">POLI BEDAH SYARAF</option><option valueB="BAGIAN PROGPEL">BAGIAN PROGPEL</option><option value="BAGIAN KEUANGAN">BAGIAN KEUANGAN</option><option value="BAGIAN ADMINISTRASI DAN UMUM">BAGIAN ADMINISTRASI DAN UMUM</option><option value="BIDANG PELAYANAN MEDIK">BIDANG PELAYANAN MEDIK</option><option value="BIDANG KEPERAWATAN">BIDANG KEPERAWATAN</option><option value="BIDANG PELAYANAN PENUNJANG">BIDANG PENUNJANG</option><option value="KOMITE MEDIK">KOMITE MEDIK</option><option value="KOMITE KEPERAWATAN">KOMITE KEPERAWATAN</option><option value="KOMITE PPI">KOMITE PPI</option><option value="KOMITE KESEHATAN DAN KESELAMATAN KERJA">KOMITE KESEHATAN DAN KESELAMATAN KERJA</option><option value="SATUAN PEMERIKSAAN INTERNAL">SATUAN PEMERIKSAAN INTERNAL</option><option value="UNIT AMBULAN">UNIT AMBULAN</option><option value="UNIT LOUNDRY">UNIT LOUNDRY</option><option value="UNIT CSSD">UNIT CSSD</option><option value="UNIT PENGADUAN">UNIT PENGADUAN</option><option value="UNIT DIKLAT">UNIT DIKLAT</option><option value="UNIT KLAIM DAN PENJAMINAN">UNIT KLAIM DAN PENJAMINAN</option><option value="LAINNYA">Lainnya...</option></select></div>
+                    <div class="form-group hidden" id="ruanganLainnya-group-belum"><label for="ruanganLainnya-belum">Tulis Nama Unit Anda</label><input type="text" id="ruanganLainnya-belum" name="ruanganLainnya"></div>
+                    <div class="form-group"><label for="statusKepegawaian-belum">STATUS KEPEGAWAIAN</label><select id="statusKepegawaian-belum" name="statusKepegawaian" required><option value="">-- Pilih Status --</option><option value="ASN">ASN</option><option value="NON ASN">NON ASN</option></select></div>
+                 </fieldset>
+                
+                <button type="submit" id="submit-button-belum">Kirim Permohonan</button>
             </form>
         </div>
     </div>
@@ -360,7 +519,6 @@
         <div class="container">
             <header><h1>Dashboard Admin</h1></header>
             <div class="admin-container">
-                
                 <div class="admin-section">
                     <h2>Pengaturan Formulir</h2>
                     <div class="toggle-switch">
@@ -368,18 +526,13 @@
                         <div id="form-status-toggle" onclick="toggleFormStatus()"><span></span></div>
                         <strong id="form-status-text"></strong>
                     </div>
-                </div>
-
-                <!-- [BARU] Pengaturan Popup Selamat Datang -->
-                <div class="admin-section">
-                    <h2>Pengaturan Pesan Informasi (Popup)</h2>
-                    <div class="form-group">
-                        <label for="popup-message-input">Tulis pesan yang akan tampil saat halaman dibuka:</label>
-                        <textarea id="popup-message-input" rows="4"></textarea>
+                    <!-- [BARU] Pengaturan Pesan Popup -->
+                    <div class="admin-setting-group">
+                        <label for="popup-message-input">Pesan Popup Selamat Datang</label>
+                        <textarea id="popup-message-input"></textarea>
+                        <button id="save-popup-message-btn" class="button" onclick="savePopupMessage()">Simpan Pesan Popup</button>
                     </div>
-                    <button id="save-popup-message-btn" onclick="savePopupMessage()">Simpan Pesan</button>
                 </div>
-
                 <div class="admin-section">
                     <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
                         <h2>Data Submisi</h2>
@@ -387,12 +540,12 @@
                     </div>
                     <div class="admin-controls">
                         <input type="text" id="search-input" placeholder="Cari data...">
-                        <!-- [PERUBAHAN] Menambahkan "Lainnya" dan menghapus "Hapus" -->
                         <select id="status-filter">
                             <option value="Semua">Semua Status</option>
                             <option value="Dalam Proses">Dalam Proses</option>
                             <option value="Sudah Sesuai">Sudah Sesuai</option>
                             <option value="Telah Disesuaikan">Telah Disesuaikan</option>
+                            <!-- [PERUBAHAN] Hapus -> Lainnya -->
                             <option value="Lainnya">Lainnya</option>
                         </select>
                         <button id="download-xlsx" class="download-button">Unduh .xlsx</button>
@@ -411,7 +564,7 @@
     </div>
     <!-- HALAMAN ADMIN BERAKHIR DI SINI -->
 
-    <footer style="text-align: center; color: #fff; font-size: 0.8em; padding: 10px; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">ver 2.1 | Developed with ❤️ by : syam</footer>
+    <footer style="text-align: center; color: #fff; font-size: 0.8em; padding: 10px; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">ver 2.0 | Developed with ❤️ by : syam</footer>
 
     <script>
         // Variabel global
@@ -419,25 +572,29 @@
         let formDataToSubmit = null; 
         let submissionHeaders = [];
         let currentPage = 1;
-        // [BARU] Konteks untuk modal status
         let statusChangeContext = {
             rowIndex: null,
             selectElement: null,
             previousValue: ''
         };
         
-        // Elemen DOM
-        const mainFormContainer = document.getElementById('main-form-container');
+        // Elemen DOM Utama
+        const pilihanAwalContainer = document.getElementById('pilihan-awal-container');
+        const formSudahContainer = document.getElementById('form-sudah-container');
+        const formBelumContainer = document.getElementById('form-belum-container');
         const adminLoginPage = document.getElementById('admin-login-page');
         const adminDashboard = document.getElementById('admin-dashboard');
+
+        // Elemen Kontrol
         const searchInput = document.getElementById('search-input');
         const statusFilter = document.getElementById('status-filter');
         const downloadButton = document.getElementById('download-xlsx');
+        
+        // Elemen Modal
+        const loadingOverlay = document.getElementById('loading-overlay');
         const welcomeModal = document.getElementById('welcome-modal');
-        const closeWelcomeBtn = document.getElementById('close-welcome-btn');
-        const welcomeMessageContent = document.getElementById('welcome-message-content');
+        const confirmationModal = document.getElementById('confirmation-modal');
         const statusKeteranganModal = document.getElementById('status-keterangan-modal');
-        const statusKeteranganInput = document.getElementById('status-keterangan-input');
 
         // --- ROUTING APLIKASI ---
         window.addEventListener('hashchange', handleRouteChange);
@@ -450,37 +607,110 @@
                 showMainForm();
             }
         }
-        function showMainForm() { mainFormContainer.classList.remove('hidden'); adminLoginPage.classList.add('hidden'); adminDashboard.classList.add('hidden'); document.body.classList.remove('admin-view'); checkFormStatusAndSettingsForUser(); }
-        function showAdminLogin() { mainFormContainer.classList.add('hidden'); adminLoginPage.classList.remove('hidden'); adminDashboard.classList.add('hidden'); document.body.classList.remove('admin-view'); }
-        function showDashboard() { mainFormContainer.classList.add('hidden'); adminLoginPage.classList.add('hidden'); adminDashboard.classList.remove('hidden'); document.body.classList.add('admin-view'); loadAdminData(); }
+        
+        function showMainForm() {
+            // Sembunyikan semua kontainer utama
+            adminLoginPage.classList.add('hidden');
+            adminDashboard.classList.add('hidden');
+            formSudahContainer.classList.add('hidden');
+            formBelumContainer.classList.add('hidden');
+            
+            // Tampilkan kontainer pilihan awal
+            pilihanAwalContainer.classList.remove('hidden');
+            document.body.classList.remove('admin-view');
+            
+            // Periksa status form untuk kedua form
+            checkFormStatusForUser();
+        }
+        
+        function showAdminLogin() {
+            pilihanAwalContainer.classList.add('hidden');
+            formSudahContainer.classList.add('hidden');
+            formBelumContainer.classList.add('hidden');
+            adminLoginPage.classList.remove('hidden');
+            adminDashboard.classList.add('hidden');
+            document.body.classList.remove('admin-view');
+        }
+        
+        function showDashboard() {
+            pilihanAwalContainer.classList.add('hidden');
+            formSudahContainer.classList.add('hidden');
+            formBelumContainer.classList.add('hidden');
+            adminLoginPage.classList.add('hidden');
+            adminDashboard.classList.remove('hidden');
+            document.body.classList.add('admin-view');
+            loadAdminData();
+        }
+
+        // --- [BARU] LOGIKA NAVIGASI FORMULIR ---
+        document.getElementById('btn-sudah').addEventListener('click', () => {
+            pilihanAwalContainer.classList.add('hidden');
+            formSudahContainer.classList.remove('hidden');
+        });
+
+        document.getElementById('btn-belum').addEventListener('click', () => {
+            pilihanAwalContainer.classList.add('hidden');
+            formBelumContainer.classList.remove('hidden');
+        });
+
+        // Tambahkan event listener untuk semua tombol "Kembali"
+        document.querySelectorAll('.btn-kembali').forEach(button => {
+            button.addEventListener('click', showMainForm); // Kembali ke pilihan awal
+        });
         
         // --- LOGIKA FORMULIR PENGGUNA ---
-        document.getElementById('parkingForm').addEventListener('submit', function(e) {
+        
+        // [BARU] Handler untuk Form "SUDAH" (dengan file)
+        document.getElementById('form-sudah').addEventListener('submit', async function(e) {
             e.preventDefault();
-            // Validasi kustom sederhana
             if (!this.checkValidity()) {
-                alert('Mohon lengkapi semua kolom yang wajib diisi (ditandai).');
-                // Fokus ke elemen pertama yang tidak valid
-                const firstInvalid = this.querySelector(':invalid');
-                if (firstInvalid) firstInvalid.focus();
+                alert('Mohon lengkapi semua kolom yang wajib diisi, termasuk upload file bukti.');
+                return;
+            }
+            
+            // Validasi file
+            const fileInput = document.getElementById('fileBukti');
+            if (fileInput.files.length === 0) {
+                alert('Mohon upload file bukti screenshot.');
+                return;
+            }
+            const file = fileInput.files[0];
+            // Validasi ukuran (misal 2MB)
+            if (file.size > 2 * 1024 * 1024) {
+                 alert('Ukuran file terlalu besar. Maksimal 2MB.');
+                 return;
+            }
+
+            formDataToSubmit = new FormData(this);
+            displayConfirmationSummary(formDataToSubmit);
+        });
+
+        // [MODIFIKASI] Handler untuk Form "BELUM" (tanpa file)
+        document.getElementById('form-belum').addEventListener('submit', function(e) {
+            e.preventDefault();
+            if (!this.checkValidity()) {
+                alert('Mohon lengkapi semua kolom yang wajib diisi.');
                 return;
             }
             formDataToSubmit = new FormData(this);
             displayConfirmationSummary(formDataToSubmit);
         });
 
+        // Fungsi display konfirmasi (tetap sama, membaca FormData)
         function displayConfirmationSummary(formData) {
             const summaryContainer = document.getElementById('summary-content');
             let summaryHTML = '';
             
             const fieldLabels = {
+                tipe_laporan: 'Tipe Laporan',
                 nama: 'NAMA',
                 email: 'EMAIL',
                 nik: 'NIK',
                 nomorHp: 'NOMOR HP',
                 ruangan: 'RUANGAN',
                 ruanganLainnya: 'RUANGAN (Lainnya)',
-                statusKepegawaian: 'STATUS KEPEGAWAIAN' // [BARU]
+                statusKepegawaian: 'STATUS KEPEGAWAIAN',
+                fileBukti: 'File Bukti'
             };
 
             for (let [key, value] of formData.entries()) {
@@ -497,42 +727,55 @@
                 }
             }
             summaryContainer.innerHTML = summaryHTML;
-            document.getElementById('confirmation-modal').style.display = 'flex';
+            confirmationModal.style.display = 'flex';
         }
+        
+        // Tombol modal konfirmasi
         document.getElementById('edit-data-btn').addEventListener('click', () => {
-            document.getElementById('confirmation-modal').style.display = 'none';
+            confirmationModal.style.display = 'none';
             formDataToSubmit = null;
         });
         document.getElementById('confirm-submit-btn').addEventListener('click', () => {
-            document.getElementById('confirmation-modal').style.display = 'none';
+            confirmationModal.style.display = 'none';
             if (formDataToSubmit) submitFinalData(formDataToSubmit);
         });
+
+        // [MODIFIKASI] Fungsi Submit Final
         async function submitFinalData(formData) {
             showLoading(true, "Mengirim data...");
             const formDataObject = Object.fromEntries(formData.entries());
+            
             try {
-                // [PERBAIKAN] Menggunakan fetch POST dengan body JSON
+                // Cek apakah ada file yang perlu di-upload (hanya untuk form "SUDAH")
+                const fileInput = formData.get('fileBukti');
+                if (fileInput && fileInput.size > 0) {
+                    formDataObject.fileBukti = await compressAndReadFile(fileInput);
+                }
+                
+                // Kirim data sebagai JSON
                 const response = await fetch(webAppUrl, { 
                     method: 'POST', 
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // Sesuai dengan setup .gs
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // Kirim sebagai text agar GAS bisa parse
                     body: JSON.stringify(formDataObject) 
                 });
                 
-                const result = await response.json(); // .gs harus mengembalikan JSON
+                const result = await response.json();
                 
                 if (result.status === 'success') {
-                    alert('Permohonan Anda telah berhasil dicatat!');
-                    document.getElementById('parkingForm').reset();
-                    handleRuanganChange(document.getElementById('ruangan')); // Reset dropdown ruangan
-                } else { throw new Error(result.message || 'Terjadi kesalahan di server.'); }
+                    alert('Laporan Anda telah berhasil terkirim!');
+                    // Reset form yang sesuai
+                    if (formDataObject.tipe_laporan === 'SUDAH') {
+                        document.getElementById('form-sudah').reset();
+                    } else {
+                        document.getElementById('form-belum').reset();
+                    }
+                    showMainForm(); // Kembali ke halaman pilihan
+                } else { 
+                    throw new Error(result.message || 'Terjadi kesalahan di server.'); 
+                }
             } catch(error) {
                 console.error('Submit Error:', error);
-                // Cek error JSON parse
-                if (error instanceof SyntaxError) {
-                    alert('Terjadi kesalahan respons dari server. Respon tidak valid.');
-                } else {
-                    alert('Terjadi kesalahan koneksi. Pesan: ' + error.message);
-                }
+                alert('Gagal mengirim data. Pesan: ' + error.message);
             } finally {
                 showLoading(false);
                 formDataToSubmit = null;
@@ -551,7 +794,6 @@
             const loginError = document.getElementById('login-error');
             showLoading(true, "Memverifikasi...");
             try {
-                // Aksi admin menggunakan GET
                 const response = await fetch(`${webAppUrl}?action=adminLogin&password=${encodeURIComponent(password)}`);
                 const result = await response.json();
                 if (result.status === 'success') {
@@ -563,94 +805,123 @@
                     loginError.textContent = result.message || "Password salah.";
                     loginError.classList.remove('hidden');
                 }
-            } catch (error) { loginError.textContent = "Gagal terhubung ke server."; loginError.classList.remove('hidden'); } 
+            } catch (error) { 
+                loginError.textContent = "Gagal terhubung ke server."; 
+                loginError.classList.remove('hidden');
+            } 
             finally { showLoading(false); }
         }
-        function adminLogout() { sessionStorage.removeItem('isAdminAuthenticated'); document.body.classList.remove('admin-view'); window.location.hash = ''; }
-        async function loadAdminData() { await loadSettings(); await fetchPage(1); }
+        
+        function adminLogout() { 
+            sessionStorage.removeItem('isAdminAuthenticated'); 
+            document.body.classList.remove('admin-view'); 
+            window.location.hash = ''; 
+        }
+        
+        async function loadAdminData() { 
+            await loadSettings(); 
+            await fetchPage(1); 
+        }
         
         async function loadSettings() {
+            showLoading(true, 'Memuat pengaturan...');
             try {
-                // Aksi admin menggunakan GET
                 const response = await fetch(`${webAppUrl}?action=getSettings`);
                 const result = await response.json();
                 if (result.status === 'success') {
-                    // Pengaturan Form Status
-                    const status = result.data.formStatus;
+                    const { formStatus, popupMessage } = result.data;
+                    // Status Form
                     const toggle = document.getElementById('form-status-toggle');
-                    toggle.classList.toggle('on', status === 'ON');
-                    document.getElementById('form-status-text').textContent = status;
-
-                    // [BARU] Pengaturan Pesan Popup
-                    const popupMessage = result.data.popupMessage || '';
-                    document.getElementById('popup-message-input').value = popupMessage;
+                    toggle.classList.toggle('on', formStatus === 'ON');
+                    document.getElementById('form-status-text').textContent = formStatus;
+                    // Pesan Popup
+                    document.getElementById('popup-message-input').value = popupMessage || '';
                 }
-            } catch (e) { console.error("Gagal memuat pengaturan:", e); }
+            } catch (e) { 
+                console.error("Gagal memuat pengaturan:", e); 
+                alert("Gagal memuat pengaturan admin.");
+            } finally {
+                showLoading(false);
+            }
         }
-
+        
         async function toggleFormStatus() {
             const newStatus = document.getElementById('form-status-toggle').classList.contains('on') ? 'OFF' : 'ON';
-            showLoading(true, 'Memperbarui...');
+            showLoading(true, 'Memperbarui status...');
             try {
-                // [PERBAIKAN] Aksi update menggunakan POST
-                const params = new URLSearchParams();
-                params.append('action', 'updateSettings');
-                params.append('formStatus', newStatus);
-                
-                const response = await fetch(webAppUrl, { method: 'POST', body: params });
-                const result = await response.json(); // Menunggu respon JSON
+                // [PERBAIKAN] Menggunakan POST dengan FormData
+                const formData = new FormData();
+                formData.append('action', 'updateSettings');
+                formData.append('formStatus', newStatus);
+
+                const response = await fetch(webAppUrl, { method: 'POST', body: formData });
+                const result = await response.json();
                 if (result.status !== 'success') throw new Error(result.message);
                 
                 await loadSettings(); // Muat ulang settings untuk konfirmasi
-            } catch (e) { console.error("Gagal mengubah status:", e); }
-            finally { showLoading(false); }
-        }
-        
-        // [BARU] Fungsi untuk menyimpan pesan popup
-        async function savePopupMessage() {
-            const newMessage = document.getElementById('popup-message-input').value;
-            showLoading(true, 'Menyimpan pesan...');
-            try {
-                // [PERBAIKAN] Aksi update menggunakan POST
-                const params = new URLSearchParams();
-                params.append('action', 'updateSettings');
-                params.append('popupMessage', newMessage);
-                
-                const response = await fetch(webAppUrl, { method: 'POST', body: params });
-                const result = await response.json(); // Menunggu respon JSON
-                if (result.status !== 'success') throw new Error(result.message);
-                
-                alert('Pesan berhasil disimpan!');
             } catch (e) { 
-                console.error("Gagal menyimpan pesan:", e); 
-                alert('Gagal menyimpan pesan: ' + e.message);
+                console.error("Gagal mengubah status:", e); 
+                alert("Gagal mengubah status form.");
             }
             finally { showLoading(false); }
         }
 
+        // [BARU] Fungsi simpan pesan popup
+        async function savePopupMessage() {
+            const newMessage = document.getElementById('popup-message-input').value;
+            showLoading(true, 'Menyimpan pesan...');
+            try {
+                // [PERBAIKAN] Menggunakan POST dengan FormData
+                const formData = new FormData();
+                formData.append('action', 'updateSettings');
+                formData.append('popupMessage', newMessage);
+                
+                const response = await fetch(webAppUrl, { method: 'POST', body: formData });
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    alert('Pesan popup berhasil disimpan.');
+                } else {
+                    throw new Error(result.message);
+                }
+            } catch (e) {
+                console.error("Gagal menyimpan pesan:", e);
+                alert("Gagal menyimpan pesan popup.");
+            } finally {
+                showLoading(false);
+            }
+        }
+        
         async function fetchPage(page) {
             currentPage = page;
             const searchTerm = searchInput.value;
             const status = statusFilter.value;
             showLoading(true, "Memuat data...");
+            
             const tableBody = document.querySelector('#submissions-table tbody');
             tableBody.innerHTML = `<tr><td colspan="15" style="text-align:center;">Memuat data...</td></tr>`;
+            
             try {
-                // Aksi admin menggunakan GET
                 const url = new URL(webAppUrl);
                 url.searchParams.append('action', 'getSubmissions');
                 url.searchParams.append('page', page);
                 url.searchParams.append('searchTerm', searchTerm);
                 url.searchParams.append('statusFilter', status);
+                
                 const response = await fetch(url);
                 const result = await response.json();
+                
                 if (result.status === 'success') {
                     const { headers, pageData, currentPage, totalPages } = result.data;
                     submissionHeaders = headers; 
                     displayData(pageData);
                     setupPagination(currentPage, totalPages);
-                } else { tableBody.innerHTML = `<tr><td colspan="15" style="text-align:center; color:red;">Gagal: ${result.message}</td></tr>`; }
-            } catch (e) { tableBody.innerHTML = `<tr><td colspan="15" style="text-align:center; color:red;">Gagal terhubung.</td></tr>`; } 
+                } else { 
+                    tableBody.innerHTML = `<tr><td colspan="15" style="text-align:center; color:red;">Gagal: ${result.message}</td></tr>`; 
+                }
+            } catch (e) { 
+                tableBody.innerHTML = `<tr><td colspan="15" style="text-align:center; color:red;">Gagal terhubung ke server.</td></tr>`; 
+            } 
             finally { showLoading(false); }
         }
         
@@ -659,21 +930,24 @@
             const tableHead = document.querySelector('#submissions-table thead');
             tableBody.innerHTML = '';
             tableHead.innerHTML = `<tr>${submissionHeaders.map(h => `<th>${h}</th>`).join('')}</tr>`;
+            
             if (!pageData || pageData.length === 0) {
                 tableBody.innerHTML = `<tr><td data-label="Info" colspan="${submissionHeaders.length || 1}" style="text-align:center;">Data tidak ditemukan.</td></tr>`;
                 return;
             }
+
             pageData.forEach(item => {
                 const { rowData, originalIndex } = item;
                 const tr = document.createElement('tr');
+                
                 rowData.forEach((cell, cellIndex) => {
                     const td = document.createElement('td');
-                    const header = submissionHeaders[cellIndex]; 
+                    const header = submissionHeaders[cellIndex];
                     td.setAttribute('data-label', header);
                     
                     if (header === 'Status') {
                         const select = document.createElement('select');
-                        // [PERUBAHAN] Mengganti "Hapus" dengan "Lainnya"
+                        // [PERUBAHAN] Hapus -> Lainnya
                         select.innerHTML = `
                             <option value="Dalam Proses">Dalam Proses</option>
                             <option value="Sudah Sesuai">Sudah Sesuai</option>
@@ -684,11 +958,18 @@
                         select.onchange = (event) => handleStatusChange(event.target, originalIndex);
                         td.appendChild(select);
                         updateSelectColor(select);
-                    } else if (header === 'Link File Identitas' && cell && cell.startsWith('http')) {
-                        td.innerHTML = `<a href="${cell}" target="_blank" rel="noopener noreferrer">Lihat File</a>`;
-                    } else { td.textContent = cell; }
+                    } 
+                    // [MODIFIKASI] Ubah 'Link Bukti Screenshot' menjadi link
+                    else if (header === 'Link Bukti Screenshot' && cell && cell.startsWith('http')) {
+                        td.innerHTML = `<a href="${cell}" target="_blank" rel="noopener noreferrer">Lihat Bukti</a>`;
+                    }
+                    else { 
+                        td.textContent = cell; 
+                    }
                     
-                    if (header !== 'Status' && (!cell || cell.toString().trim() === '')) td.classList.add('empty-cell');
+                    if (header !== 'Status' && (!cell || cell.toString().trim() === '')) {
+                        td.classList.add('empty-cell');
+                    }
                     tr.appendChild(td);
                 });
                 tableBody.appendChild(tr);
@@ -697,208 +978,252 @@
         
         function setupPagination(currentPage, totalPages) {
             const paginationControls = document.getElementById('pagination-controls');
-            if (totalPages <= 1) { paginationControls.innerHTML = ''; return; }
-            paginationControls.innerHTML = `<button onclick="fetchPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>«</button><span class="page-info">Hal ${currentPage} dari ${totalPages}</span><button onclick="fetchPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>»</button>`;
+            if (totalPages <= 1) { 
+                paginationControls.innerHTML = ''; 
+                return; 
+            }
+            paginationControls.innerHTML = `
+                <button onclick="fetchPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>«</button>
+                <span class="page-info">Hal ${currentPage} dari ${totalPages}</span>
+                <button onclick="fetchPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>»</button>`;
         }
         
         function handleStatusChange(selectElement, rowIndex) {
-            const newValue = selectElement.value;
+            const newStatus = selectElement.value;
             const previousValue = selectElement.getAttribute('data-previous-value');
-            
-            // [PERUBAHAN] Logika "Hapus" dihilangkan
-            // if (newValue === "Hapus") { ... }
 
-            // Simpan konteks untuk modal
+            // Simpan konteks
             statusChangeContext = {
                 rowIndex: rowIndex,
                 selectElement: selectElement,
                 previousValue: previousValue
             };
             
-            // Set default keterangan di modal
-            // Jika "Lainnya", biarkan kosong agar admin mengisi. Jika status lain, isi otomatis.
-            statusKeteranganInput.value = (newValue === 'Lainnya') ? '' : newValue; 
+            // Isi keterangan default
+            document.getElementById('keterangan-text').value = newStatus;
+            
+            // Tampilkan modal
             statusKeteranganModal.style.display = 'flex';
         }
-        
-        document.getElementById('cancel-status-btn').addEventListener('click', () => {
-            // Kembalikan dropdown ke nilai sebelumnya
-            if (statusChangeContext.selectElement) {
-                statusChangeContext.selectElement.value = statusChangeContext.previousValue;
-                updateSelectColor(statusChangeContext.selectElement); // Perbarui warna
-            }
-            statusKeteranganModal.style.display = 'none';
-            statusChangeContext = {}; // Reset konteks
-        });
-        
-        document.getElementById('confirm-status-btn').addEventListener('click', () => {
-            const newStatus = statusChangeContext.selectElement.value;
-            const keterangan = statusKeteranganInput.value.trim();
-            
-            if (keterangan === "") {
-                alert("Keterangan tidak boleh kosong.");
-                return;
-            }
-            
-            // Lanjutkan update
-            updateStatus(newStatus, statusChangeContext.rowIndex, keterangan);
-            statusKeteranganModal.style.display = 'none';
-            statusChangeContext = {}; // Reset konteks
-        });
 
         function updateSelectColor(selectElement) {
-            selectElement.classList.remove('status-pending', 'status-completed', 'status-adjusted', 'status-other');
-            if (selectElement.value === 'Dalam Proses') {
-                selectElement.classList.add('status-pending');
-            } else if (selectElement.value === 'Sudah Sesuai') {
-                selectElement.classList.add('status-completed');
-            } else if (selectElement.value === 'Telah Disesuaikan') {
-                selectElement.classList.add('status-adjusted');
-            } else if (selectElement.value === 'Lainnya') { // [BARU]
-                selectElement.classList.add('status-other');
+            selectElement.className = ''; // Hapus kelas lama
+            const statusClass = 'status-' + selectElement.value.toLowerCase().replace(/ /g, '-');
+            selectElement.classList.add(statusClass);
+        }
+        
+        async function updateStatus(newStatus, rowIndex, reason) {
+            showLoading(true, "Memperbarui status...");
+            try {
+                // [PERBAIKAN] Menggunakan POST dengan FormData
+                const formData = new FormData();
+                formData.append('action', 'updateStatus');
+                formData.append('rowIndex', rowIndex);
+                formData.append('newStatus', newStatus);
+                formData.append('keterangan', reason);
+
+                const response = await fetch(webAppUrl, { method: 'POST', body: formData });
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    // Update UI
+                    statusChangeContext.selectElement.setAttribute('data-previous-value', newStatus);
+                    updateSelectColor(statusChangeContext.selectElement);
+                    alert('Status berhasil diperbarui.');
+                } else {
+                    throw new Error(result.message);
+                }
+            } catch(e) {
+                console.error("Gagal memperbarui status:", e);
+                alert('Gagal memperbarui status: ' + e.message);
+                // Kembalikan ke nilai lama jika gagal
+                statusChangeContext.selectElement.value = statusChangeContext.previousValue;
+            } finally {
+                statusKeteranganModal.style.display = 'none';
+                showLoading(false);
+                statusChangeContext = {}; // Bersihkan konteks
             }
         }
         
-        async function updateStatus(newStatus, rowIndex, keterangan) {
-            showLoading(true, 'Memperbarui status...');
-            try {
-                // [PERBAIKAN] Aksi update menggunakan POST
-                const params = new URLSearchParams();
-                params.append('action', 'updateStatus');
-                params.append('rowIndex', rowIndex);
-                params.append('newStatus', newStatus);
-                params.append('keterangan', keterangan);
-
-                const response = await fetch(webAppUrl, { method: 'POST', body: params });
-                const result = await response.json(); // .gs HARUS mengembalikan JSON
-                
-                if (result.status !== 'success') {
-                    throw new Error(result.message || 'Gagal memperbarui status di server.');
-                }
-                
-                // Jika sukses, perbarui UI
-                // [PERUBAHAN] Logika "Hapus" dihilangkan
-                if (statusChangeContext.selectElement) {
-                    statusChangeContext.selectElement.setAttribute('data-previous-value', newStatus);
-                    updateSelectColor(statusChangeContext.selectElement);
-                }
-                
-            } catch (e) {
-                console.error("Gagal update status:", e);
-                alert('Gagal memperbarui status: ' + e.message); // e.message akan berisi error dari server
-                // Kembalikan dropdown jika gagal
-                if (statusChangeContext.selectElement) {
-                    statusChangeContext.selectElement.value = statusChangeContext.previousValue;
-                    updateSelectColor(statusChangeContext.selectElement);
-                }
-            } finally {
-                showLoading(false);
-            }
-        }
-
         async function downloadXLSX() {
             showLoading(true, "Mempersiapkan unduhan...");
             try {
-                // Aksi admin menggunakan GET
                 const url = new URL(webAppUrl);
                 url.searchParams.append('action', 'downloadData');
                 url.searchParams.append('searchTerm', searchInput.value);
                 url.searchParams.append('statusFilter', statusFilter.value);
+                
                 const response = await fetch(url);
                 const result = await response.json();
+                
                 if (result.status === 'success' && result.data.rows.length > 0) {
                     const { headers, rows } = result.data;
                     const worksheet = XLSX.utils.aoa_to_sheet([headers, ...rows]);
                     const workbook = XLSX.utils.book_new();
                     XLSX.utils.book_append_sheet(workbook, worksheet, "Submisi");
-                    XLSX.writeFile(workbook, "Data_Permohonan_Coretax.xlsx");
-                } else { alert("Tidak ada data untuk diunduh."); }
-            } catch(e) { alert("Gagal mengunduh data."); } 
+                    XLSX.writeFile(workbook, "Data_Evaluasi_CoreTax.xlsx"); // Nama file diubah
+                } else { 
+                    alert("Tidak ada data untuk diunduh."); 
+                }
+            } catch(e) { 
+                alert("Gagal mengunduh data."); 
+            } 
             finally { showLoading(false); }
         }
 
         // --- FUNGSI HELPERS & INISIALISASI ---
-        async function checkFormStatusAndSettingsForUser() { 
+        
+        // [MODIFIKASI] Memeriksa status untuk kedua form
+        async function checkFormStatusForUser() { 
             try { 
-                // Aksi admin menggunakan GET
                 const response = await fetch(`${webAppUrl}?action=getSettings`); 
                 const result = await response.json(); 
                 
                 if (result.status === 'success') {
-                    // Cek Status Form
-                    const isOff = result.data.formStatus === 'OFF'; 
-                    document.getElementById('parkingForm').classList.toggle('hidden', isOff); 
-                    document.getElementById('form-closed-message').classList.toggle('hidden', !isOff);
+                    const isOff = result.data.formStatus === 'OFF';
+                    
+                    // Terapkan ke form "SUDAH"
+                    document.getElementById('form-sudah').classList.toggle('hidden', isOff); 
+                    document.getElementById('form-closed-message-sudah').classList.toggle('hidden', !isOff); 
+                    
+                    // Terapkan ke form "BELUM"
+                    document.getElementById('form-belum').classList.toggle('hidden', isOff); 
+                    document.getElementById('form-closed-message-belum').classList.toggle('hidden', !isOff); 
 
-                    // [BARU] Tampilkan Popup Selamat Datang
-                    const popupMessage = result.data.popupMessage;
-                    if (popupMessage && popupMessage.trim() !== "") {
-                        welcomeMessageContent.innerText = popupMessage; // Gunakan innerText agar aman
+                    // Tampilkan Popup Selamat Datang
+                    if (result.data.popupMessage) {
+                        document.getElementById('welcome-message-content').innerHTML = result.data.popupMessage.replace(/\n/g, '<br>');
                         welcomeModal.style.display = 'flex';
                     }
-
                 }
             } catch(e) { 
                 console.error("Gagal memeriksa status form.", e); 
             } 
         }
         
-        function handleRadioStyle(radioElement) { if (!radioElement) return; const radioName = radioElement.name; const allLabels = document.querySelectorAll(`input[name="${radioName}"]`); allLabels.forEach(radio => { radio.parentElement.classList.remove('selected-label'); }); radioElement.parentElement.classList.add('selected-label'); }
-        
-        function handleRuanganChange(select){ 
-            const lainnyaGroup = document.getElementById('ruanganLainnya-group'); 
-            const lainnyaInput = document.getElementById('ruanganLainnya'); 
+        // [MODIFIKASI] handleRuanganChange dibuat generik
+        function handleRuanganChange(select, groupId, inputId){ 
+            const lainnyaGroup = document.getElementById(groupId); 
+            const lainnyaInput = document.getElementById(inputId); 
             const isLainnya = select.value === 'LAINNYA'; 
             lainnyaGroup.classList.toggle('hidden', !isLainnya); 
             lainnyaInput.required = isLainnya; 
             if (!isLainnya) lainnyaInput.value = ''; 
         }
 
-        // Fungsi kompresi (jika diperlukan)
-        function compressAndReadFile(file){ return new Promise((resolve, reject) => { if (!file.type.startsWith('image/')) { const reader = new FileReader(); reader.onload = () => resolve({ base64: reader.result.split(',')[1], type: file.type, name: file.name }); reader.onerror = reject; reader.readAsDataURL(file); return; } const reader = new FileReader(); reader.onload = e => { const img = new Image(); img.onload = () => { const canvas = document.createElement('canvas'); const ctx = canvas.getContext('2d'); const MAX_WIDTH = 1024; const scaleSize = MAX_WIDTH / img.width; canvas.width = MAX_WIDTH; canvas.height = img.height * scaleSize; ctx.drawImage(img, 0, 0, canvas.width, canvas.height); const dataUrl = canvas.toDataURL('image/jpeg', 0.8); resolve({ base64: dataUrl.split(',')[1], type: 'image/jpeg', name: 'compressed_id.jpg' }); }; img.src = e.target.result; }; reader.onerror = reject; reader.readAsDataURL(file); }); }
+        // [DIAKTIFKAN] Fungsi kompresi file
+        function compressAndReadFile(file){ 
+            return new Promise((resolve, reject) => { 
+                // Jika PDF, jangan kompres, baca langsung
+                if (file.type === 'application/pdf') {
+                    const reader = new FileReader(); 
+                    reader.onload = () => resolve({ base64: reader.result.split(',')[1], type: file.type, name: file.name }); 
+                    reader.onerror = reject; 
+                    reader.readAsDataURL(file); 
+                    return; 
+                }
+                
+                // Jika Gambar, kompres
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader(); 
+                    reader.onload = e => { 
+                        const img = new Image(); 
+                        img.onload = () => { 
+                            const canvas = document.createElement('canvas'); 
+                            const ctx = canvas.getContext('2d'); 
+                            const MAX_WIDTH = 1024; // Kompres ke lebar maks 1024px
+                            const scaleSize = (img.width > MAX_WIDTH) ? MAX_WIDTH / img.width : 1;
+                            canvas.width = img.width * scaleSize; 
+                            canvas.height = img.height * scaleSize; 
+                            ctx.drawImage(img, 0, 0, canvas.width, canvas.height); 
+                            const dataUrl = canvas.toDataURL('image/jpeg', 0.8); // Kompresi 80%
+                            resolve({ base64: dataUrl.split(',')[1], type: 'image/jpeg', name: 'compressed_screenshot.jpg' }); 
+                        }; 
+                        img.onerror = reject;
+                        img.src = e.target.result; 
+                    }; 
+                    reader.onerror = reject; 
+                    reader.readAsDataURL(file);
+                } else {
+                    // Tipe file lain tidak didukung untuk upload
+                    reject(new Error('Tipe file tidak didukung. Harap upload JPG, PNG, atau PDF.'));
+                }
+            }); 
+        }
         
-        function showLoading(show, message = "Mohon tunggu...") { const overlay = document.getElementById('loading-overlay'); overlay.style.display = show ? 'flex' : 'none'; overlay.querySelector('p').textContent = message; }
+        function showLoading(show, message = "Mohon tunggu...") { 
+            loadingOverlay.style.display = show ? 'flex' : 'none'; 
+            loadingOverlay.querySelector('p').textContent = message; 
+        }
         
         window.addEventListener('load', () => { 
             handleRouteChange(); 
-
-            // [BARU] Tombol tutup popup selamat datang
-            closeWelcomeBtn.addEventListener('click', () => {
+            
+            // --- Event Listener Modal ---
+            document.getElementById('welcome-modal-close-btn').addEventListener('click', () => {
                 welcomeModal.style.display = 'none';
             });
+            
+            document.getElementById('batal-keterangan-btn').addEventListener('click', () => {
+                // Kembalikan select ke nilai lama
+                statusChangeContext.selectElement.value = statusChangeContext.previousValue;
+                statusKeteranganModal.style.display = 'none';
+                statusChangeContext = {}; // Bersihkan konteks
+            });
 
-            // --- Fungsi untuk hints ---
+            document.getElementById('simpan-keterangan-btn').addEventListener('click', () => {
+                const keterangan = document.getElementById('keterangan-text').value;
+                if (!keterangan) {
+                    alert('Keterangan tidak boleh kosong.');
+                    return;
+                }
+                const { rowIndex, selectElement } = statusChangeContext;
+                updateStatus(selectElement.value, rowIndex, keterangan);
+            });
+
+            // --- Setup Validasi & Hint ---
             function setupHint(inputId, hintId) {
                 const input = document.getElementById(inputId);
                 const hint = document.getElementById(hintId);
                 if (input && hint) {
-                    input.addEventListener('focus', () => { hint.classList.remove('hidden'); });
-                    input.addEventListener('blur', () => { hint.classList.add('hidden'); });
+                    input.addEventListener('focus', () => { hint.classList.remove('hidden'); hint.classList.remove('error'); });
+                    input.addEventListener('blur', () => { hint.classList.add('hidden'); hint.classList.remove('error'); });
                 }
             }
             
-            setupHint('nama', 'nama-hint');
-            setupHint('email', 'email-hint');
-            setupHint('nomorHp', 'nomorHp-hint');
-
-            // --- Validasi NIK Dinamis ---
-            const nikInput = document.getElementById('nik');
-            const nikHint = document.getElementById('nik-hint');
-
-            if (nikInput && nikHint) {
-                const validateNik = () => {
-                    const value = nikInput.value;
-                    if (value.length > 0 && value.length < 16) {
-                        nikHint.classList.add('error');
-                        nikHint.classList.remove('hidden');
-                    } else {
-                        nikHint.classList.remove('error');
-                        nikHint.classList.add('hidden');
-                    }
-                };
-                nikInput.addEventListener('input', validateNik);
-                nikInput.addEventListener('blur', validateNik);
+            function setupNikValidation(inputId, hintId) {
+                const nikInput = document.getElementById(inputId);
+                const nikHint = document.getElementById(hintId);
+                if (nikInput && nikHint) {
+                    const validateNik = () => {
+                        const value = nikInput.value;
+                        if (value.length > 0 && value.length < 16) {
+                            nikHint.classList.add('error');
+                            nikHint.classList.remove('hidden');
+                        } else {
+                            nikHint.classList.remove('error');
+                            if (document.activeElement !== nikInput) {
+                                nikHint.classList.add('hidden');
+                            }
+                        }
+                    };
+                    nikInput.addEventListener('input', validateNik);
+                    nikInput.addEventListener('focus', () => { nikHint.classList.remove('hidden'); validateNik(); });
+                    nikInput.addEventListener('blur', validateNik);
+                }
             }
+
+            // Setup hints untuk form "SUDAH"
+            setupHint('nama-sudah', 'nama-hint-sudah');
+            setupHint('email-sudah', 'email-hint-sudah');
+            setupNikValidation('nik-sudah', 'nik-hint-sudah');
+            setupHint('nomorHp-sudah', 'nomorHp-hint-sudah');
+            
+            // Setup hints untuk form "BELUM"
+            setupHint('nama-belum', 'nama-hint-belum');
+            setupHint('email-belum', 'email-hint-belum');
+            setupNikValidation('nik-belum', 'nik-hint-belum');
+            setupHint('nomorHp-belum', 'nomorHp-hint-belum');
         });
     </script>
 </body>
