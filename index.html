@@ -624,6 +624,9 @@
             checkFormStatusForUser();
         }
         
+        // --- [BARU] LOGIKA NAVIGASI FORMULIR ---
+        // [PERBAIKAN] Logika tombol dipindahkan ke dalam 'window.load' agar berfungsi
+        
         // --- [BARU] FUNGSI VALIDASI KUSTOM ---
         /**
          * Memvalidasi form dan mengembalikan daftar field yang tidak valid.
@@ -1196,6 +1199,22 @@
         window.addEventListener('load', () => { 
             handleRouteChange(); 
             
+            // --- [BARU] LOGIKA NAVIGASI FORMULIR ---
+            document.getElementById('btn-sudah').addEventListener('click', () => {
+                pilihanAwalContainer.classList.add('hidden');
+                formSudahContainer.classList.remove('hidden');
+            });
+
+            document.getElementById('btn-belum').addEventListener('click', () => {
+                pilihanAwalContainer.classList.add('hidden');
+                formBelumContainer.classList.remove('hidden');
+            });
+
+            // Tambahkan event listener untuk semua tombol "Kembali"
+            document.querySelectorAll('.btn-kembali').forEach(button => {
+                button.addEventListener('click', showMainForm); // Kembali ke pilihan awal
+            });
+            
             // --- Event Listener Modal ---
             document.getElementById('welcome-modal-close-btn').addEventListener('click', () => {
                 welcomeModal.style.display = 'none';
@@ -1265,4 +1284,5 @@
     </script>
 </body>
 </html>
+
 
