@@ -624,62 +624,93 @@
             checkFormStatusForUser();
         }
         
-        function showAdminLogin() {
-            pilihanAwalContainer.classList.add('hidden');
-            formSudahContainer.classList.add('hidden');
-            formBelumContainer.classList.add('hidden');
-            adminLoginPage.classList.remove('hidden');
-            adminDashboard.classList.add('hidden');
-            document.body.classList.remove('admin-view');
+        // --- [BARU] FUNGSI VALIDASI KUSTOM ---
+        /**
+         * Memvalidasi form dan mengembalikan daftar field yang tidak valid.
+         * @param {HTMLFormElement} form - Elemen form yang akan divalidasi.
+         * @returns {string[]} - Array berisi nama field yang tidak valid.
+         */
+        function getInvalidFields(form) {
+            const errors = [];
+            
+            form.querySelectorAll('[required]').forEach(input => {
+                // Hanya validasi elemen yang terlihat (penting untuk 'ruanganLainnya')
+                const isVisible = input.offsetWidth > 0 || input.offsetHeight > 0;
+                const isHiddenInput = input.type === 'hidden';
+                
+                // Cek elemen yang terlihat atau input 'hidden'
+                if (isVisible || isHiddenInput) {
+                    if (!input.validity.valid) {
+                        let fieldName = input.name; // Fallback
+                        
+                        // Coba cari labelnya
+                        let label = form.querySelector(`label[for="${input.id}"]`);
+                        
+                        if (label) {
+                            fieldName = label.textContent;
+                        } else {
+                            // Jika tidak ada label, gunakan pemetaan manual
+                            const nameMap = {
+                                'nama': 'NAMA',
+                                'email': 'EMAIL',
+                                'nik': 'NIK',
+                                'nomorHp': 'NOMOR HP',
+                                'ruangan': 'RUANGAN',
+                                'ruanganLainnya': 'Nama Unit (Lainnya)',
+                                'statusKepegawaian': 'STATUS KEPEGAWAIAN',
+                                'fileBukti': 'File Bukti'
+                            };
+                            fieldName = nameMap[input.name] || input.name;
+                        }
+                        
+                        // Tambahkan ke daftar error
+                        errors.push(fieldName);
+                    }
+                }
+            });
+            
+            // Mengembalikan daftar unik (menghindari duplikasi jika ada)
+            return [...new Set(errors)];
         }
-        
-        function showDashboard() {
-            pilihanAwalContainer.classList.add('hidden');
-            formSudahContainer.classList.add('hidden');
-            formBelumContainer.classList.add('hidden');
-            adminLoginPage.classList.add('hidden');
-            adminDashboard.classList.remove('hidden');
-            document.body.classList.add('admin-view');
-            loadAdminData();
-        }
 
-        // --- [BARU] LOGIKA NAVIGASI FORMULIR ---
-        document.getElementById('btn-sudah').addEventListener('click', () => {
-            pilihanAwalContainer.classList.add('hidden');
-            formSudahContainer.classList.remove('hidden');
-        });
 
-        document.getElementById('btn-belum').addEventListener('click', () => {
-            pilihanAwalContainer.classList.add('hidden');
-            formBelumContainer.classList.remove('hidden');
-        });
-
-        // Tambahkan event listener untuk semua tombol "Kembali"
-        document.querySelectorAll('.btn-kembali').forEach(button => {
-            button.addEventListener('click', showMainForm); // Kembali ke pilihan awal
-        });
-        
         // --- LOGIKA FORMULIR PENGGUNA ---
         
         // [BARU] Handler untuk Form "SUDAH" (dengan file)
         document.getElementById('form-sudah').addEventListener('submit', async function(e) {
             e.preventDefault();
-            if (!this.checkValidity()) {
-                alert('Mohon lengkapi semua kolom yang wajib diisi, termasuk upload file bukti.');
+            
+            // [PERUBAHAN] Gunakan validasi kustom
+            const invalidFields = getInvalidFields(this);
+            
+            // Validasi file secara manual (karena 'required' pada file bisa tricky)
+            const fileInput = document.getElementById('fileBukti');
+            let fileError = '';
+            
+            if (fileInput.required && fileInput.files.length === 0) {
+                // Jika file belum ada di daftar error, tambahkan
+                if (!invalidFields.includes('File Bukti')) {
+                    invalidFields.push('File Bukti');
+                }
+            } else if (fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                // Cek ukuran file (sesuai update terakhir 5MB)
+                if (file.size > 5 * 1024 * 1024) { 
+                     fileError = 'Ukuran file terlalu besar. Maksimal 5MB.';
+                }
+            }
+
+            // Tampilkan daftar error jika ada
+            if (invalidFields.length > 0) {
+                const errorMsg = "Mohon perbaiki kolom berikut:\n" + invalidFields.map(field => `- ${field}`).join('\n');
+                alert(errorMsg);
                 return;
             }
             
-            // Validasi file
-            const fileInput = document.getElementById('fileBukti');
-            if (fileInput.files.length === 0) {
-                alert('Mohon upload file bukti screenshot.');
+            // Tampilkan error file jika ada
+            if (fileError) {
+                alert(fileError);
                 return;
-            }
-            const file = fileInput.files[0];
-            // [PERUBAHAN] Validasi ukuran diubah ke 5MB
-            if (file.size > 5 * 1024 * 1024) {
-                 alert('Ukuran file terlalu besar. Maksimal 5MB.');
-                 return;
             }
 
             formDataToSubmit = new FormData(this);
@@ -689,10 +720,15 @@
         // [MODIFIKASI] Handler untuk Form "BELUM" (tanpa file)
         document.getElementById('form-belum').addEventListener('submit', function(e) {
             e.preventDefault();
-            if (!this.checkValidity()) {
-                alert('Mohon lengkapi semua kolom yang wajib diisi.');
+            
+            // [PERUBAHAN] Gunakan validasi kustom
+            const invalidFields = getInvalidFields(this);
+            if (invalidFields.length > 0) {
+                const errorMsg = "Mohon perbaiki kolom berikut:\n" + invalidFields.map(field => `- ${field}`).join('\n');
+                alert(errorMsg);
                 return;
             }
+            
             formDataToSubmit = new FormData(this);
             displayConfirmationSummary(formDataToSubmit);
         });
@@ -1229,3 +1265,4 @@
     </script>
 </body>
 </html>
+
