@@ -599,10 +599,12 @@
 
         // --- ROUTING APLIKASI ---
         window.addEventListener('hashchange', handleRouteChange);
-        window.addEventListener('load', handleRouteChange);
+        // [PERBAIKAN] Hapus listener 'load' di sini, karena sudah ditangani di listener 'load' di bawah
+        // window.addEventListener('load', handleRouteChange); 
 
         function handleRouteChange() {
-            if (window.location.hash === '#admin') {
+            // [PERBAIKAN] Gunakan startsWith agar hash seperti #admin/ atau #admin?query juga berfungsi
+            if (window.location.hash.startsWith('#admin')) { 
                 sessionStorage.getItem('isAdminAuthenticated') === 'true' ? showDashboard() : showAdminLogin();
             } else {
                 showMainForm();
@@ -1197,7 +1199,7 @@
         }
         
         window.addEventListener('load', () => { 
-            handleRouteChange(); 
+            handleRouteChange(); // <--- 'load' ditangani di sini
             
             // --- [BARU] LOGIKA NAVIGASI FORMULIR ---
             document.getElementById('btn-sudah').addEventListener('click', () => {
@@ -1284,5 +1286,6 @@
     </script>
 </body>
 </html>
+
 
 
