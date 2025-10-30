@@ -466,7 +466,8 @@
                     <div class="form-group">
                         <label for="fileBukti">UPLOAD BUKTI SCREENSHOT</label>
                         <input type="file" id="fileBukti" name="fileBukti" accept=".jpg,.jpeg,.png,.pdf" required>
-                        <p class="input-hint">Upload screenshot yang menunjukkan Anda berhasil login. (Max 2MB)</p>
+                        <!-- [PERUBAHAN] Batas ukuran diubah ke 5MB -->
+                        <p class="input-hint">Upload screenshot yang menunjukkan Anda berhasil login. (Max 5MB)</p>
                     </div>
                 </fieldset>
                 
@@ -675,9 +676,9 @@
                 return;
             }
             const file = fileInput.files[0];
-            // Validasi ukuran (misal 2MB)
-            if (file.size > 2 * 1024 * 1024) {
-                 alert('Ukuran file terlalu besar. Maksimal 2MB.');
+            // [PERUBAHAN] Validasi ukuran diubah ke 5MB
+            if (file.size > 5 * 1024 * 1024) {
+                 alert('Ukuran file terlalu besar. Maksimal 5MB.');
                  return;
             }
 
@@ -1228,4 +1229,3 @@
     </script>
 </body>
 </html>
-
