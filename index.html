@@ -277,6 +277,16 @@
             overflow-y: auto;
             padding-right: 10px;
         }
+        /* [BARU] Styling untuk link di dalam modal */
+        .modal-box .modal-content a {
+            color: var(--primary-color);
+            font-weight: 600;
+            text-decoration: none;
+        }
+        .modal-box .modal-content a:hover {
+            text-decoration: underline;
+        }
+
         .modal-box p.modal-info {
             font-size: 0.9em;
             color: #555;
@@ -466,7 +476,6 @@
                     <div class="form-group">
                         <label for="fileBukti">UPLOAD BUKTI SCREENSHOT</label>
                         <input type="file" id="fileBukti" name="fileBukti" accept=".jpg,.jpeg,.png,.pdf" required>
-                        <!-- [PERUBAHAN] Batas ukuran diubah ke 5MB -->
                         <p class="input-hint">Upload screenshot yang menunjukkan Anda berhasil login. (Max 5MB)</p>
                     </div>
                 </fieldset>
@@ -529,7 +538,7 @@
                     </div>
                     <!-- [BARU] Pengaturan Pesan Popup -->
                     <div class="admin-setting-group">
-                        <label for="popup-message-input">Pesan Popup Selamat Datang</label>
+                        <label for="popup-message-input">Pesan Popup Selamat Datang (HTML didukung)</label>
                         <textarea id="popup-message-input"></textarea>
                         <button id="save-popup-message-btn" class="button" onclick="savePopupMessage()">Simpan Pesan Popup</button>
                     </div>
@@ -599,12 +608,11 @@
 
         // --- ROUTING APLIKASI ---
         window.addEventListener('hashchange', handleRouteChange);
-        // [PERBAIKAN] Hapus listener 'load' di sini, karena sudah ditangani di listener 'load' di bawah
-        // window.addEventListener('load', handleRouteChange); 
+        window.addEventListener('load', handleRouteChange); // Cukup satu kali di sini
 
         function handleRouteChange() {
-            // [PERBAIKAN] Gunakan startsWith agar hash seperti #admin/ atau #admin?query juga berfungsi
-            if (window.location.hash.startsWith('#admin')) { 
+            // [PERBAIKAN] Menggunakan startsWith untuk fleksibilitas
+            if (window.location.hash.startsWith('#admin')) {
                 sessionStorage.getItem('isAdminAuthenticated') === 'true' ? showDashboard() : showAdminLogin();
             } else {
                 showMainForm();
@@ -626,7 +634,7 @@
             checkFormStatusForUser();
         }
         
-        // [PERBAIKAN] Menambahkan kembali fungsi showAdminLogin dan showDashboard
+        // [PERBAIKAN] Menambahkan fungsi yang hilang
         function showAdminLogin() {
             pilihanAwalContainer.classList.add('hidden');
             formSudahContainer.classList.add('hidden');
@@ -636,6 +644,7 @@
             document.body.classList.remove('admin-view');
         }
         
+        // [PERBAIKAN] Menambahkan fungsi yang hilang
         function showDashboard() {
             pilihanAwalContainer.classList.add('hidden');
             formSudahContainer.classList.add('hidden');
@@ -647,95 +656,73 @@
         }
 
         // --- [BARU] LOGIKA NAVIGASI FORMULIR ---
-        // [PERBAIKAN] Logika tombol dipindahkan ke dalam 'window.load' agar berfungsi
+        // Dipindahkan ke 'window.load'
         
-        // --- [BARU] FUNGSI VALIDASI KUSTOM ---
+        // --- LOGIKA FORMULIR PENGGUNA ---
+        
         /**
-         * Memvalidasi form dan mengembalikan daftar field yang tidak valid.
-         * @param {HTMLFormElement} form - Elemen form yang akan divalidasi.
-         * @returns {string[]} - Array berisi nama field yang tidak valid.
+         * [PERBAIKAN] Fungsi validasi baru untuk pesan error yang lebih jelas
+         * Mengembalikan array field yang tidak valid
          */
-        function getInvalidFields(form) {
-            const errors = [];
-            
-            form.querySelectorAll('[required]').forEach(input => {
-                // Hanya validasi elemen yang terlihat (penting untuk 'ruanganLainnya')
-                const isVisible = input.offsetWidth > 0 || input.offsetHeight > 0;
-                const isHiddenInput = input.type === 'hidden';
+        function getInvalidFields(formElement) {
+            const invalidFields = [];
+            const labels = {
+                'nama': 'NAMA',
+                'email': 'EMAIL',
+                'nik': 'NIK',
+                'nomorHp': 'NOMOR HP',
+                'ruangan': 'RUANGAN',
+                'statusKepegawaian': 'STATUS KEPEGAWAIAN',
+                'fileBukti': 'FILE BUKTI'
+            };
+
+            // Loop melalui semua elemen form yang 'required'
+            formElement.querySelectorAll('[required]').forEach(input => {
+                let fieldName = labels[input.name] || input.name;
                 
-                // Cek elemen yang terlihat atau input 'hidden'
-                if (isVisible || isHiddenInput) {
-                    if (!input.validity.valid) {
-                        let fieldName = input.name; // Fallback
-                        
-                        // Coba cari labelnya
-                        let label = form.querySelector(`label[for="${input.id}"]`);
-                        
-                        if (label) {
-                            fieldName = label.textContent;
-                        } else {
-                            // Jika tidak ada label, gunakan pemetaan manual
-                            const nameMap = {
-                                'nama': 'NAMA',
-                                'email': 'EMAIL',
-                                'nik': 'NIK',
-                                'nomorHp': 'NOMOR HP',
-                                'ruangan': 'RUANGAN',
-                                'ruanganLainnya': 'Nama Unit (Lainnya)',
-                                'statusKepegawaian': 'STATUS KEPEGAWAIAN',
-                                'fileBukti': 'File Bukti'
-                            };
-                            fieldName = nameMap[input.name] || input.name;
+                // Pengecekan validitas dasar (kosong, dll.)
+                if (!input.validity.valid) {
+                    // Cek spesifik untuk 'ruangan' jika 'LAINNYA' dipilih
+                    if (input.name === 'ruangan' && input.value === 'LAINNYA') {
+                        // Cek input 'ruanganLainnya'
+                        const lainnyaInput = document.getElementById(input.id.replace('ruangan', 'ruanganLainnya'));
+                        if (lainnyaInput && !lainnyaInput.value) {
+                            invalidFields.push('RUANGAN (Lainnya)');
                         }
-                        
-                        // Tambahkan ke daftar error
-                        errors.push(fieldName);
+                    } else if (input.name !== 'ruanganLainnya') { // Jangan tambahkan 'ruangan' jika 'LAINNYA'
+                        invalidFields.push(fieldName);
                     }
+                }
+                
+                // Pengecekan spesifik untuk file (karena .validity.valid bisa salah)
+                if (input.type === 'file' && input.files.length === 0) {
+                     if (!invalidFields.includes(fieldName)) {
+                        invalidFields.push(fieldName);
+                     }
                 }
             });
             
-            // Mengembalikan daftar unik (menghindari duplikasi jika ada)
-            return [...new Set(errors)];
+            // Menggunakan Set untuk memastikan tidak ada duplikat
+            return [...new Set(invalidFields)];
         }
-
-
-        // --- LOGIKA FORMULIR PENGGUNA ---
         
         // [BARU] Handler untuk Form "SUDAH" (dengan file)
         document.getElementById('form-sudah').addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            // [PERUBAHAN] Gunakan validasi kustom
             const invalidFields = getInvalidFields(this);
-            
-            // Validasi file secara manual (karena 'required' pada file bisa tricky)
-            const fileInput = document.getElementById('fileBukti');
-            let fileError = '';
-            
-            if (fileInput.required && fileInput.files.length === 0) {
-                // Jika file belum ada di daftar error, tambahkan
-                if (!invalidFields.includes('File Bukti')) {
-                    invalidFields.push('File Bukti');
-                }
-            } else if (fileInput.files.length > 0) {
-                const file = fileInput.files[0];
-                // Cek ukuran file (sesuai update terakhir 5MB)
-                if (file.size > 5 * 1024 * 1024) { 
-                     fileError = 'Ukuran file terlalu besar. Maksimal 5MB.';
-                }
-            }
-
-            // Tampilkan daftar error jika ada
             if (invalidFields.length > 0) {
-                const errorMsg = "Mohon perbaiki kolom berikut:\n" + invalidFields.map(field => `- ${field}`).join('\n');
-                alert(errorMsg);
+                alert('Mohon lengkapi kolom berikut:\n\n- ' + invalidFields.join('\n- '));
                 return;
             }
             
-            // Tampilkan error file jika ada
-            if (fileError) {
-                alert(fileError);
-                return;
+            // Validasi file (ukuran)
+            const fileInput = document.getElementById('fileBukti');
+            const file = fileInput.files[0];
+            // [PERUBAHAN] Batas file diubah menjadi 5MB
+            if (file.size > 5 * 1024 * 1024) {
+                 alert('Ukuran file terlalu besar. Maksimal 5MB.');
+                 return;
             }
 
             formDataToSubmit = new FormData(this);
@@ -745,12 +732,10 @@
         // [MODIFIKASI] Handler untuk Form "BELUM" (tanpa file)
         document.getElementById('form-belum').addEventListener('submit', function(e) {
             e.preventDefault();
-            
-            // [PERUBAHAN] Gunakan validasi kustom
+
             const invalidFields = getInvalidFields(this);
             if (invalidFields.length > 0) {
-                const errorMsg = "Mohon perbaiki kolom berikut:\n" + invalidFields.map(field => `- ${field}`).join('\n');
-                alert(errorMsg);
+                alert('Mohon lengkapi kolom berikut:\n\n- ' + invalidFields.join('\n- '));
                 return;
             }
             
@@ -1154,7 +1139,8 @@
 
                     // Tampilkan Popup Selamat Datang
                     if (result.data.popupMessage) {
-                        document.getElementById('welcome-message-content').innerHTML = result.data.popupMessage.replace(/\n/g, '<br>');
+                        // [PERBAIKAN] Hapus .replace() agar bisa merender HTML dari admin
+                        document.getElementById('welcome-message-content').innerHTML = result.data.popupMessage;
                         welcomeModal.style.display = 'flex';
                     }
                 }
@@ -1219,9 +1205,7 @@
         }
         
         window.addEventListener('load', () => { 
-            handleRouteChange(); // <--- 'load' ditangani di sini
-            
-            // --- [BARU] LOGIKA NAVIGASI FORMULIR ---
+            // [PERBAIKAN] Pindahkan listener navigasi ke sini
             document.getElementById('btn-sudah').addEventListener('click', () => {
                 pilihanAwalContainer.classList.add('hidden');
                 formSudahContainer.classList.remove('hidden');
@@ -1232,9 +1216,8 @@
                 formBelumContainer.classList.remove('hidden');
             });
 
-            // Tambahkan event listener untuk semua tombol "Kembali"
             document.querySelectorAll('.btn-kembali').forEach(button => {
-                button.addEventListener('click', showMainForm); // Kembali ke pilihan awal
+                button.addEventListener('click', showMainForm);
             });
             
             // --- Event Listener Modal ---
@@ -1244,7 +1227,9 @@
             
             document.getElementById('batal-keterangan-btn').addEventListener('click', () => {
                 // Kembalikan select ke nilai lama
-                statusChangeContext.selectElement.value = statusChangeContext.previousValue;
+                if (statusChangeContext.selectElement) {
+                    statusChangeContext.selectElement.value = statusChangeContext.previousValue;
+                }
                 statusKeteranganModal.style.display = 'none';
                 statusChangeContext = {}; // Bersihkan konteks
             });
@@ -1256,7 +1241,9 @@
                     return;
                 }
                 const { rowIndex, selectElement } = statusChangeContext;
-                updateStatus(selectElement.value, rowIndex, keterangan);
+                if (rowIndex && selectElement) {
+                    updateStatus(selectElement.value, rowIndex, keterangan);
+                }
             });
 
             // --- Setup Validasi & Hint ---
@@ -1295,18 +1282,15 @@
             setupHint('nama-sudah', 'nama-hint-sudah');
             setupHint('email-sudah', 'email-hint-sudah');
             setupNikValidation('nik-sudah', 'nik-hint-sudah');
-            setupHint('nomorHp-sudah', 'nomorHp-hint-sudah');
+            setupHint('nomorHp-sudah', 'nomorHp-sudah');
             
             // Setup hints untuk form "BELUM"
             setupHint('nama-belum', 'nama-hint-belum');
             setupHint('email-belum', 'email-hint-belum');
             setupNikValidation('nik-belum', 'nik-hint-belum');
-            setupHint('nomorHp-belum', 'nomorHp-hint-belum');
+            setupHint('nomorHp-belum', 'nomorHp-belum');
         });
     </script>
 </body>
 </html>
-
-
-
 
