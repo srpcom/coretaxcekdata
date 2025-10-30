@@ -626,6 +626,26 @@
             checkFormStatusForUser();
         }
         
+        // [PERBAIKAN] Menambahkan kembali fungsi showAdminLogin dan showDashboard
+        function showAdminLogin() {
+            pilihanAwalContainer.classList.add('hidden');
+            formSudahContainer.classList.add('hidden');
+            formBelumContainer.classList.add('hidden');
+            adminLoginPage.classList.remove('hidden');
+            adminDashboard.classList.add('hidden');
+            document.body.classList.remove('admin-view');
+        }
+        
+        function showDashboard() {
+            pilihanAwalContainer.classList.add('hidden');
+            formSudahContainer.classList.add('hidden');
+            formBelumContainer.classList.add('hidden');
+            adminLoginPage.classList.add('hidden');
+            adminDashboard.classList.remove('hidden');
+            document.body.classList.add('admin-view');
+            loadAdminData();
+        }
+
         // --- [BARU] LOGIKA NAVIGASI FORMULIR ---
         // [PERBAIKAN] Logika tombol dipindahkan ke dalam 'window.load' agar berfungsi
         
@@ -1286,6 +1306,7 @@
     </script>
 </body>
 </html>
+
 
 
 
