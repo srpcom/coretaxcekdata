@@ -1018,7 +1018,8 @@
                     } 
                     // [MODIFIKASI] Ubah 'Link Bukti Screenshot' menjadi link
                     else if (header === 'Link Bukti Screenshot' && cell && cell.startsWith('http')) {
-                        td.innerHTML = `<a href="${cell}" target="_blank" rel="noopener noreferrer">Lihat Bukti</a>`;
+                        // [PERUBAHAN] Teks link diubah menjadi "bukti"
+                        td.innerHTML = `<a href="${cell}" target="_blank" rel="noopener noreferrer">bukti</a>`;
                     }
                     else { 
                         td.textContent = cell; 
@@ -1117,7 +1118,7 @@
                     const { headers, rows } = result.data;
                     const worksheet = XLSX.utils.aoa_to_sheet([headers, ...rows]);
                     const workbook = XLSX.utils.book_new();
-                    XLSX.utils.book_append_sheet(workbook, worksheet, "Submisi");
+                    XXLSX.utils.book_append_sheet(workbook, worksheet, "Submisi");
                     XLSX.writeFile(workbook, "Data_Evaluasi_CoreTax.xlsx"); // Nama file diubah
                 } else { 
                     alert("Tidak ada data untuk diunduh."); 
@@ -1303,4 +1304,3 @@
     </script>
 </body>
 </html>
-
