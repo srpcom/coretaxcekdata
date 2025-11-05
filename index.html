@@ -1118,7 +1118,7 @@
                     const { headers, rows } = result.data;
                     const worksheet = XLSX.utils.aoa_to_sheet([headers, ...rows]);
                     const workbook = XLSX.utils.book_new();
-                    XXLSX.utils.book_append_sheet(workbook, worksheet, "Submisi");
+                    XLSX.utils.book_append_sheet(workbook, worksheet, "Submisi");
                     XLSX.writeFile(workbook, "Data_Evaluasi_CoreTax.xlsx"); // Nama file diubah
                 } else { 
                     alert("Tidak ada data untuk diunduh."); 
@@ -1293,13 +1293,15 @@
             setupHint('nama-sudah', 'nama-hint-sudah');
             setupHint('email-sudah', 'email-hint-sudah');
             setupNikValidation('nik-sudah', 'nik-hint-sudah');
-            setupHint('nomorHp-sudah', 'nomorHp-sudah');
+            // [PERBAIKAN] ID hint sudah benar
+            setupHint('nomorHp-sudah', 'nomorHp-hint-sudah');
             
             // Setup hints untuk form "BELUM"
             setupHint('nama-belum', 'nama-hint-belum');
             setupHint('email-belum', 'email-hint-belum');
             setupNikValidation('nik-belum', 'nik-hint-belum');
-            setupHint('nomorHp-belum', 'nomorHp-belum');
+            // [PERBAIKAN] ID hint sudah benar
+            setupHint('nomorHp-belum', 'nomorHp-hint-belum');
         });
     </script>
 </body>
