@@ -948,6 +948,7 @@
             }
         }
         
+        // [MODIFIKASI] Update fungsi fetchPage untuk menangani statusCounts
         async function fetchPage(page) {
             currentPage = page;
             const searchTerm = searchInput.value;
@@ -968,8 +969,14 @@
                 const result = await response.json();
                 
                 if (result.status === 'success') {
-                    const { headers, pageData, currentPage, totalPages } = result.data;
+                    const { headers, pageData, currentPage, totalPages, statusCounts } = result.data;
                     submissionHeaders = headers; 
+                    
+                    // [BARU] Update Label Dropdown Filter dengan jumlah
+                    if (statusCounts) {
+                        updateStatusFilterLabels(statusCounts);
+                    }
+
                     displayData(pageData);
                     setupPagination(currentPage, totalPages);
                 } else { 
@@ -979,6 +986,36 @@
                 tableBody.innerHTML = `<tr><td colspan="15" style="text-align:center; color:red;">Gagal terhubung ke server.</td></tr>`; 
             } 
             finally { showLoading(false); }
+        }
+        
+        // [BARU] Fungsi helper untuk memperbarui label filter
+        function updateStatusFilterLabels(counts) {
+            const select = document.getElementById('status-filter');
+            // Mapping nilai value option ke key di counts object
+            // Perhatikan huruf besar/kecil harus cocok dengan yang ada di server (statusCounts)
+            
+            // Loop setiap opsi di select
+            Array.from(select.options).forEach(option => {
+                const val = option.value;
+                let count = 0;
+                let originalText = "";
+
+                // Kembalikan teks asli (menghapus tanda kurung sebelumnya jika ada)
+                if (option.textContent.includes(' (')) {
+                     originalText = option.textContent.split(' (')[0];
+                } else {
+                     originalText = option.textContent;
+                }
+
+                if (val === 'Semua') {
+                    count = counts['Semua'] || 0;
+                } else {
+                    count = counts[val] || 0;
+                }
+
+                // Update teks dengan jumlah
+                option.textContent = `${originalText} (${count})`;
+            });
         }
         
         function displayData(pageData) {
@@ -1088,6 +1125,8 @@
                     statusChangeContext.selectElement.setAttribute('data-previous-value', newStatus);
                     updateSelectColor(statusChangeContext.selectElement);
                     alert('Status berhasil diperbarui.');
+                    // [BARU] Refresh data untuk memperbarui hitungan
+                    fetchPage(currentPage);
                 } else {
                     throw new Error(result.message);
                 }
