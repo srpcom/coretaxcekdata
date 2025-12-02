@@ -27,6 +27,11 @@
             --bisa-login-color: #096dd9;
             --bisa-login-border: #91d5ff;
 
+            /* [BARU] Warna untuk status "Sudah Punya Sertifikat Elektronik" (Ungu/Purple) */
+            --sertifikat-bg: #f3e5f5; 
+            --sertifikat-color: #6a1b9a;
+            --sertifikat-border: #e1bee7;
+
             --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
         }
         body {
@@ -87,6 +92,8 @@
         #pilihan-awal-container {
             padding: 30px;
             text-align: center;
+            position: relative; /* Pastikan posisi relatif */
+            z-index: 10; /* Pastikan di atas elemen lain */
         }
         #pilihan-awal-container h2 {
             font-size: 1.8em;
@@ -98,6 +105,8 @@
             display: flex;
             flex-direction: column;
             gap: 20px;
+            position: relative; /* [PERBAIKAN] Tambah posisi relatif */
+            z-index: 20; /* [PERBAIKAN] Z-index tinggi agar bisa diklik */
         }
         .pilihan-buttons button {
             padding: 20px;
@@ -108,6 +117,7 @@
             cursor: pointer;
             transition: all 0.3s ease;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            position: relative; /* [PERBAIKAN] */
         }
         #btn-sudah {
             background-color: var(--success-color);
@@ -366,6 +376,9 @@
         /* [BARU] CSS untuk status "Bisa Login" */
         .status-bisa-login { background-color: var(--bisa-login-bg); color: var(--bisa-login-color); border-color: var(--bisa-login-border); }
         
+        /* [BARU] CSS untuk status "Sudah Punya Sertifikat Elektronik" */
+        .status-sudah-punya-sertifikat-elektronik { background-color: var(--sertifikat-bg); color: var(--sertifikat-color); border-color: var(--sertifikat-border); }
+        
         .input-hint { font-size: 0.8em; color: #555; margin-top: 5px; }
         .input-hint.error { color: var(--error-color); font-weight: 600; }
         body.admin-view { padding: 0; background-image: none; background-color: #f0f2f5; }
@@ -455,14 +468,15 @@
         <div id="pilihan-awal-container">
             <h2>Apakah Anda sudah dapat login ke aplikasi Coretax?</h2>
             <div class="pilihan-buttons">
-                <button id="btn-sudah">SUDAH</button>
-                <button id="btn-belum">BELUM</button>
+                <!-- [PERBAIKAN] Tambah type="button" untuk mencegah perilaku submit default -->
+                <button id="btn-sudah" type="button">SUDAH</button>
+                <button id="btn-belum" type="button">BELUM</button>
             </div>
         </div>
 
         <!-- [BARU] Halaman Form "SUDAH" -->
         <div id="form-sudah-container" class="form-container hidden">
-            <button class="btn-kembali">&laquo; Kembali ke Pilihan Awal</button>
+            <button class="btn-kembali" type="button">&laquo; Kembali ke Pilihan Awal</button>
             <h2 style="text-align: center; color: var(--primary-color);">KONFIRMASI SUDAH DAPAT LOGIN KE CORETAX</h2>
             <div id="form-closed-message-sudah" class="admin-container hidden" style="text-align: center; padding: 40px;">
                 <h2>Formulir Ditutup</h2>
@@ -499,7 +513,7 @@
 
         <!-- [DIMODIFIKASI] Halaman Form "BELUM" -->
         <div id="form-belum-container" class="form-container hidden">
-            <button class="btn-kembali">&laquo; Kembali ke Pilihan Awal</button>
+            <button class="btn-kembali" type="button">&laquo; Kembali ke Pilihan Awal</button>
             <!-- [PERUBAHAN] Judul diubah -->
             <h2 style="text-align: center; color: var(--primary-color);">PERMOHONAN CEK DATA CORETAX</h2>
             <div id="form-closed-message-belum" class="admin-container hidden" style="text-align: center; padding: 40px;">
@@ -584,6 +598,8 @@
                             <option value="Dalam Proses">Dalam Proses</option>
                             <option value="Sudah Sesuai">Sudah Sesuai</option>
                             <option value="Telah Disesuaikan">Telah Disesuaikan</option>
+                            <!-- [BARU] Tambah opsi "Sudah Punya Sertifikat Elektronik" -->
+                            <option value="Sudah Punya Sertifikat Elektronik">Sudah Punya Sertifikat Elektronik</option>
                             <option value="Lainnya">Lainnya</option>
                         </select>
                         <button id="download-xlsx" class="download-button">Unduh .xlsx</button>
@@ -634,6 +650,21 @@
         const confirmationModal = document.getElementById('confirmation-modal');
         const statusKeteranganModal = document.getElementById('status-keterangan-modal');
 
+        // [PERBAIKAN] Event Listener untuk tombol navigasi dipindahkan ke sini agar langsung aktif
+        document.getElementById('btn-sudah').addEventListener('click', () => {
+            pilihanAwalContainer.classList.add('hidden');
+            formSudahContainer.classList.remove('hidden');
+        });
+
+        document.getElementById('btn-belum').addEventListener('click', () => {
+            pilihanAwalContainer.classList.add('hidden');
+            formBelumContainer.classList.remove('hidden');
+        });
+
+        document.querySelectorAll('.btn-kembali').forEach(button => {
+            button.addEventListener('click', showMainForm);
+        });
+
         // --- ROUTING APLIKASI ---
         window.addEventListener('hashchange', handleRouteChange);
         window.addEventListener('load', handleRouteChange); // Cukup satu kali di sini
@@ -683,9 +714,6 @@
             loadAdminData();
         }
 
-        // --- [BARU] LOGIKA NAVIGASI FORMULIR ---
-        // Dipindahkan ke 'window.load'
-        
         // --- LOGIKA FORMULIR PENGGUNA ---
         
         /**
@@ -1139,9 +1167,11 @@
                     if (header === 'Status') {
                         const select = document.createElement('select');
                         // [PERUBAHAN] Tambah opsi "Bisa Login"
+                        // [PERUBAHAN] Tambah opsi "Sudah Punya Sertifikat Elektronik"
                         select.innerHTML = `
                             <option value="Bisa Login">Bisa Login</option>
                             <option value="Dalam Proses">Dalam Proses</option>
+                            <option value="Sudah Punya Sertifikat Elektronik">Sudah Punya Sertifikat Elektronik</option>
                             <option value="Sudah Sesuai">Sudah Sesuai</option>
                             <option value="Telah Disesuaikan">Telah Disesuaikan</option>
                             <option value="Lainnya">Lainnya</option>`;
@@ -1368,21 +1398,6 @@
         }
         
         window.addEventListener('load', () => { 
-            // [PERBAIKAN] Pindahkan listener navigasi ke sini
-            document.getElementById('btn-sudah').addEventListener('click', () => {
-                pilihanAwalContainer.classList.add('hidden');
-                formSudahContainer.classList.remove('hidden');
-            });
-
-            document.getElementById('btn-belum').addEventListener('click', () => {
-                pilihanAwalContainer.classList.add('hidden');
-                formBelumContainer.classList.remove('hidden');
-            });
-
-            document.querySelectorAll('.btn-kembali').forEach(button => {
-                button.addEventListener('click', showMainForm);
-            });
-            
             // --- Event Listener Modal ---
             document.getElementById('welcome-modal-close-btn').addEventListener('click', () => {
                 welcomeModal.style.display = 'none';
