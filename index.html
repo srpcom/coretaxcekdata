@@ -930,7 +930,8 @@
                 }
             } catch (e) { 
                 console.error("Gagal memuat pengaturan:", e); 
-                alert("Gagal memuat pengaturan admin.");
+                // [UPDATE] Notifikasi Error
+                Swal.fire({ icon: 'error', title: 'Error', text: 'Gagal memuat pengaturan admin.' });
             } finally {
                 showLoading(false);
             }
@@ -952,7 +953,8 @@
                 await loadSettings(); // Muat ulang settings untuk konfirmasi
             } catch (e) { 
                 console.error("Gagal mengubah status:", e); 
-                alert("Gagal mengubah status form.");
+                // [UPDATE] Notifikasi Error
+                Swal.fire({ icon: 'error', title: 'Gagal', text: 'Gagal mengubah status form.' });
             }
             finally { showLoading(false); }
         }
@@ -971,13 +973,21 @@
                 const result = await response.json();
                 
                 if (result.status === 'success') {
-                    alert('Pesan popup berhasil disimpan.');
+                    // [UPDATE] Notifikasi Sukses
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Tersimpan',
+                        text: 'Pesan popup berhasil disimpan.',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
                 } else {
                     throw new Error(result.message);
                 }
             } catch (e) {
                 console.error("Gagal menyimpan pesan:", e);
-                alert("Gagal menyimpan pesan popup.");
+                // [UPDATE] Notifikasi Error
+                Swal.fire({ icon: 'error', title: 'Gagal', text: 'Gagal menyimpan pesan popup.' });
             } finally {
                 showLoading(false);
             }
@@ -1159,7 +1169,15 @@
                     // Update UI
                     statusChangeContext.selectElement.setAttribute('data-previous-value', newStatus);
                     updateSelectColor(statusChangeContext.selectElement);
-                    alert('Status berhasil diperbarui.');
+                    // [UPDATE] Notifikasi Sukses dengan SweetAlert2
+                    Swal.fire({
+                        title: 'Status Diperbarui!',
+                        text: `Status berhasil diubah menjadi "${newStatus}"`,
+                        icon: 'success',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                    
                     // [BARU] Refresh data untuk memperbarui hitungan
                     fetchPage(currentPage);
                 } else {
@@ -1167,7 +1185,12 @@
                 }
             } catch(e) {
                 console.error("Gagal memperbarui status:", e);
-                alert('Gagal memperbarui status: ' + e.message);
+                // [UPDATE] Notifikasi Error
+                Swal.fire({
+                    title: 'Gagal',
+                    text: 'Gagal memperbarui status: ' + e.message,
+                    icon: 'error'
+                });
                 // Kembalikan ke nilai lama jika gagal
                 statusChangeContext.selectElement.value = statusChangeContext.previousValue;
             } finally {
@@ -1195,10 +1218,12 @@
                     XLSX.utils.book_append_sheet(workbook, worksheet, "Submisi");
                     XLSX.writeFile(workbook, "Data_Evaluasi_CoreTax.xlsx"); // Nama file diubah
                 } else { 
-                    alert("Tidak ada data untuk diunduh."); 
+                    // [UPDATE] Notifikasi Info
+                    Swal.fire({ icon: 'info', title: 'Data Kosong', text: "Tidak ada data untuk diunduh." }); 
                 }
             } catch(e) { 
-                alert("Gagal mengunduh data."); 
+                // [UPDATE] Notifikasi Error
+                Swal.fire({ icon: 'error', title: 'Gagal', text: "Gagal mengunduh data." });
             } 
             finally { showLoading(false); }
         }
@@ -1322,7 +1347,8 @@
             document.getElementById('simpan-keterangan-btn').addEventListener('click', () => {
                 const keterangan = document.getElementById('keterangan-text').value;
                 if (!keterangan) {
-                    alert('Keterangan tidak boleh kosong.');
+                    // [UPDATE] Gunakan Swal
+                    Swal.fire({icon: 'warning', title: 'Perhatian', text: 'Keterangan tidak boleh kosong.'});
                     return;
                 }
                 const { rowIndex, selectElement } = statusChangeContext;
