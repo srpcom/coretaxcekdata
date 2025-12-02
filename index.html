@@ -7,6 +7,8 @@
     <title>Aplikasi Evaluasi SPT CoreTax</title>
     <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/srpcom/koesmaparkir/main/new%20logo%20rsud%202025%20kecil.png">
     <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+    <!-- [BARU] Menambahkan SweetAlert2 untuk notifikasi yang lebih bagus -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         :root {
             --primary-color: #005A9C;
@@ -721,7 +723,12 @@
             
             const invalidFields = getInvalidFields(this);
             if (invalidFields.length > 0) {
-                alert('Mohon lengkapi kolom berikut:\n\n- ' + invalidFields.join('\n- '));
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Data Belum Lengkap',
+                    text: 'Mohon lengkapi kolom berikut:\n\n' + invalidFields.join(', '),
+                    confirmButtonColor: '#d33'
+                });
                 return;
             }
             
@@ -730,7 +737,12 @@
             const file = fileInput.files[0];
             // [PERUBAHAN] Batas file diubah menjadi 5MB
             if (file.size > 5 * 1024 * 1024) {
-                 alert('Ukuran file terlalu besar. Maksimal 5MB.');
+                 Swal.fire({
+                    icon: 'error',
+                    title: 'File Terlalu Besar',
+                    text: 'Ukuran file maksimal 5MB.',
+                    confirmButtonColor: '#d33'
+                });
                  return;
             }
 
@@ -744,7 +756,12 @@
 
             const invalidFields = getInvalidFields(this);
             if (invalidFields.length > 0) {
-                alert('Mohon lengkapi kolom berikut:\n\n- ' + invalidFields.join('\n- '));
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Data Belum Lengkap',
+                    text: 'Mohon lengkapi kolom berikut:\n\n' + invalidFields.join(', '),
+                    confirmButtonColor: '#d33'
+                });
                 return;
             }
             
@@ -796,7 +813,7 @@
             if (formDataToSubmit) submitFinalData(formDataToSubmit);
         });
 
-        // [MODIFIKASI] Fungsi Submit Final
+        // [MODIFIKASI] Fungsi Submit Final dengan SweetAlert2
         async function submitFinalData(formData) {
             showLoading(true, "Mengirim data...");
             const formDataObject = Object.fromEntries(formData.entries());
@@ -818,20 +835,38 @@
                 const result = await response.json();
                 
                 if (result.status === 'success') {
-                    alert('Laporan Anda telah berhasil terkirim!');
-                    // Reset form yang sesuai
-                    if (formDataObject.tipe_laporan === 'SUDAH') {
-                        document.getElementById('form-sudah').reset();
-                    } else {
-                        document.getElementById('form-belum').reset();
-                    }
-                    showMainForm(); // Kembali ke halaman pilihan
+                    // [UPDATE] Menggunakan SweetAlert2 untuk notifikasi sukses
+                    Swal.fire({
+                        title: 'Berhasil!',
+                        text: 'Laporan Anda telah berhasil terkirim!',
+                        icon: 'success',
+                        confirmButtonText: 'Kembali ke Menu',
+                        confirmButtonColor: '#005A9C',
+                        timer: 5000, // Otomatis tutup dalam 5 detik
+                        timerProgressBar: true
+                    }).then((result) => {
+                        // Reset form yang sesuai dan kembali ke menu utama
+                        if (formDataObject.tipe_laporan === 'SUDAH') {
+                            document.getElementById('form-sudah').reset();
+                        } else {
+                            document.getElementById('form-belum').reset();
+                        }
+                        showMainForm(); 
+                    });
+                    
                 } else { 
                     throw new Error(result.message || 'Terjadi kesalahan di server.'); 
                 }
             } catch(error) {
                 console.error('Submit Error:', error);
-                alert('Gagal mengirim data. Pesan: ' + error.message);
+                // [UPDATE] Menggunakan SweetAlert2 untuk notifikasi error
+                Swal.fire({
+                    title: 'Gagal!',
+                    text: 'Gagal mengirim data. Pesan: ' + error.message,
+                    icon: 'error',
+                    confirmButtonText: 'Tutup',
+                    confirmButtonColor: '#dc3545'
+                });
             } finally {
                 showLoading(false);
                 formDataToSubmit = null;
