@@ -431,12 +431,13 @@
         .toggle-switch { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; } /* Added margin bottom */
         .toggle-wrapper { margin-bottom: 15px; border-bottom: 1px solid #f0f0f0; padding-bottom: 10px; } /* Wrapper for separation */
         
-        #form-status-toggle, #wa-status-toggle { width: 50px; height: 26px; position: relative; cursor: pointer; }
-        #form-status-toggle span, #wa-status-toggle span { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 26px; }
-        #form-status-toggle span:before, #wa-status-toggle span:before { position: absolute; content: ""; height: 20px; width: 20px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        /* [UPDATED] ID toggle untuk Dual WA */
+        #form-status-toggle, #starsender-status-toggle, #wablas-status-toggle { width: 50px; height: 26px; position: relative; cursor: pointer; }
+        #form-status-toggle span, #starsender-status-toggle span, #wablas-status-toggle span { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 26px; }
+        #form-status-toggle span:before, #starsender-status-toggle span:before, #wablas-status-toggle span:before { position: absolute; content: ""; height: 20px; width: 20px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
         
-        #form-status-toggle.on span, #wa-status-toggle.on span { background-color: var(--success-color); }
-        #form-status-toggle.on span:before, #wa-status-toggle.on span:before { transform: translateX(24px); }
+        #form-status-toggle.on span, #starsender-status-toggle.on span, #wablas-status-toggle.on span { background-color: var(--success-color); }
+        #form-status-toggle.on span:before, #starsender-status-toggle.on span:before, #wablas-status-toggle.on span:before { transform: translateX(24px); }
         
         /* [BARU] Pengaturan Admin Tambahan */
         .admin-setting-group { margin-top: 20px; }
@@ -739,12 +740,23 @@
                         </div>
                     </div>
 
-                    <!-- [BARU] Toggle Status WhatsApp -->
+                    <!-- [MODIFIKASI] Toggle Status WhatsApp Terpisah -->
+                    
+                    <!-- 1. StarSender Toggle -->
                     <div class="toggle-wrapper">
                         <div class="toggle-switch">
-                            <label style="min-width: 150px;">Notifikasi WhatsApp:</label>
-                            <div id="wa-status-toggle" onclick="toggleWhatsAppStatus()"><span></span></div>
-                            <strong id="wa-status-text" style="margin-left: 10px;">ON</strong>
+                            <label style="min-width: 150px;">API StarSender:</label>
+                            <div id="starsender-status-toggle" onclick="toggleStarSenderStatus()"><span></span></div>
+                            <strong id="starsender-status-text" style="margin-left: 10px;">ON</strong>
+                        </div>
+                    </div>
+
+                    <!-- 2. Wablas Toggle -->
+                    <div class="toggle-wrapper">
+                        <div class="toggle-switch">
+                            <label style="min-width: 150px;">API Wablas:</label>
+                            <div id="wablas-status-toggle" onclick="toggleWablasStatus()"><span></span></div>
+                            <strong id="wablas-status-text" style="margin-left: 10px;">OFF</strong>
                         </div>
                     </div>
 
@@ -789,7 +801,7 @@
     </div>
     <!-- HALAMAN ADMIN BERAKHIR DI SINI -->
 
-    <footer style="text-align: center; color: #fff; font-size: 0.8em; padding: 10px; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">ver 2.0 | Developed with ❤️ by : syam</footer>
+    <footer style="text-align: center; color: #fff; font-size: 0.8em; padding: 10px; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">ver 2.1 | Developed with ❤️ by : syam</footer>
 
     <script>
         // Variabel global
@@ -1295,25 +1307,30 @@
                 const response = await fetch(`${webAppUrl}?action=getSettings`);
                 const result = await response.json();
                 if (result.status === 'success') {
-                    const { formStatus, popupMessage, whatsAppStatus } = result.data;
+                    const { formStatus, popupMessage, waStarSenderStatus, waWablasStatus } = result.data;
                     
                     // Status Form
                     const formToggle = document.getElementById('form-status-toggle');
                     formToggle.classList.toggle('on', formStatus === 'ON');
                     document.getElementById('form-status-text').textContent = formStatus;
 
-                    // [BARU] Status WhatsApp
-                    const waToggle = document.getElementById('wa-status-toggle');
-                    const waStatusDisplay = whatsAppStatus || 'ON'; // Default ON
-                    waToggle.classList.toggle('on', waStatusDisplay === 'ON');
-                    document.getElementById('wa-status-text').textContent = waStatusDisplay;
+                    // [MODIFIKASI] StarSender Toggle
+                    const starToggle = document.getElementById('starsender-status-toggle');
+                    const starStatusDisplay = waStarSenderStatus || 'ON'; // Fallback
+                    starToggle.classList.toggle('on', starStatusDisplay === 'ON');
+                    document.getElementById('starsender-status-text').textContent = starStatusDisplay;
+
+                    // [MODIFIKASI] Wablas Toggle
+                    const wablasToggle = document.getElementById('wablas-status-toggle');
+                    const wablasStatusDisplay = waWablasStatus || 'OFF'; // Fallback
+                    wablasToggle.classList.toggle('on', wablasStatusDisplay === 'ON');
+                    document.getElementById('wablas-status-text').textContent = wablasStatusDisplay;
                     
                     // Pesan Popup
                     document.getElementById('popup-message-input').value = popupMessage || '';
                 }
             } catch (e) { 
                 console.error("Gagal memuat pengaturan:", e); 
-                // [UPDATE] Notifikasi Error
                 Swal.fire({ icon: 'error', title: 'Error', text: 'Gagal memuat pengaturan admin.' });
             } finally {
                 showLoading(false);
@@ -1340,35 +1357,48 @@
             finally { showLoading(false); }
         }
 
-        // [BARU] Fungsi toggle status WhatsApp
-        async function toggleWhatsAppStatus() {
-            const newStatus = document.getElementById('wa-status-toggle').classList.contains('on') ? 'OFF' : 'ON';
-            showLoading(true, 'Memperbarui status WA...');
+        // [BARU] Fungsi toggle StarSender
+        async function toggleStarSenderStatus() {
+            const newStatus = document.getElementById('starsender-status-toggle').classList.contains('on') ? 'OFF' : 'ON';
+            showLoading(true, 'Update StarSender...');
             try {
                 const formData = new FormData();
                 formData.append('action', 'updateSettings');
-                formData.append('whatsAppStatus', newStatus);
+                formData.append('waStarSenderStatus', newStatus);
 
                 const response = await fetch(webAppUrl, { method: 'POST', body: formData });
                 const result = await response.json();
                 if (result.status !== 'success') throw new Error(result.message);
                 
                 await loadSettings(); 
-                
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Berhasil',
-                    text: `Notifikasi WhatsApp sekarang ${newStatus}.`,
-                    timer: 1500,
-                    showConfirmButton: false
-                });
-
+                Swal.fire({ icon: 'success', title: 'Sukses', text: `API StarSender ${newStatus}`, timer: 1000, showConfirmButton: false });
             } catch (e) { 
-                console.error("Gagal mengubah status WA:", e); 
-                Swal.fire({ icon: 'error', title: 'Gagal', text: 'Gagal mengubah status notifikasi WA.' });
+                Swal.fire({ icon: 'error', title: 'Gagal', text: 'Gagal update StarSender.' });
             }
             finally { showLoading(false); }
         }
+
+        // [BARU] Fungsi toggle Wablas
+        async function toggleWablasStatus() {
+            const newStatus = document.getElementById('wablas-status-toggle').classList.contains('on') ? 'OFF' : 'ON';
+            showLoading(true, 'Update Wablas...');
+            try {
+                const formData = new FormData();
+                formData.append('action', 'updateSettings');
+                formData.append('waWablasStatus', newStatus);
+
+                const response = await fetch(webAppUrl, { method: 'POST', body: formData });
+                const result = await response.json();
+                if (result.status !== 'success') throw new Error(result.message);
+                
+                await loadSettings(); 
+                Swal.fire({ icon: 'success', title: 'Sukses', text: `API Wablas ${newStatus}`, timer: 1000, showConfirmButton: false });
+            } catch (e) { 
+                Swal.fire({ icon: 'error', title: 'Gagal', text: 'Gagal update Wablas.' });
+            }
+            finally { showLoading(false); }
+        }
+
 
         // [BARU] Fungsi simpan pesan popup
         async function savePopupMessage() {
