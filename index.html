@@ -422,35 +422,6 @@
             color: white;
         }
 
-        /* [BARU] STYLE UNTUK TOMBOL WA FLOATING */
-        .floating-wa-button {
-            position: fixed;
-            bottom: 25px;
-            right: 25px;
-            background-color: #25d366;
-            color: white;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            text-align: center;
-            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
-            z-index: 9999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: transform 0.3s, background-color 0.3s;
-            text-decoration: none;
-        }
-        .floating-wa-button:hover {
-            transform: scale(1.1);
-            background-color: #128c7e;
-        }
-        .floating-wa-button svg {
-            width: 35px;
-            height: 35px;
-            fill: white;
-        }
-
         @media (min-width: 769px) { #admin-dashboard .container { max-width: none; width: 100%; min-height: 100vh; margin: 0; border-radius: 0; box-shadow: none; } }
         @media (max-width: 768px) {
             body { padding: 5px; }
@@ -693,11 +664,6 @@
 
     <footer style="text-align: center; color: #fff; font-size: 0.8em; padding: 10px; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">ver 2.0 | Developed with ❤️ by : syam</footer>
 
-    <!-- [BARU] TOMBOL WHATSAPP FLOATING -->
-    <a href="https://wa.me/6281330639240?text=Assalamu'alaikum....." class="floating-wa-button" target="_blank" title="Hubungi Admin">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--!Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.--><path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-47.1-156.9zM223.9 438.6c-32.6 0-64.6-9.1-93.4-26.3l-6.7-4-69.4 18.3 18.5-67.8-4.4-6.9c-18.3-29.2-28-63.1-28-98.4 0-103.3 84-187.4 187.4-187.4 50 0 97.1 19.5 132.5 54.9 35.4 35.4 54.9 82.5 54.9 132.5.1 103.4-83.9 187.5-187.4 187.5zm107.2-68.7c-5.9-3-34.8-17.1-40.2-19.1-5.4-2-9.4 3-13.4 9.1-3.9 6.1-15.4 19.1-18.9 23.1-3.5 3.9-6.9 4.4-12.8 1.5-34.8-17.6-57.8-31-80.6-71.9-2.7-5.1-.3-7.9 2.6-10.9 2.7-2.7 5.9-7.1 8.8-10.7 3-3.5 3.9-5.9 5.9-9.9 2-3.9 1-7.4-.5-10.3-1.5-2.9-13.4-32.3-18.4-44.2-4.8-11.5-9.7-9.9-13.4-10.1-3.4-.2-7.4-.2-11.3-.2-3.9 0-10.3 1.5-15.7 7.3-5.4 5.9-20.7 20.2-20.7 49.3 0 29.1 21.1 57.2 24.1 61.2 3 3.9 41.5 63.6 100.7 89.2 40.5 17.6 48.7 14.1 57.4 13.1 17.5-1.9 34.8-17.1 39.7-33.6 4.9-16.5 4.9-30.6 3.4-33.6-1.4-2.9-5.3-4.9-11.2-7.9z"/></svg>
-    </a>
-
     <script>
         // Variabel global
         const webAppUrl = 'https://script.google.com/macros/s/AKfycbzJqB-NxrHIOUB9kRH5Q6dFuY0aQTHLQB5ZxwadaQtU0vHk0LiKr82XVCtw_GLb5luT/exec';
@@ -796,28 +762,74 @@
         }
 
         // --- LOGIKA CEK DATAKU ---
+        
+        // [MODIFIKASI] Tampilan dan Validasi Modal Cek Data
         async function showCheckDataModal() {
-            const { value: nik } = await Swal.fire({
+            // Menggunakan struktur HTML custom untuk SweetAlert agar lebih fleksibel
+            // dan tidak melebar (estetik)
+            await Swal.fire({
                 title: 'Cek Status Laporan',
-                input: 'text',
-                inputLabel: 'Masukkan NIK Anda',
-                inputPlaceholder: 'Contoh: 3523xxxxxxxxxxxx',
+                html: `
+                    <div style="display: flex; flex-direction: column; align-items: center;">
+                        <label for="swal-input-nik" style="margin-bottom: 10px; font-weight: 500;">Masukkan NIK Anda</label>
+                        <!-- Input dibatasi lebar dan styling agar rapi -->
+                        <input id="swal-input-nik" class="swal2-input" placeholder="Contoh: 3523xxxxxxxxxxxx" maxlength="16" type="tel" style="margin: 0; width: 80%; max-width: 300px; text-align: center;">
+                        <div id="nik-counter" style="font-size: 0.85em; color: #666; margin-top: 8px;">0 / 16 digit</div>
+                    </div>
+                `,
                 showCancelButton: true,
                 confirmButtonText: 'Cari',
                 cancelButtonText: 'Batal',
-                inputValidator: (value) => {
-                    if (!value) {
-                        return 'NIK tidak boleh kosong!'
+                confirmButtonColor: '#005A9C',
+                // [PENTING] Logika validasi real-time saat popup terbuka
+                didOpen: () => {
+                    const input = Swal.getPopup().querySelector('#swal-input-nik');
+                    const confirmBtn = Swal.getConfirmButton();
+                    const counter = Swal.getPopup().querySelector('#nik-counter');
+
+                    // 1. Matikan tombol cari di awal
+                    confirmBtn.disabled = true;
+
+                    // 2. Tambahkan listener saat mengetik
+                    input.addEventListener('input', () => {
+                        // Hanya izinkan angka
+                        input.value = input.value.replace(/\D/g, '');
+                        
+                        const currentLength = input.value.length;
+                        
+                        // Update counter text
+                        counter.textContent = `${currentLength} / 16 digit`;
+
+                        // Cek apakah sudah 16 digit
+                        if (currentLength === 16) {
+                            confirmBtn.disabled = false; // Aktifkan tombol
+                            counter.style.color = 'green';
+                            counter.style.fontWeight = 'bold';
+                        } else {
+                            confirmBtn.disabled = true; // Matikan tombol
+                            counter.style.color = '#666';
+                            counter.style.fontWeight = 'normal';
+                        }
+                    });
+                    
+                    // Fokus otomatis ke input
+                    input.focus();
+                },
+                // Logika sebelum konfirmasi (double check)
+                preConfirm: () => {
+                    const nik = Swal.getPopup().querySelector('#swal-input-nik').value;
+                    if (nik.length !== 16) {
+                        Swal.showValidationMessage('NIK harus 16 digit!');
+                        return false;
                     }
-                    if (!/^\d+$/.test(value)) {
-                        return 'NIK harus berupa angka!'
-                    }
+                    return nik;
+                }
+            }).then((result) => {
+                // Jika user menekan tombol cari yang sudah aktif
+                if (result.isConfirmed && result.value) {
+                    searchDataByNik(result.value);
                 }
             });
-
-            if (nik) {
-                searchDataByNik(nik);
-            }
         }
 
         async function searchDataByNik(nik) {
