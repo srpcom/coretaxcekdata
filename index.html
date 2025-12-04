@@ -103,63 +103,112 @@
             font-size: 1.8em;
             color: var(--primary-color);
             margin-top: 10px;
-            margin-bottom: 30px;
+            margin-bottom: 40px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
         }
         .pilihan-buttons {
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 25px;
             position: relative; /* [PERBAIKAN] Tambah posisi relatif */
             z-index: 20; /* [PERBAIKAN] Z-index tinggi agar bisa diklik */
+            max-width: 400px;
+            margin: 0 auto;
         }
+
+        /* [PERUBAHAN BESAR] Styling Tombol 3D Realistis */
         .pilihan-buttons button {
-            padding: 20px;
-            font-size: 1.3em;
-            font-weight: bold;
-            border-radius: 10px;
+            padding: 20px 30px;
+            font-size: 1.4em;
+            font-weight: 800;
+            border-radius: 15px;
             border: none;
             cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            position: relative; /* [PERBAIKAN] */
-        }
-        #btn-sudah {
-            background-color: var(--success-color);
+            transition: all 0.1s ease; /* Transisi cepat untuk efek tekan */
+            position: relative;
             color: white;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            text-shadow: 0 2px 2px rgba(0,0,0,0.25);
+            outline: none;
+            width: 100%;
+        }
+
+        /* Tombol SUDAH - Gradasi Hijau Segar */
+        #btn-sudah {
+            background: linear-gradient(to bottom, #2ecc71, #27ae60);
+            box-shadow: 
+                0 6px 0 #219150,       /* Efek tebal bawah */
+                0 12px 15px rgba(0,0,0,0.3), /* Bayangan drop shadow */
+                inset 0 1px 0 rgba(255,255,255,0.4); /* Highlight atas */
+            border: 1px solid #27ae60;
         }
         #btn-sudah:hover {
-            background-color: #218838;
-            transform: translateY(-3px);
+            background: linear-gradient(to bottom, #40d47e, #2ecc71);
+            transform: translateY(-2px);
+            box-shadow: 
+                0 8px 0 #219150, 
+                0 15px 20px rgba(0,0,0,0.3),
+                inset 0 1px 0 rgba(255,255,255,0.4);
         }
+        #btn-sudah:active {
+            transform: translateY(4px); /* Turun saat ditekan */
+            background: linear-gradient(to bottom, #27ae60, #2ecc71);
+            box-shadow: 
+                0 2px 0 #219150, 
+                0 4px 5px rgba(0,0,0,0.3),
+                inset 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        /* Tombol BELUM - Gradasi Merah Elegan */
         #btn-belum {
-            background-color: var(--error-color);
-            color: white;
+            background: linear-gradient(to bottom, #e74c3c, #c0392b);
+            box-shadow: 
+                0 6px 0 #962d22, 
+                0 12px 15px rgba(0,0,0,0.3),
+                inset 0 1px 0 rgba(255,255,255,0.4);
+            border: 1px solid #c0392b;
         }
         #btn-belum:hover {
-            background-color: #c82333;
-            transform: translateY(-3px);
+            background: linear-gradient(to bottom, #ff5e4d, #e74c3c);
+            transform: translateY(-2px);
+            box-shadow: 
+                0 8px 0 #962d22, 
+                0 15px 20px rgba(0,0,0,0.3),
+                inset 0 1px 0 rgba(255,255,255,0.4);
+        }
+        #btn-belum:active {
+            transform: translateY(4px);
+            background: linear-gradient(to bottom, #c0392b, #e74c3c);
+            box-shadow: 
+                0 2px 0 #962d22, 
+                0 4px 5px rgba(0,0,0,0.3),
+                inset 0 2px 5px rgba(0,0,0,0.2);
         }
         
         /* [BARU] Tombol Cek Dataku */
         .cek-data-container {
-            margin-top: 30px;
+            margin-top: 40px;
             padding-top: 20px;
             border-top: 1px solid rgba(0,0,0,0.1);
             text-align: center;
         }
         #btn-cek-dataku {
-            background-color: #6c757d;
+            background: #6c757d;
+            background: linear-gradient(to bottom, #868e96, #495057);
             color: white;
-            padding: 8px 16px;
-            font-size: 0.85em;
-            border: none;
+            padding: 10px 24px;
+            font-size: 0.9em;
+            font-weight: 600;
+            border: 1px solid #495057;
             border-radius: 20px;
             cursor: pointer;
             transition: background-color 0.2s;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
         #btn-cek-dataku:hover {
-            background-color: #5a6268;
+            background: linear-gradient(to bottom, #adb5bd, #495057);
+            transform: translateY(-1px);
         }
         
         /* --- Kontainer Form --- */
@@ -503,7 +552,7 @@
     <div id="loading-overlay" class="overlay"><div class="spinner"></div><p>Mohon tunggu...</p></div>
 
     <!-- [BARU] Tombol WhatsApp Melayang -->
-    <a href="https://wa.me/6281330639240?text=Assalamu%27alaikum..." target="_blank" class="float-wa-button" title="Tanya Admin">
+    <a href="https://wa.me/6281330639240?text=Assalamu%27alaikum..." target="_blank" class="float-wa-button" title="Hubungi via WhatsApp">
         <!-- SVG Icon WhatsApp -->
         <svg class="float-wa-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
             <!-- Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. -->
@@ -569,8 +618,8 @@
             <h2>Apakah Anda sudah dapat login ke aplikasi Coretax?</h2>
             <div class="pilihan-buttons">
                 <!-- [PERBAIKAN] Tambah type="button" untuk mencegah perilaku submit default -->
-                <button id="btn-sudah" type="button">SUDAH</button>
-                <button id="btn-belum" type="button">BELUM</button>
+                <button id="btn-sudah" type="button">✅ SUDAH</button>
+                <button id="btn-belum" type="button">❌ BELUM</button>
             </div>
             
             <!-- [BARU] Tombol Cek Dataku -->
