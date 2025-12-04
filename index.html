@@ -136,6 +136,28 @@
             transform: translateY(-3px);
         }
         
+        /* [BARU] Tombol Cek Dataku */
+        .cek-data-container {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        #btn-cek-dataku {
+            background-color: #6c757d;
+            color: white;
+            padding: 8px 16px;
+            font-size: 0.85em;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        #btn-cek-dataku:hover {
+            background-color: #5a6268;
+        }
+        
         /* --- Kontainer Form --- */
         form, .admin-container, .form-container {
             padding: 20px;
@@ -382,6 +404,23 @@
         .input-hint { font-size: 0.8em; color: #555; margin-top: 5px; }
         .input-hint.error { color: var(--error-color); font-weight: 600; }
         body.admin-view { padding: 0; background-image: none; background-color: #f0f2f5; }
+        
+        /* [BARU] Styling Tabel Hasil Pencarian Cek Data */
+        .search-results-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9em;
+            margin-top: 10px;
+        }
+        .search-results-table th, .search-results-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        .search-results-table th {
+            background-color: var(--primary-color);
+            color: white;
+        }
 
         @media (min-width: 769px) { #admin-dashboard .container { max-width: none; width: 100%; min-height: 100vh; margin: 0; border-radius: 0; box-shadow: none; } }
         @media (max-width: 768px) {
@@ -471,6 +510,11 @@
                 <!-- [PERBAIKAN] Tambah type="button" untuk mencegah perilaku submit default -->
                 <button id="btn-sudah" type="button">SUDAH</button>
                 <button id="btn-belum" type="button">BELUM</button>
+            </div>
+            
+            <!-- [BARU] Tombol Cek Dataku -->
+            <div class="cek-data-container">
+                <button id="btn-cek-dataku" type="button">🔍 Cek Dataku</button>
             </div>
         </div>
 
@@ -664,6 +708,9 @@
         document.querySelectorAll('.btn-kembali').forEach(button => {
             button.addEventListener('click', showMainForm);
         });
+        
+        // [BARU] Event Listener untuk tombol Cek Dataku
+        document.getElementById('btn-cek-dataku').addEventListener('click', showCheckDataModal);
 
         // --- ROUTING APLIKASI ---
         window.addEventListener('hashchange', handleRouteChange);
@@ -713,6 +760,116 @@
             document.body.classList.add('admin-view');
             loadAdminData();
         }
+
+        // --- LOGIKA CEK DATAKU ---
+        async function showCheckDataModal() {
+            const { value: nik } = await Swal.fire({
+                title: 'Cek Status Laporan',
+                input: 'text',
+                inputLabel: 'Masukkan NIK Anda',
+                inputPlaceholder: 'Contoh: 3523xxxxxxxxxxxx',
+                showCancelButton: true,
+                confirmButtonText: 'Cari',
+                cancelButtonText: 'Batal',
+                inputValidator: (value) => {
+                    if (!value) {
+                        return 'NIK tidak boleh kosong!'
+                    }
+                    if (!/^\d+$/.test(value)) {
+                        return 'NIK harus berupa angka!'
+                    }
+                }
+            });
+
+            if (nik) {
+                searchDataByNik(nik);
+            }
+        }
+
+        async function searchDataByNik(nik) {
+            showLoading(true, "Mencari data...");
+            try {
+                const url = new URL(webAppUrl);
+                url.searchParams.append('action', 'searchByNik');
+                url.searchParams.append('nik', nik);
+                
+                const response = await fetch(url);
+                const result = await response.json();
+                
+                showLoading(false);
+                
+                if (result.status === 'success') {
+                    if (result.data.length > 0) {
+                        displaySearchResults(result.data, nik);
+                    } else {
+                        Swal.fire({
+                            icon: 'info',
+                            title: 'Data Tidak Ditemukan',
+                            text: `Tidak ada data laporan ditemukan untuk NIK: ${nik}`,
+                            confirmButtonColor: '#005A9C'
+                        });
+                    }
+                } else {
+                    throw new Error(result.message);
+                }
+            } catch (error) {
+                showLoading(false);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Terjadi Kesalahan',
+                    text: 'Gagal mencari data: ' + error.message,
+                    confirmButtonColor: '#dc3545'
+                });
+            }
+        }
+
+        function displaySearchResults(data, nik) {
+            let htmlContent = `
+                <div style="text-align: left; margin-bottom: 10px;">
+                    <strong>NIK: ${nik}</strong><br>
+                    Ditemukan ${data.length} laporan.
+                </div>
+                <div class="table-container" style="max-height: 300px; overflow-y: auto;">
+                    <table class="search-results-table">
+                        <thead>
+                            <tr>
+                                <th>ID Permohonan</th>
+                                <th>Waktu</th>
+                                <th>Nama</th>
+                                <th>Status</th>
+                                <th>Keterangan</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+
+            data.forEach(item => {
+                htmlContent += `
+                    <tr>
+                        <td>${item.id}</td>
+                        <td>${item.timestamp}</td>
+                        <td>${item.nama}</td>
+                        <td>${item.status}</td>
+                        <td>${item.keterangan}</td>
+                    </tr>
+                `;
+            });
+
+            htmlContent += `
+                        </tbody>
+                    </table>
+                </div>
+            `;
+
+            Swal.fire({
+                title: 'Hasil Pencarian',
+                html: htmlContent,
+                width: '700px',
+                confirmButtonText: 'Tutup',
+                confirmButtonColor: '#005A9C'
+            });
+        }
+
 
         // --- LOGIKA FORMULIR PENGGUNA ---
         
