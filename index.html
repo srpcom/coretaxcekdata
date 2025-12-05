@@ -1510,8 +1510,9 @@
             tableBody.innerHTML = '';
             tableHead.innerHTML = `<tr>${submissionHeaders.map(h => `<th>${h}</th>`).join('')}</tr>`;
             
-            // [BARU] Cari index kolom NIK untuk referensi
+            // [BARU] Cari index kolom NIK & Status untuk referensi
             const nikIndex = submissionHeaders.indexOf('NIK');
+            const statusIndex = submissionHeaders.indexOf('Status');
 
             if (!pageData || pageData.length === 0) {
                 tableBody.innerHTML = `<tr><td data-label="Info" colspan="${submissionHeaders.length || 1}" style="text-align:center;">Data tidak ditemukan.</td></tr>`;
@@ -1522,8 +1523,9 @@
                 const { rowData, originalIndex } = item;
                 const tr = document.createElement('tr');
                 
-                // [BARU] Ambil value NIK dari baris ini (jika ada)
+                // [BARU] Ambil value dari baris ini (jika ada)
                 const nikValue = (nikIndex !== -1) ? rowData[nikIndex] : '';
+                const currentStatus = (statusIndex !== -1) ? rowData[statusIndex] : '';
 
                 rowData.forEach((cell, cellIndex) => {
                     const td = document.createElement('td');
@@ -1557,6 +1559,19 @@
                         // Jadikan link yang memanggil fungsi searchDataByNik
                         td.innerHTML = `<a href="#" onclick="searchDataByNik('${nikValue}'); return false;" style="color: var(--primary-color); font-weight: bold; text-decoration: underline;" title="Klik untuk lihat riwayat NIK ini">${cell}</a>`;
                     }
+                    // [BARU] Logika Khusus untuk kolom Keterangan (Tambah tombol edit)
+                    else if (header === 'Keterangan') {
+                        const safeKeterangan = cell ? cell.replace(/"/g, '&quot;') : '';
+                        const safeStatus = currentStatus ? currentStatus.replace(/"/g, '&quot;') : '';
+                        
+                        // Menampilkan teks keterangan + tombol edit kecil
+                        td.innerHTML = `
+                            <div>
+                                <span style="display:inline-block; margin-right:5px;">${cell || '-'}</span>
+                                <a href="#" onclick="handleEditKeterangan(${originalIndex}, '${safeStatus}', '${safeKeterangan}'); return false;" style="font-size:0.8em; color: var(--primary-color); cursor:pointer;">[edit]</a>
+                            </div>
+                        `;
+                    }
                     else { 
                         td.textContent = cell; 
                     }
@@ -1568,6 +1583,71 @@
                 });
                 tableBody.appendChild(tr);
             });
+        }
+        
+        // [BARU] Fungsi Handler untuk Edit Keterangan
+        async function handleEditKeterangan(rowIndex, currentStatus, currentKeterangan) {
+            // Dekode entity HTML jika perlu (misal &quot;) -> SweetAlert handle value dengan baik
+            
+            const { value: text } = await Swal.fire({
+                input: 'textarea',
+                inputLabel: 'Edit Keterangan',
+                inputValue: currentKeterangan,
+                inputPlaceholder: 'Tulis keterangan baru...',
+                inputAttributes: {
+                    'aria-label': 'Tulis keterangan baru'
+                },
+                showCancelButton: true,
+                confirmButtonText: 'Simpan & Kirim WA',
+                cancelButtonText: 'Batal',
+                confirmButtonColor: '#005A9C'
+            });
+
+            // Jika user menekan simpan (text tidak undefined)
+            if (text !== undefined) {
+                // Panggil fungsi update khusus
+                submitKeteranganUpdate(rowIndex, currentStatus, text);
+            }
+        }
+
+        // [BARU] Fungsi Kirim Update Keterangan ke Server
+        async function submitKeteranganUpdate(rowIndex, status, newKeterangan) {
+            showLoading(true, "Menyimpan keterangan & Mengirim WA...");
+            try {
+                // Menggunakan endpoint yang sama dengan updateStatus agar memicu notifikasi WA
+                const formData = new FormData();
+                formData.append('action', 'updateStatus');
+                formData.append('rowIndex', rowIndex);
+                formData.append('newStatus', status); // Status tetap sama
+                formData.append('keterangan', newKeterangan); // Keterangan baru
+
+                const response = await fetch(webAppUrl, { method: 'POST', body: formData });
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    Swal.fire({
+                        title: 'Berhasil!',
+                        text: 'Keterangan diperbarui & Notifikasi WA terkirim.',
+                        icon: 'success',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                    
+                    // Refresh data tabel
+                    fetchPage(currentPage);
+                } else {
+                    throw new Error(result.message);
+                }
+            } catch(e) {
+                console.error("Gagal update keterangan:", e);
+                Swal.fire({
+                    title: 'Gagal',
+                    text: 'Gagal memperbarui keterangan: ' + e.message,
+                    icon: 'error'
+                });
+            } finally {
+                showLoading(false);
+            }
         }
         
         function setupPagination(currentPage, totalPages) {
