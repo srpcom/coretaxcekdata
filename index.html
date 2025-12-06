@@ -456,9 +456,56 @@
         #search-input, #status-filter { padding: 8px; font-size: 0.9em; border-radius: 5px; border: 1px solid #ccc; }
         #search-input { flex-grow: 1; }
         .download-button { width: auto; padding: 8px 12px; font-size: 0.9em; background-color: var(--success-color); }
-        .pagination-controls { display: flex; justify-content: center; align-items: center; gap: 5px; margin-top: 15px; }
-        .pagination-controls button { width: auto; padding: 5px 10px; font-size: 0.9em; }
-        .pagination-controls .page-info { font-size: 0.9em; }
+        
+        /* [UPDATE CSS] Navigasi Halaman yang Diperbarui */
+        .pagination-controls { 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            gap: 5px; 
+            margin-top: 20px; 
+            flex-wrap: wrap;
+        }
+        
+        .pagination-btn {
+            min-width: 35px;
+            height: 35px;
+            padding: 0 10px;
+            border: 1px solid #ddd;
+            background-color: white;
+            color: var(--primary-color);
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .pagination-btn:hover:not(:disabled) {
+            background-color: #f0f8ff;
+            border-color: var(--primary-color);
+        }
+
+        .pagination-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .pagination-btn:disabled {
+            color: #ccc;
+            background-color: #f9f9f9;
+            cursor: not-allowed;
+        }
+
+        .pagination-ellipsis {
+            color: #777;
+            font-weight: bold;
+            padding: 0 5px;
+        }
+        .pagination-controls .page-info { font-size: 0.9em; width: 100%; text-align: center; margin-top: 10px; color: #666; }
         
         /* [DIKEMBALIKAN] CSS Status */
         #submissions-table td select { padding: 6px; border-radius: 5px; width:100%; font-weight: bold; border-width: 1px; transition: background-color 0.3s, border-color 0.3s; font-size: 1em; }
@@ -1464,6 +1511,7 @@
                     }
 
                     displayData(pageData);
+                    // [UPDATE] Memanggil setupPagination yang baru
                     setupPagination(currentPage, totalPages);
                 } else { 
                     tableBody.innerHTML = `<tr><td colspan="15" style="text-align:center; color:red;">Gagal: ${result.message}</td></tr>`; 
@@ -1650,16 +1698,86 @@
             }
         }
         
+        // [UPDATE FUNGSI] Fungsi setupPagination dengan Smart Logic
         function setupPagination(currentPage, totalPages) {
             const paginationControls = document.getElementById('pagination-controls');
-            if (totalPages <= 1) { 
-                paginationControls.innerHTML = ''; 
-                return; 
+            paginationControls.innerHTML = '';
+
+            // Jika hanya 1 halaman atau data kosong, sembunyikan navigasi
+            if (totalPages <= 1) return;
+
+            // Helper untuk membuat tombol
+            const createButton = (text, page, isActive = false, isDisabled = false) => {
+                const btn = document.createElement('button');
+                btn.className = `pagination-btn ${isActive ? 'active' : ''}`;
+                btn.innerHTML = text;
+                if (isActive || isDisabled) {
+                    btn.disabled = true;
+                } else {
+                    btn.onclick = () => fetchPage(page);
+                }
+                return btn;
+            };
+
+            // Helper untuk membuat titik-titik (...)
+            const createEllipsis = () => {
+                const span = document.createElement('span');
+                span.className = 'pagination-ellipsis';
+                span.textContent = '...';
+                return span;
+            };
+
+            // 1. Tombol Previous (<<)
+            paginationControls.appendChild(createButton('«', currentPage - 1, false, currentPage === 1));
+
+            // 2. Logika Angka Halaman (Smart Logic)
+            const maxVisibleButtons = 5; // Jumlah tombol angka maksimal yang muncul berderet
+            let startPage, endPage;
+
+            if (totalPages <= maxVisibleButtons) {
+                // Jika total halaman sedikit, tampilkan semua
+                startPage = 1;
+                endPage = totalPages;
+                for (let i = startPage; i <= endPage; i++) {
+                    paginationControls.appendChild(createButton(i, i, i === currentPage));
+                }
+            } else {
+                // Jika halaman banyak, gunakan logika ellipsis
+                // Selalu tampilkan Halaman 1
+                paginationControls.appendChild(createButton(1, 1, 1 === currentPage));
+
+                if (currentPage > 3) {
+                    paginationControls.appendChild(createEllipsis());
+                }
+
+                // Tentukan range di sekitar halaman aktif
+                let rangeStart = Math.max(2, currentPage - 1);
+                let rangeEnd = Math.min(totalPages - 1, currentPage + 1);
+
+                // Penyesuaian agar tidak aneh di awal/akhir
+                if (currentPage === 1) { rangeEnd = 3; }
+                if (currentPage === totalPages) { rangeStart = totalPages - 2; }
+
+                for (let i = rangeStart; i <= rangeEnd; i++) {
+                    paginationControls.appendChild(createButton(i, i, i === currentPage));
+                }
+
+                if (currentPage < totalPages - 2) {
+                    paginationControls.appendChild(createEllipsis());
+                }
+
+                // Selalu tampilkan Halaman Terakhir
+                paginationControls.appendChild(createButton(totalPages, totalPages, totalPages === currentPage));
             }
-            paginationControls.innerHTML = `
-                <button onclick="fetchPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>«</button>
-                <span class="page-info">Hal ${currentPage} dari ${totalPages}</span>
-                <button onclick="fetchPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>»</button>`;
+
+            // 3. Tombol Next (>>)
+            paginationControls.appendChild(createButton('»', currentPage + 1, false, currentPage === totalPages));
+            
+            // 4. Info Halaman (Opsional - agar admin tahu total data)
+            const infoSpan = document.createElement('div');
+            infoSpan.className = 'page-info';
+            infoSpan.textContent = `Halaman ${currentPage} dari ${totalPages}`;
+            paginationControls.appendChild(infoSpan);
         }
         
         function handleStatusChange(selectElement, rowIndex) {
