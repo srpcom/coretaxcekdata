@@ -3,16 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- [PERUBAHAN] Judul diubah -->
     <title>Aplikasi Evaluasi SPT CoreTax</title>
     <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/srpcom/koesmaparkir/main/new%20logo%20rsud%202025%20kecil.png">
     <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
-    <!-- [BARU] Menambahkan SweetAlert2 untuk notifikasi yang lebih bagus -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         :root {
             --primary-color: #005A9C;
-            --primary-rgb: 0, 90, 156; /* [BARU] Variabel RGB untuk transparansi */
+            --primary-rgb: 0, 90, 156;
             --secondary-color: #F0F8FF;
             --border-color: #DCDCDC;
             --text-color: #333;
@@ -23,17 +21,14 @@
             --info-bg: #e6f7ff; --info-color: #096dd9; --info-border: #91d5ff;
             --danger-bg: #fff1f0; --danger-color: #cf1322; --danger-border: #ffa39e;
             
-            /* [BARU] Warna untuk status "Bisa Login" */
-            --bisa-login-bg: #e6f7ff; /* Sama dengan info */
+            --bisa-login-bg: #e6f7ff; 
             --bisa-login-color: #096dd9;
             --bisa-login-border: #91d5ff;
 
-            /* [BARU] Warna untuk status "Sudah Punya Sertifikat Elektronik" (Ungu/Purple) */
             --sertifikat-bg: #f3e5f5; 
             --sertifikat-color: #6a1b9a;
             --sertifikat-border: #e1bee7;
 
-            /* [BARU] Warna WhatsApp Official */
             --wa-color: #25D366;
             --wa-dark: #128C7E;
 
@@ -51,41 +46,30 @@
             transition: background-color 0.3s;
         }
         
-        /* [PERUBAHAN BESAR] Glassmorphism Container */
         .container {
             max-width: 800px;
             width: 100%;
             margin: 20px auto;
-            
-            /* Efek Kaca (Glass) */
-            background: rgba(255, 255, 255, 0.65); /* Transparansi background kartu */
-            backdrop-filter: blur(20px); /* Efek blur di belakang kartu */
-            -webkit-backdrop-filter: blur(20px); /* Safari support */
-            
-            border-radius: 16px; /* Sudut lebih membulat */
-            border: 1px solid rgba(255, 255, 255, 0.5); /* Border putih transparan */
-            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2); /* Shadow lembut */
-            
+            background: rgba(255, 255, 255, 0.65);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
             overflow: hidden; 
         }
         
-        /* Spesifik container halaman depan agar lebih menyatu */
         .main-form-container .container {
             background: rgba(255, 255, 255, 0.6); 
         }
 
         header {
-            /* [PERUBAHAN] Glassmorphism Header */
-            /* Menggunakan gradasi biru transparan */
             background: linear-gradient(135deg, rgba(0, 90, 156, 0.85), rgba(0, 72, 122, 0.8));
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
-            
             color: white;
             padding: 25px 20px;
             text-align: center;
-            
-            /* Ganti border solid tebal dengan border glass halus */
             border-bottom: 1px solid rgba(255, 255, 255, 0.2); 
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
         }
@@ -93,13 +77,13 @@
             width: 70px;
             margin: 0 auto 15px auto;
             display: block;
-            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2)); /* Tambah bayangan logo agar pop-up */
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
         }
         header h1 {
             margin: 0;
             font-size: 1.5em;
             line-height: 1.3;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.2); /* Shadow teks agar terbaca jelas di background transparan */
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
         header p {
             margin: 5px 0 0;
@@ -108,31 +92,29 @@
             font-weight: 500;
         }
         
-        /* [BARU] Kontainer untuk Pilihan Awal */
         #pilihan-awal-container {
             padding: 30px;
             text-align: center;
-            position: relative; /* Pastikan posisi relatif */
-            z-index: 10; /* Pastikan di atas elemen lain */
+            position: relative;
+            z-index: 10;
         }
         #pilihan-awal-container h2 {
             font-size: 1.8em;
             color: var(--primary-color);
             margin-top: 10px;
             margin-bottom: 40px;
-            text-shadow: 1px 1px 2px rgba(255,255,255,0.8); /* Shadow putih agar kontras */
+            text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
         }
         .pilihan-buttons {
             display: flex;
             flex-direction: column;
             gap: 25px;
-            position: relative; /* [PERBAIKAN] Tambah posisi relatif */
-            z-index: 20; /* [PERBAIKAN] Z-index tinggi agar bisa diklik */
+            position: relative;
+            z-index: 20;
             max-width: 400px;
             margin: 0 auto;
         }
 
-        /* [PERUBAHAN BESAR] Styling Tombol 3D Realistis */
         .pilihan-buttons button {
             padding: 20px 30px;
             font-size: 1.4em;
@@ -140,7 +122,7 @@
             border-radius: 15px;
             border: none;
             cursor: pointer;
-            transition: all 0.1s ease; /* Transisi cepat untuk efek tekan */
+            transition: all 0.1s ease;
             position: relative;
             color: white;
             text-transform: uppercase;
@@ -150,59 +132,38 @@
             width: 100%;
         }
 
-        /* Tombol SUDAH - Gradasi Hijau Segar */
         #btn-sudah {
             background: linear-gradient(to bottom, #2ecc71, #27ae60);
-            box-shadow: 
-                0 6px 0 #219150,       /* Efek tebal bawah */
-                0 12px 15px rgba(0,0,0,0.3), /* Bayangan drop shadow */
-                inset 0 1px 0 rgba(255,255,255,0.4); /* Highlight atas */
+            box-shadow: 0 6px 0 #219150, 0 12px 15px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.4);
             border: 1px solid #27ae60;
         }
         #btn-sudah:hover {
             background: linear-gradient(to bottom, #40d47e, #2ecc71);
             transform: translateY(-2px);
-            box-shadow: 
-                0 8px 0 #219150, 
-                0 15px 20px rgba(0,0,0,0.3),
-                inset 0 1px 0 rgba(255,255,255,0.4);
+            box-shadow: 0 8px 0 #219150, 0 15px 20px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.4);
         }
         #btn-sudah:active {
-            transform: translateY(4px); /* Turun saat ditekan */
+            transform: translateY(4px);
             background: linear-gradient(to bottom, #27ae60, #2ecc71);
-            box-shadow: 
-                0 2px 0 #219150, 
-                0 4px 5px rgba(0,0,0,0.3),
-                inset 0 2px 5px rgba(0,0,0,0.2);
+            box-shadow: 0 2px 0 #219150, 0 4px 5px rgba(0,0,0,0.3), inset 0 2px 5px rgba(0,0,0,0.2);
         }
 
-        /* Tombol BELUM - Gradasi Merah Elegan */
         #btn-belum {
             background: linear-gradient(to bottom, #e74c3c, #c0392b);
-            box-shadow: 
-                0 6px 0 #962d22, 
-                0 12px 15px rgba(0,0,0,0.3),
-                inset 0 1px 0 rgba(255,255,255,0.4);
+            box-shadow: 0 6px 0 #962d22, 0 12px 15px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.4);
             border: 1px solid #c0392b;
         }
         #btn-belum:hover {
             background: linear-gradient(to bottom, #ff5e4d, #e74c3c);
             transform: translateY(-2px);
-            box-shadow: 
-                0 8px 0 #962d22, 
-                0 15px 20px rgba(0,0,0,0.3),
-                inset 0 1px 0 rgba(255,255,255,0.4);
+            box-shadow: 0 8px 0 #962d22, 0 15px 20px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.4);
         }
         #btn-belum:active {
             transform: translateY(4px);
             background: linear-gradient(to bottom, #c0392b, #e74c3c);
-            box-shadow: 
-                0 2px 0 #962d22, 
-                0 4px 5px rgba(0,0,0,0.3),
-                inset 0 2px 5px rgba(0,0,0,0.2);
+            box-shadow: 0 2px 0 #962d22, 0 4px 5px rgba(0,0,0,0.3), inset 0 2px 5px rgba(0,0,0,0.2);
         }
         
-        /* [BARU] Tombol Cek Dataku */
         .cek-data-container {
             margin-top: 40px;
             padding-top: 20px;
@@ -227,14 +188,12 @@
             transform: translateY(-1px);
         }
         
-        /* --- Kontainer Form --- */
         form, .admin-container, .form-container {
             padding: 20px;
         }
-        /* [BARU] Tombol Kembali */
         .btn-kembali {
             background: none;
-            border: 1px solid #555; /* Sedikit lebih gelap agar terlihat di kaca */
+            border: 1px solid #555;
             color: #333;
             padding: 8px 12px;
             font-size: 0.9em;
@@ -242,7 +201,7 @@
             cursor: pointer;
             transition: all 0.2s ease;
             margin-bottom: 20px;
-            background-color: rgba(255,255,255,0.5); /* Background tombol semi transparan */
+            background-color: rgba(255,255,255,0.5);
         }
         .btn-kembali:hover {
             background-color: rgba(255,255,255,0.8);
@@ -254,7 +213,7 @@
             border-radius: 8px;
             padding: 20px 15px;
             margin-bottom: 25px;
-            background-color: rgba(255, 255, 255, 0.4); /* Fieldset juga agak transparan */
+            background-color: rgba(255, 255, 255, 0.4);
         }
         legend {
             font-weight: bold;
@@ -282,10 +241,9 @@
             border-radius: 6px;
             box-sizing: border-box;
             font-size: 16px;
-            background-color: rgba(255, 255, 255, 0.8); /* Input sedikit transparan tapi tetap terbaca */
+            background-color: rgba(255, 255, 255, 0.8);
         }
         
-        /* [BARU] Styling untuk input file */
         input[type="file"] {
             padding: 5px;
             background-color: rgba(255, 255, 255, 0.8);
@@ -329,7 +287,6 @@
             display: none;
         }
         
-        /* --- MODAL --- */
         .overlay {
             position: fixed;
             top: 0;
@@ -345,7 +302,6 @@
             box-sizing: border-box;
             backdrop-filter: blur(5px);
         }
-        /* [PERUBAHAN] z-index dinaikkan agar di depan modal lain */
         #loading-overlay {
             z-index: 2000;
         }
@@ -364,7 +320,6 @@
             font-size: 1.2em;
         }
 
-        /* [BARU] Styling Box Modal Universal */
         .modal-box {
             background: white;
             padding: 25px 30px;
@@ -387,7 +342,6 @@
             overflow-y: auto;
             padding-right: 10px;
         }
-        /* [BARU] Styling untuk link di dalam modal */
         .modal-box .modal-content a {
             color: var(--primary-color);
             font-weight: 600;
@@ -425,13 +379,11 @@
         #summary-content .summary-label { font-weight: 600; color: #555; }
         #summary-content .summary-value { color: #000; }
 
-        /* --- ADMIN --- */
         .admin-section { padding: 20px; border-bottom: 1px solid #eee; }
         .admin-section h2 { margin-top: 0; color: var(--primary-color); }
-        .toggle-switch { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; } /* Added margin bottom */
-        .toggle-wrapper { margin-bottom: 15px; border-bottom: 1px solid #f0f0f0; padding-bottom: 10px; } /* Wrapper for separation */
+        .toggle-switch { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; } 
+        .toggle-wrapper { margin-bottom: 15px; border-bottom: 1px solid #f0f0f0; padding-bottom: 10px; }
         
-        /* [UPDATED] ID toggle untuk Dual WA */
         #form-status-toggle, #starsender-status-toggle, #wablas-status-toggle { width: 50px; height: 26px; position: relative; cursor: pointer; }
         #form-status-toggle span, #starsender-status-toggle span, #wablas-status-toggle span { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 26px; }
         #form-status-toggle span:before, #starsender-status-toggle span:before, #wablas-status-toggle span:before { position: absolute; content: ""; height: 20px; width: 20px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
@@ -439,7 +391,6 @@
         #form-status-toggle.on span, #starsender-status-toggle.on span, #wablas-status-toggle.on span { background-color: var(--success-color); }
         #form-status-toggle.on span:before, #starsender-status-toggle.on span:before, #wablas-status-toggle.on span:before { transform: translateX(24px); }
         
-        /* [BARU] Pengaturan Admin Tambahan */
         .admin-setting-group { margin-top: 20px; }
         .admin-setting-group label { font-weight: bold; color: var(--primary-color); }
         .admin-setting-group textarea { width: 100%; min-height: 100px; margin-top: 10px; box-sizing: border-box; }
@@ -457,7 +408,6 @@
         #search-input { flex-grow: 1; }
         .download-button { width: auto; padding: 8px 12px; font-size: 0.9em; background-color: var(--success-color); }
         
-        /* [UPDATE CSS] Navigasi Halaman yang Diperbarui */
         .pagination-controls { 
             display: flex; 
             justify-content: center; 
@@ -507,23 +457,18 @@
         }
         .pagination-controls .page-info { font-size: 0.9em; width: 100%; text-align: center; margin-top: 10px; color: #666; }
         
-        /* [DIKEMBALIKAN] CSS Status */
         #submissions-table td select { padding: 6px; border-radius: 5px; width:100%; font-weight: bold; border-width: 1px; transition: background-color 0.3s, border-color 0.3s; font-size: 1em; }
         .status-dalam-proses { background-color: var(--warning-bg); color: var(--warning-color); border-color: var(--warning-border); }
         .status-sudah-sesuai { background-color: var(--success-bg); color: var(--success-color-dark); border-color: var(--success-border); }
         .status-telah-disesuaikan { background-color: var(--info-bg); color: var(--info-color); border-color: var(--info-border); }
         .status-lainnya { background-color: var(--danger-bg); color: var(--danger-color); border-color: var(--danger-border); }
-        /* [BARU] CSS untuk status "Bisa Login" */
         .status-bisa-login { background-color: var(--bisa-login-bg); color: var(--bisa-login-color); border-color: var(--bisa-login-border); }
-        
-        /* [BARU] CSS untuk status "Sudah Punya Sertifikat Elektronik" */
         .status-sudah-punya-sertifikat-elektronik { background-color: var(--sertifikat-bg); color: var(--sertifikat-color); border-color: var(--sertifikat-border); }
         
         .input-hint { font-size: 0.8em; color: #555; margin-top: 5px; }
         .input-hint.error { color: var(--error-color); font-weight: 600; }
         body.admin-view { padding: 0; background-image: none; background-color: #f0f2f5; }
         
-        /* [BARU] Styling Tabel Hasil Pencarian Cek Data */
         .search-results-table {
             width: 100%;
             border-collapse: collapse;
@@ -540,7 +485,6 @@
             color: white;
         }
         
-        /* [BARU] Styling Tombol WhatsApp Melayang (Estetik) */
         .float-wa-button {
             position: fixed;
             bottom: 30px;
@@ -574,7 +518,71 @@
             100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
         }
         
-        /* Mobile adjustment untuk tombol WA */
+        /* [BARU] Styling Floating Action Bar untuk Batch Update */
+        .floating-action-bar {
+            position: fixed;
+            bottom: -150px; /* Hidden default */
+            left: 0;
+            width: 100%;
+            background-color: white;
+            padding: 15px 20px;
+            box-shadow: 0 -4px 15px rgba(0,0,0,0.1);
+            z-index: 900;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            transition: bottom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border-top: 1px solid #ddd;
+            flex-wrap: wrap;
+        }
+        .floating-action-bar.visible {
+            bottom: 0;
+        }
+        .fab-content {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            max-width: 800px;
+            width: 100%;
+            justify-content: space-between;
+        }
+        .fab-info {
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        .fab-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .fab-select {
+            padding: 8px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        .fab-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        .fab-btn:hover {
+            background-color: #00487a;
+            transform: translateY(-2px);
+        }
+
+        /* Checkbox styling */
+        input.row-checkbox {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        
         @media (max-width: 768px) {
             .float-wa-button {
                 bottom: 20px;
@@ -586,6 +594,24 @@
                 width: 28px;
                 height: 28px;
             }
+            .fab-content {
+                flex-direction: column;
+                align-items: stretch;
+                text-align: center;
+            }
+            .fab-controls {
+                flex-direction: column;
+            }
+            .fab-select, .fab-btn {
+                width: 100%;
+            }
+            .float-wa-button {
+                margin-bottom: 0;
+                transition: margin-bottom 0.4s;
+            }
+            .floating-action-bar.visible ~ .float-wa-button {
+                margin-bottom: 140px; 
+            }
         }
 
         @media (min-width: 769px) { #admin-dashboard .container { max-width: none; width: 100%; min-height: 100vh; margin: 0; border-radius: 0; box-shadow: none; } }
@@ -596,7 +622,6 @@
             #admin-dashboard .admin-container, #admin-login-page .admin-container, .main-form-container .form-container { padding: 10px; background-color: #f9f9f9; border-radius: 8px; }
             #admin-dashboard header, .main-form-container header { border-radius: 8px 8px 0 0; }
             
-            /* [BARU] Styling Pilihan Awal di Mobile */
             #pilihan-awal-container { padding: 20px; background-color: #f9f9f9; border-radius: 8px; }
             #pilihan-awal-container h2 { font-size: 1.5em; margin-bottom: 20px;}
             .pilihan-buttons button { padding: 15px; font-size: 1.1em; }
@@ -610,22 +635,41 @@
             #submissions-table td::before { content: attr(data-label); font-weight: bold; text-align: left; margin-right: 15px; color: var(--primary-color); flex-shrink: 0; }
             .admin-controls { flex-direction: column; align-items: stretch; }
             #submissions-table td.empty-cell { display: none; }
+            
+            /* Hide checkbox Select All on mobile table view since thead is hidden */
+            #select-all-checkbox { display: none; }
         }
     </style>
 </head>
 <body>
     <div id="loading-overlay" class="overlay"><div class="spinner"></div><p>Mohon tunggu...</p></div>
 
-    <!-- [BARU] Tombol WhatsApp Melayang -->
     <a href="https://wa.me/6281330639240?text=Assalamu%27alaikum..." target="_blank" class="float-wa-button" title="Tanya Admin">
-        <!-- SVG Icon WhatsApp -->
         <svg class="float-wa-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
-            <!-- Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. -->
             <path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.2 0-65.7-8.9-94-26.6l-6.7-4.2-69.8 18.3 18.6-68.1-4.4-6.9c-18.6-29.5-28.4-64.3-28.4-100.4 0-101.3 82.6-183.9 184.2-183.9 49.2 0 95.4 19.2 130.1 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.4-84.9 184-185.9 184zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7 .9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z"/>
         </svg>
     </a>
+    
+    <!-- [BARU] Floating Action Bar untuk Batch Update -->
+    <div id="batch-update-bar" class="floating-action-bar">
+        <div class="fab-content">
+            <div class="fab-info">
+                <span id="selected-count">0</span> Data Terpilih
+            </div>
+            <div class="fab-controls">
+                <select id="batch-status-select" class="fab-select">
+                    <option value="" disabled selected>-- Pilih Status --</option>
+                    <option value="Bisa Login">Bisa Login</option>
+                    <option value="Dalam Proses">Dalam Proses</option>
+                    <option value="Sudah Punya Sertifikat Elektronik">Sudah Punya Sertifikat Elektronik</option>
+                    <option value="Sudah Sesuai">Sudah Sesuai</option>
+                    <option value="Telah Disesuaikan">Telah Disesuaikan</option>
+                </select>
+                <button onclick="executeBatchUpdate()" class="fab-btn">Update Massal</button>
+            </div>
+        </div>
+    </div>
 
-    <!-- [BARU] Modal Selamat Datang -->
     <div id="welcome-modal" class="overlay">
         <div class="modal-box">
             <h2>Informasi</h2>
@@ -638,12 +682,10 @@
         </div>
     </div>
 
-    <!-- Modal Konfirmasi Data Pengguna -->
     <div id="confirmation-modal" class="overlay">
         <div class="modal-box">
             <h2>Konfirmasi Data Anda</h2>
             <div id="summary-content" class="modal-content">
-                <!-- Ringkasan data akan dimasukkan di sini oleh JavaScript -->
             </div>
             <p class="modal-info">Pastikan semua data yang Anda isikan sudah benar sebelum mengirim.</p>
             <div class="modal-buttons">
@@ -653,7 +695,6 @@
         </div>
     </div>
     
-    <!-- Modal Keterangan Status -->
     <div id="status-keterangan-modal" class="overlay">
         <div class="modal-box">
             <h2>Keterangan Perubahan Status</h2>
@@ -668,32 +709,25 @@
         </div>
     </div>
 
-
-    <!-- [PERUBAHAN] Struktur Kontainer Utama -->
     <div class="container main-form-container">
         <header>
             <img src="https://raw.githubusercontent.com/srpcom/koesmaparkir/main/new%20logo%20rsud%202025%20kecil.png" alt="Logo" class="logo-image">
-            <!-- [PERUBAHAN] Judul diubah -->
             <h1>Aplikasi Evaluasi Pelaporan SPT melalui CoreTax</h1>
             <p>RSUD dr. R. Koesma</p>
         </header>
 
-        <!-- [BARU] Halaman Pilihan Awal -->
         <div id="pilihan-awal-container">
             <h2>Apakah Anda sudah dapat login ke aplikasi Coretax?</h2>
             <div class="pilihan-buttons">
-                <!-- [PERBAIKAN] Tambah type="button" untuk mencegah perilaku submit default -->
                 <button id="btn-sudah" type="button">✅ SUDAH</button>
                 <button id="btn-belum" type="button">❌ BELUM</button>
             </div>
             
-            <!-- [BARU] Tombol Cek Dataku -->
             <div class="cek-data-container">
                 <button id="btn-cek-dataku" type="button">🔍 Cek Dataku</button>
             </div>
         </div>
 
-        <!-- [BARU] Halaman Form "SUDAH" -->
         <div id="form-sudah-container" class="form-container hidden">
             <button class="btn-kembali" type="button">&laquo; Kembali ke Pilihan Awal</button>
             <h2 style="text-align: center; color: var(--primary-color);">KONFIRMASI SUDAH DAPAT LOGIN KE CORETAX</h2>
@@ -703,7 +737,6 @@
             </div>
             
             <form id="form-sudah" novalidate>
-                <!-- Input tersembunyi untuk tipe laporan -->
                 <input type="hidden" name="tipe_laporan" value="SUDAH">
                 
                 <fieldset>
@@ -730,10 +763,8 @@
             </form>
         </div>
 
-        <!-- [DIMODIFIKASI] Halaman Form "BELUM" -->
         <div id="form-belum-container" class="form-container hidden">
             <button class="btn-kembali" type="button">&laquo; Kembali ke Pilihan Awal</button>
-            <!-- [PERUBAHAN] Judul diubah -->
             <h2 style="text-align: center; color: var(--primary-color);">PERMOHONAN CEK DATA CORETAX</h2>
             <div id="form-closed-message-belum" class="admin-container hidden" style="text-align: center; padding: 40px;">
                 <h2>Formulir Ditutup</h2>
@@ -741,7 +772,6 @@
             </div>
             
             <form id="form-belum" novalidate>
-                <!-- Input tersembunyi untuk tipe laporan -->
                 <input type="hidden" name="tipe_laporan" value="BELUM">
 
                  <fieldset>
@@ -760,7 +790,6 @@
         </div>
     </div>
     
-    <!-- HALAMAN ADMIN DIMULAI DI SINI -->
     <div id="admin-login-page" class="hidden">
         <div class="container">
             <header><h1>Login Admin</h1></header>
@@ -778,7 +807,6 @@
                 <div class="admin-section">
                     <h2>Pengaturan Formulir & Notifikasi</h2>
                     
-                    <!-- Toggle Status Formulir -->
                     <div class="toggle-wrapper">
                         <div class="toggle-switch">
                             <label style="min-width: 150px;">Status Formulir:</label>
@@ -787,9 +815,6 @@
                         </div>
                     </div>
 
-                    <!-- [MODIFIKASI] Toggle Status WhatsApp Terpisah -->
-                    
-                    <!-- 1. StarSender Toggle -->
                     <div class="toggle-wrapper">
                         <div class="toggle-switch">
                             <label style="min-width: 150px;">API StarSender:</label>
@@ -798,7 +823,6 @@
                         </div>
                     </div>
 
-                    <!-- 2. Wablas Toggle -->
                     <div class="toggle-wrapper">
                         <div class="toggle-switch">
                             <label style="min-width: 150px;">API Wablas:</label>
@@ -807,7 +831,6 @@
                         </div>
                     </div>
 
-                    <!-- Pengaturan Pesan Popup -->
                     <div class="admin-setting-group">
                         <label for="popup-message-input">Pesan Popup Selamat Datang (HTML didukung)</label>
                         <textarea id="popup-message-input"></textarea>
@@ -823,12 +846,10 @@
                         <input type="text" id="search-input" placeholder="Cari data...">
                         <select id="status-filter">
                             <option value="Semua">Semua Status</option>
-                            <!-- [PERUBAHAN] Tambah opsi "Bisa Login" -->
                             <option value="Bisa Login">Bisa Login</option>
                             <option value="Dalam Proses">Dalam Proses</option>
                             <option value="Sudah Sesuai">Sudah Sesuai</option>
                             <option value="Telah Disesuaikan">Telah Disesuaikan</option>
-                            <!-- [BARU] Tambah opsi "Sudah Punya Sertifikat Elektronik" -->
                             <option value="Sudah Punya Sertifikat Elektronik">Sudah Punya Sertifikat Elektronik</option>
                             <option value="Lainnya">Lainnya</option>
                         </select>
@@ -846,12 +867,10 @@
             </div>
         </div>
     </div>
-    <!-- HALAMAN ADMIN BERAKHIR DI SINI -->
 
     <footer style="text-align: center; color: #fff; font-size: 0.8em; padding: 10px; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">ver 2.1 | Developed with ❤️ by : syam</footer>
 
     <script>
-        // Variabel global
         const webAppUrl = 'https://script.google.com/macros/s/AKfycbzJqB-NxrHIOUB9kRH5Q6dFuY0aQTHLQB5ZxwadaQtU0vHk0LiKr82XVCtw_GLb5luT/exec';
         let formDataToSubmit = null; 
         let submissionHeaders = [];
@@ -862,25 +881,21 @@
             previousValue: ''
         };
         
-        // Elemen DOM Utama
         const pilihanAwalContainer = document.getElementById('pilihan-awal-container');
         const formSudahContainer = document.getElementById('form-sudah-container');
         const formBelumContainer = document.getElementById('form-belum-container');
         const adminLoginPage = document.getElementById('admin-login-page');
         const adminDashboard = document.getElementById('admin-dashboard');
 
-        // Elemen Kontrol
         const searchInput = document.getElementById('search-input');
         const statusFilter = document.getElementById('status-filter');
         const downloadButton = document.getElementById('download-xlsx');
         
-        // Elemen Modal
         const loadingOverlay = document.getElementById('loading-overlay');
         const welcomeModal = document.getElementById('welcome-modal');
         const confirmationModal = document.getElementById('confirmation-modal');
         const statusKeteranganModal = document.getElementById('status-keterangan-modal');
 
-        // [PERBAIKAN] Event Listener untuk tombol navigasi dipindahkan ke sini agar langsung aktif
         document.getElementById('btn-sudah').addEventListener('click', () => {
             pilihanAwalContainer.classList.add('hidden');
             formSudahContainer.classList.remove('hidden');
@@ -895,15 +910,12 @@
             button.addEventListener('click', showMainForm);
         });
         
-        // [BARU] Event Listener untuk tombol Cek Dataku
         document.getElementById('btn-cek-dataku').addEventListener('click', showCheckDataModal);
 
-        // --- ROUTING APLIKASI ---
         window.addEventListener('hashchange', handleRouteChange);
-        window.addEventListener('load', handleRouteChange); // Cukup satu kali di sini
+        window.addEventListener('load', handleRouteChange);
 
         function handleRouteChange() {
-            // [PERBAIKAN] Menggunakan startsWith untuk fleksibilitas
             if (window.location.hash.startsWith('#admin')) {
                 sessionStorage.getItem('isAdminAuthenticated') === 'true' ? showDashboard() : showAdminLogin();
             } else {
@@ -912,21 +924,17 @@
         }
         
         function showMainForm() {
-            // Sembunyikan semua kontainer utama
             adminLoginPage.classList.add('hidden');
             adminDashboard.classList.add('hidden');
             formSudahContainer.classList.add('hidden');
             formBelumContainer.classList.add('hidden');
             
-            // Tampilkan kontainer pilihan awal
             pilihanAwalContainer.classList.remove('hidden');
             document.body.classList.remove('admin-view');
             
-            // Periksa status form untuk kedua form
             checkFormStatusForUser();
         }
         
-        // [PERBAIKAN] Menambahkan fungsi yang hilang
         function showAdminLogin() {
             pilihanAwalContainer.classList.add('hidden');
             formSudahContainer.classList.add('hidden');
@@ -936,7 +944,6 @@
             document.body.classList.remove('admin-view');
         }
         
-        // [PERBAIKAN] Menambahkan fungsi yang hilang
         function showDashboard() {
             pilihanAwalContainer.classList.add('hidden');
             formSudahContainer.classList.add('hidden');
@@ -947,18 +954,12 @@
             loadAdminData();
         }
 
-        // --- LOGIKA CEK DATAKU ---
-        
-        // [MODIFIKASI] Tampilan dan Validasi Modal Cek Data
         async function showCheckDataModal() {
-            // Menggunakan struktur HTML custom untuk SweetAlert agar lebih fleksibel
-            // dan tidak melebar (estetik)
             await Swal.fire({
                 title: 'Cek Status Laporan',
                 html: `
                     <div style="display: flex; flex-direction: column; align-items: center;">
                         <label for="swal-input-nik" style="margin-bottom: 10px; font-weight: 500;">Masukkan NIK Anda</label>
-                        <!-- Input dibatasi lebar dan styling agar rapi -->
                         <input id="swal-input-nik" class="swal2-input" placeholder="Contoh: 3523xxxxxxxxxxxx" maxlength="16" type="tel" style="margin: 0; width: 80%; max-width: 300px; text-align: center;">
                         <div id="nik-counter" style="font-size: 0.85em; color: #666; margin-top: 8px;">0 / 16 digit</div>
                     </div>
@@ -967,41 +968,33 @@
                 confirmButtonText: 'Cari',
                 cancelButtonText: 'Batal',
                 confirmButtonColor: '#005A9C',
-                // [PENTING] Logika validasi real-time saat popup terbuka
                 didOpen: () => {
                     const input = Swal.getPopup().querySelector('#swal-input-nik');
                     const confirmBtn = Swal.getConfirmButton();
                     const counter = Swal.getPopup().querySelector('#nik-counter');
 
-                    // 1. Matikan tombol cari di awal
                     confirmBtn.disabled = true;
 
-                    // 2. Tambahkan listener saat mengetik
                     input.addEventListener('input', () => {
-                        // Hanya izinkan angka
                         input.value = input.value.replace(/\D/g, '');
                         
                         const currentLength = input.value.length;
                         
-                        // Update counter text
                         counter.textContent = `${currentLength} / 16 digit`;
 
-                        // Cek apakah sudah 16 digit
                         if (currentLength === 16) {
-                            confirmBtn.disabled = false; // Aktifkan tombol
+                            confirmBtn.disabled = false;
                             counter.style.color = 'green';
                             counter.style.fontWeight = 'bold';
                         } else {
-                            confirmBtn.disabled = true; // Matikan tombol
+                            confirmBtn.disabled = true;
                             counter.style.color = '#666';
                             counter.style.fontWeight = 'normal';
                         }
                     });
                     
-                    // Fokus otomatis ke input
                     input.focus();
                 },
-                // Logika sebelum konfirmasi (double check)
                 preConfirm: () => {
                     const nik = Swal.getPopup().querySelector('#swal-input-nik').value;
                     if (nik.length !== 16) {
@@ -1011,7 +1004,6 @@
                     return nik;
                 }
             }).then((result) => {
-                // Jika user menekan tombol cari yang sudah aktif
                 if (result.isConfirmed && result.value) {
                     searchDataByNik(result.value);
                 }
@@ -1102,13 +1094,6 @@
             });
         }
 
-
-        // --- LOGIKA FORMULIR PENGGUNA ---
-        
-        /**
-         * [PERBAIKAN] Fungsi validasi baru untuk pesan error yang lebih jelas
-         * Mengembalikan array field yang tidak valid
-         */
         function getInvalidFields(formElement) {
             const invalidFields = [];
             const labels = {
@@ -1121,25 +1106,20 @@
                 'fileBukti': 'FILE BUKTI'
             };
 
-            // Loop melalui semua elemen form yang 'required'
             formElement.querySelectorAll('[required]').forEach(input => {
                 let fieldName = labels[input.name] || input.name;
                 
-                // Pengecekan validitas dasar (kosong, dll.)
                 if (!input.validity.valid) {
-                    // Cek spesifik untuk 'ruangan' jika 'LAINNYA' dipilih
                     if (input.name === 'ruangan' && input.value === 'LAINNYA') {
-                        // Cek input 'ruanganLainnya'
                         const lainnyaInput = document.getElementById(input.id.replace('ruangan', 'ruanganLainnya'));
                         if (lainnyaInput && !lainnyaInput.value) {
                             invalidFields.push('RUANGAN (Lainnya)');
                         }
-                    } else if (input.name !== 'ruanganLainnya') { // Jangan tambahkan 'ruangan' jika 'LAINNYA'
+                    } else if (input.name !== 'ruanganLainnya') { 
                         invalidFields.push(fieldName);
                     }
                 }
                 
-                // Pengecekan spesifik untuk file (karena .validity.valid bisa salah)
                 if (input.type === 'file' && input.files.length === 0) {
                      if (!invalidFields.includes(fieldName)) {
                         invalidFields.push(fieldName);
@@ -1147,11 +1127,9 @@
                 }
             });
             
-            // Menggunakan Set untuk memastikan tidak ada duplikat
             return [...new Set(invalidFields)];
         }
         
-        // [BARU] Handler untuk Form "SUDAH" (dengan file)
         document.getElementById('form-sudah').addEventListener('submit', async function(e) {
             e.preventDefault();
             
@@ -1166,10 +1144,8 @@
                 return;
             }
             
-            // Validasi file (ukuran)
             const fileInput = document.getElementById('fileBukti');
             const file = fileInput.files[0];
-            // [PERUBAHAN] Batas file diubah menjadi 5MB
             if (file.size > 5 * 1024 * 1024) {
                  Swal.fire({
                     icon: 'error',
@@ -1184,7 +1160,6 @@
             displayConfirmationSummary(formDataToSubmit);
         });
 
-        // [MODIFIKASI] Handler untuk Form "BELUM" (tanpa file)
         document.getElementById('form-belum').addEventListener('submit', function(e) {
             e.preventDefault();
 
@@ -1203,7 +1178,6 @@
             displayConfirmationSummary(formDataToSubmit);
         });
 
-        // Fungsi display konfirmasi (tetap sama, membaca FormData)
         function displayConfirmationSummary(formData) {
             const summaryContainer = document.getElementById('summary-content');
             let summaryHTML = '';
@@ -1237,7 +1211,6 @@
             confirmationModal.style.display = 'flex';
         }
         
-        // Tombol modal konfirmasi
         document.getElementById('edit-data-btn').addEventListener('click', () => {
             confirmationModal.style.display = 'none';
             formDataToSubmit = null;
@@ -1247,39 +1220,34 @@
             if (formDataToSubmit) submitFinalData(formDataToSubmit);
         });
 
-        // [MODIFIKASI] Fungsi Submit Final dengan SweetAlert2
         async function submitFinalData(formData) {
             showLoading(true, "Mengirim data...");
             const formDataObject = Object.fromEntries(formData.entries());
             
             try {
-                // Cek apakah ada file yang perlu di-upload (hanya untuk form "SUDAH")
                 const fileInput = formData.get('fileBukti');
                 if (fileInput && fileInput.size > 0) {
                     formDataObject.fileBukti = await compressAndReadFile(fileInput);
                 }
                 
-                // Kirim data sebagai JSON
                 const response = await fetch(webAppUrl, { 
                     method: 'POST', 
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // Kirim sebagai text agar GAS bisa parse
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
                     body: JSON.stringify(formDataObject) 
                 });
                 
                 const result = await response.json();
                 
                 if (result.status === 'success') {
-                    // [UPDATE] Menggunakan SweetAlert2 untuk notifikasi sukses
                     Swal.fire({
                         title: 'Berhasil!',
                         text: 'Laporan Anda telah berhasil terkirim!',
                         icon: 'success',
                         confirmButtonText: 'Kembali ke Menu',
                         confirmButtonColor: '#005A9C',
-                        timer: 5000, // Otomatis tutup dalam 5 detik
+                        timer: 5000, 
                         timerProgressBar: true
                     }).then((result) => {
-                        // Reset form yang sesuai dan kembali ke menu utama
                         if (formDataObject.tipe_laporan === 'SUDAH') {
                             document.getElementById('form-sudah').reset();
                         } else {
@@ -1293,7 +1261,6 @@
                 }
             } catch(error) {
                 console.error('Submit Error:', error);
-                // [UPDATE] Menggunakan SweetAlert2 untuk notifikasi error
                 Swal.fire({
                     title: 'Gagal!',
                     text: 'Gagal mengirim data. Pesan: ' + error.message,
@@ -1307,7 +1274,6 @@
             }
         }
         
-        // --- LOGIKA HALAMAN ADMIN ---
         document.getElementById('admin-login-button').addEventListener('click', adminLogin);
         document.getElementById('logout-button').addEventListener('click', adminLogout);
         searchInput.addEventListener('keyup', () => fetchPage(1));
@@ -1356,24 +1322,20 @@
                 if (result.status === 'success') {
                     const { formStatus, popupMessage, waStarSenderStatus, waWablasStatus } = result.data;
                     
-                    // Status Form
                     const formToggle = document.getElementById('form-status-toggle');
                     formToggle.classList.toggle('on', formStatus === 'ON');
                     document.getElementById('form-status-text').textContent = formStatus;
 
-                    // [MODIFIKASI] StarSender Toggle
                     const starToggle = document.getElementById('starsender-status-toggle');
-                    const starStatusDisplay = waStarSenderStatus || 'ON'; // Fallback
+                    const starStatusDisplay = waStarSenderStatus || 'ON'; 
                     starToggle.classList.toggle('on', starStatusDisplay === 'ON');
                     document.getElementById('starsender-status-text').textContent = starStatusDisplay;
 
-                    // [MODIFIKASI] Wablas Toggle
                     const wablasToggle = document.getElementById('wablas-status-toggle');
-                    const wablasStatusDisplay = waWablasStatus || 'OFF'; // Fallback
+                    const wablasStatusDisplay = waWablasStatus || 'OFF'; 
                     wablasToggle.classList.toggle('on', wablasStatusDisplay === 'ON');
                     document.getElementById('wablas-status-text').textContent = wablasStatusDisplay;
                     
-                    // Pesan Popup
                     document.getElementById('popup-message-input').value = popupMessage || '';
                 }
             } catch (e) { 
@@ -1404,7 +1366,6 @@
             finally { showLoading(false); }
         }
 
-        // [BARU] Fungsi toggle StarSender
         async function toggleStarSenderStatus() {
             const newStatus = document.getElementById('starsender-status-toggle').classList.contains('on') ? 'OFF' : 'ON';
             showLoading(true, 'Update StarSender...');
@@ -1425,7 +1386,6 @@
             finally { showLoading(false); }
         }
 
-        // [BARU] Fungsi toggle Wablas
         async function toggleWablasStatus() {
             const newStatus = document.getElementById('wablas-status-toggle').classList.contains('on') ? 'OFF' : 'ON';
             showLoading(true, 'Update Wablas...');
@@ -1447,12 +1407,10 @@
         }
 
 
-        // [BARU] Fungsi simpan pesan popup
         async function savePopupMessage() {
             const newMessage = document.getElementById('popup-message-input').value;
             showLoading(true, 'Menyimpan pesan...');
             try {
-                // [PERBAIKAN] Menggunakan POST dengan FormData
                 const formData = new FormData();
                 formData.append('action', 'updateSettings');
                 formData.append('popupMessage', newMessage);
@@ -1461,7 +1419,6 @@
                 const result = await response.json();
                 
                 if (result.status === 'success') {
-                    // [UPDATE] Notifikasi Sukses
                     Swal.fire({
                         icon: 'success',
                         title: 'Tersimpan',
@@ -1474,14 +1431,12 @@
                 }
             } catch (e) {
                 console.error("Gagal menyimpan pesan:", e);
-                // [UPDATE] Notifikasi Error
                 Swal.fire({ icon: 'error', title: 'Gagal', text: 'Gagal menyimpan pesan popup.' });
             } finally {
                 showLoading(false);
             }
         }
         
-        // [MODIFIKASI] Update fungsi fetchPage untuk menangani statusCounts
         async function fetchPage(page) {
             currentPage = page;
             const searchTerm = searchInput.value;
@@ -1505,13 +1460,11 @@
                     const { headers, pageData, currentPage, totalPages, statusCounts } = result.data;
                     submissionHeaders = headers; 
                     
-                    // [BARU] Update Label Dropdown Filter dengan jumlah
                     if (statusCounts) {
                         updateStatusFilterLabels(statusCounts);
                     }
 
                     displayData(pageData);
-                    // [UPDATE] Memanggil setupPagination yang baru
                     setupPagination(currentPage, totalPages);
                 } else { 
                     tableBody.innerHTML = `<tr><td colspan="15" style="text-align:center; color:red;">Gagal: ${result.message}</td></tr>`; 
@@ -1522,19 +1475,14 @@
             finally { showLoading(false); }
         }
         
-        // [BARU] Fungsi helper untuk memperbarui label filter
         function updateStatusFilterLabels(counts) {
             const select = document.getElementById('status-filter');
-            // Mapping nilai value option ke key di counts object
-            // Perhatikan huruf besar/kecil harus cocok dengan yang ada di server (statusCounts)
             
-            // Loop setiap opsi di select
             Array.from(select.options).forEach(option => {
                 const val = option.value;
                 let count = 0;
                 let originalText = "";
 
-                // Kembalikan teks asli (menghapus tanda kurung sebelumnya jika ada)
                 if (option.textContent.includes(' (')) {
                      originalText = option.textContent.split(' (')[0];
                 } else {
@@ -1547,7 +1495,6 @@
                     count = counts[val] || 0;
                 }
 
-                // Update teks dengan jumlah
                 option.textContent = `${originalText} (${count})`;
             });
         }
@@ -1556,14 +1503,16 @@
             const tableBody = document.querySelector('#submissions-table tbody');
             const tableHead = document.querySelector('#submissions-table thead');
             tableBody.innerHTML = '';
-            tableHead.innerHTML = `<tr>${submissionHeaders.map(h => `<th>${h}</th>`).join('')}</tr>`;
             
-            // [BARU] Cari index kolom NIK & Status untuk referensi
+            let headerHtml = `<th style="width: 40px; text-align:center;"><input type="checkbox" id="select-all-checkbox" onchange="toggleSelectAll(this)"></th>`;
+            headerHtml += submissionHeaders.map(h => `<th>${h}</th>`).join('');
+            tableHead.innerHTML = `<tr>${headerHtml}</tr>`;
+            
             const nikIndex = submissionHeaders.indexOf('NIK');
             const statusIndex = submissionHeaders.indexOf('Status');
 
             if (!pageData || pageData.length === 0) {
-                tableBody.innerHTML = `<tr><td data-label="Info" colspan="${submissionHeaders.length || 1}" style="text-align:center;">Data tidak ditemukan.</td></tr>`;
+                tableBody.innerHTML = `<tr><td data-label="Info" colspan="${submissionHeaders.length + 1}" style="text-align:center;">Data tidak ditemukan.</td></tr>`;
                 return;
             }
 
@@ -1571,7 +1520,11 @@
                 const { rowData, originalIndex } = item;
                 const tr = document.createElement('tr');
                 
-                // [BARU] Ambil value dari baris ini (jika ada)
+                const checkboxTd = document.createElement('td');
+                checkboxTd.style.textAlign = "center";
+                checkboxTd.innerHTML = `<input type="checkbox" class="row-checkbox" value="${originalIndex}" onchange="handleRowCheckboxChange()">`;
+                tr.appendChild(checkboxTd);
+                
                 const nikValue = (nikIndex !== -1) ? rowData[nikIndex] : '';
                 const currentStatus = (statusIndex !== -1) ? rowData[statusIndex] : '';
 
@@ -1582,8 +1535,6 @@
                     
                     if (header === 'Status') {
                         const select = document.createElement('select');
-                        // [PERUBAHAN] Tambah opsi "Bisa Login"
-                        // [PERUBAHAN] Tambah opsi "Sudah Punya Sertifikat Elektronik"
                         select.innerHTML = `
                             <option value="Bisa Login">Bisa Login</option>
                             <option value="Dalam Proses">Dalam Proses</option>
@@ -1597,22 +1548,16 @@
                         td.appendChild(select);
                         updateSelectColor(select);
                     } 
-                    // [MODIFIKASI] Ubah 'Link Bukti Screenshot' menjadi link
                     else if (header === 'Link Bukti Screenshot' && cell && cell.startsWith('http')) {
-                        // [PERUBAHAN] Teks link diubah menjadi "bukti"
                         td.innerHTML = `<a href="${cell}" target="_blank" rel="noopener noreferrer">bukti</a>`;
                     }
-                    // [BARU] Logika khusus untuk kolom NAMA
                     else if (header === 'NAMA' && nikValue) {
-                        // Jadikan link yang memanggil fungsi searchDataByNik
                         td.innerHTML = `<a href="#" onclick="searchDataByNik('${nikValue}'); return false;" style="color: var(--primary-color); font-weight: bold; text-decoration: underline;" title="Klik untuk lihat riwayat NIK ini">${cell}</a>`;
                     }
-                    // [BARU] Logika Khusus untuk kolom Keterangan (Tambah tombol edit)
                     else if (header === 'Keterangan') {
                         const safeKeterangan = cell ? cell.replace(/"/g, '&quot;') : '';
                         const safeStatus = currentStatus ? currentStatus.replace(/"/g, '&quot;') : '';
                         
-                        // Menampilkan teks keterangan + tombol edit kecil
                         td.innerHTML = `
                             <div>
                                 <span style="display:inline-block; margin-right:5px;">${cell || '-'}</span>
@@ -1631,11 +1576,126 @@
                 });
                 tableBody.appendChild(tr);
             });
+            
+            updateFloatingBar();
+        }
+
+        function toggleSelectAll(source) {
+            const checkboxes = document.querySelectorAll('.row-checkbox');
+            checkboxes.forEach(cb => {
+                cb.checked = source.checked;
+            });
+            updateFloatingBar();
+        }
+
+        function handleRowCheckboxChange() {
+            const checkboxes = Array.from(document.querySelectorAll('.row-checkbox'));
+            const allChecked = checkboxes.length > 0 && checkboxes.every(cb => cb.checked);
+            const selectAllCb = document.getElementById('select-all-checkbox');
+            if (selectAllCb) selectAllCb.checked = allChecked;
+            
+            updateFloatingBar();
+        }
+
+        function updateFloatingBar() {
+            const selectedCount = document.querySelectorAll('.row-checkbox:checked').length;
+            const bar = document.getElementById('batch-update-bar');
+            const countSpan = document.getElementById('selected-count');
+            
+            countSpan.textContent = selectedCount;
+            
+            if (selectedCount > 0) {
+                bar.classList.add('visible');
+            } else {
+                bar.classList.remove('visible');
+            }
+        }
+
+        async function executeBatchUpdate() {
+            const selectedCheckboxes = document.querySelectorAll('.row-checkbox:checked');
+            const rowIndices = Array.from(selectedCheckboxes).map(cb => cb.value);
+            const statusSelect = document.getElementById('batch-status-select');
+            const newStatus = statusSelect.value;
+
+            if (rowIndices.length === 0) return;
+            
+            if (!newStatus) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Pilih Status',
+                    text: 'Silakan pilih status baru terlebih dahulu.'
+                });
+                return;
+            }
+
+            const { value: keterangan, isDismissed } = await Swal.fire({
+                title: `Update ${rowIndices.length} Data`,
+                input: 'textarea',
+                inputLabel: `Ubah status menjadi: ${newStatus}`,
+                inputPlaceholder: 'Tulis keterangan (misal: Data sudah lengkap)',
+                inputAttributes: { 'aria-label': 'Keterangan' },
+                showCancelButton: true,
+                confirmButtonText: 'Ya, Proses Update',
+                cancelButtonText: 'Batal',
+                confirmButtonColor: '#005A9C',
+                showLoaderOnConfirm: true,
+                preConfirm: (text) => {
+                    if (!text) {
+                        Swal.showValidationMessage('Keterangan wajib diisi!');
+                    }
+                    return text;
+                }
+            });
+
+            if (isDismissed || !keterangan) return;
+
+            try {
+                Swal.fire({
+                    title: 'Memproses Batch Update',
+                    html: 'Mohon jangan tutup halaman ini.<br>Sedang mengirim notifikasi WhatsApp...',
+                    allowOutsideClick: false,
+                    didOpen: () => { Swal.showLoading(); }
+                });
+
+                const payload = {
+                    rowIndices: rowIndices,
+                    newStatus: newStatus,
+                    keterangan: keterangan
+                };
+
+                const response = await fetch(`${webAppUrl}?action=batchUpdateStatus`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+
+                if (result.status === 'success') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Selesai!',
+                        text: `Berhasil memproses ${result.processed} data.`,
+                    });
+                    
+                    statusSelect.value = "";
+                    updateFloatingBar(); 
+                    fetchPage(currentPage); 
+                } else {
+                    throw new Error(result.message);
+                }
+
+            } catch (error) {
+                console.error(error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal',
+                    text: 'Terjadi kesalahan: ' + error.message
+                });
+            }
         }
         
-        // [BARU] Fungsi Handler untuk Edit Keterangan
         async function handleEditKeterangan(rowIndex, currentStatus, currentKeterangan) {
-            // Dekode entity HTML jika perlu (misal &quot;) -> SweetAlert handle value dengan baik
             
             const { value: text } = await Swal.fire({
                 input: 'textarea',
@@ -1651,23 +1711,19 @@
                 confirmButtonColor: '#005A9C'
             });
 
-            // Jika user menekan simpan (text tidak undefined)
             if (text !== undefined) {
-                // Panggil fungsi update khusus
                 submitKeteranganUpdate(rowIndex, currentStatus, text);
             }
         }
 
-        // [BARU] Fungsi Kirim Update Keterangan ke Server
         async function submitKeteranganUpdate(rowIndex, status, newKeterangan) {
             showLoading(true, "Menyimpan keterangan & Mengirim WA...");
             try {
-                // Menggunakan endpoint yang sama dengan updateStatus agar memicu notifikasi WA
                 const formData = new FormData();
                 formData.append('action', 'updateStatus');
                 formData.append('rowIndex', rowIndex);
-                formData.append('newStatus', status); // Status tetap sama
-                formData.append('keterangan', newKeterangan); // Keterangan baru
+                formData.append('newStatus', status); 
+                formData.append('keterangan', newKeterangan); 
 
                 const response = await fetch(webAppUrl, { method: 'POST', body: formData });
                 const result = await response.json();
@@ -1681,7 +1737,6 @@
                         showConfirmButton: false
                     });
                     
-                    // Refresh data tabel
                     fetchPage(currentPage);
                 } else {
                     throw new Error(result.message);
@@ -1698,15 +1753,12 @@
             }
         }
         
-        // [UPDATE FUNGSI] Fungsi setupPagination dengan Smart Logic
         function setupPagination(currentPage, totalPages) {
             const paginationControls = document.getElementById('pagination-controls');
             paginationControls.innerHTML = '';
 
-            // Jika hanya 1 halaman atau data kosong, sembunyikan navigasi
             if (totalPages <= 1) return;
 
-            // Helper untuk membuat tombol
             const createButton = (text, page, isActive = false, isDisabled = false) => {
                 const btn = document.createElement('button');
                 btn.className = `pagination-btn ${isActive ? 'active' : ''}`;
@@ -1719,7 +1771,6 @@
                 return btn;
             };
 
-            // Helper untuk membuat titik-titik (...)
             const createEllipsis = () => {
                 const span = document.createElement('span');
                 span.className = 'pagination-ellipsis';
@@ -1727,34 +1778,27 @@
                 return span;
             };
 
-            // 1. Tombol Previous (<<)
             paginationControls.appendChild(createButton('«', currentPage - 1, false, currentPage === 1));
 
-            // 2. Logika Angka Halaman (Smart Logic)
-            const maxVisibleButtons = 5; // Jumlah tombol angka maksimal yang muncul berderet
+            const maxVisibleButtons = 5; 
             let startPage, endPage;
 
             if (totalPages <= maxVisibleButtons) {
-                // Jika total halaman sedikit, tampilkan semua
                 startPage = 1;
                 endPage = totalPages;
                 for (let i = startPage; i <= endPage; i++) {
                     paginationControls.appendChild(createButton(i, i, i === currentPage));
                 }
             } else {
-                // Jika halaman banyak, gunakan logika ellipsis
-                // Selalu tampilkan Halaman 1
                 paginationControls.appendChild(createButton(1, 1, 1 === currentPage));
 
                 if (currentPage > 3) {
                     paginationControls.appendChild(createEllipsis());
                 }
 
-                // Tentukan range di sekitar halaman aktif
                 let rangeStart = Math.max(2, currentPage - 1);
                 let rangeEnd = Math.min(totalPages - 1, currentPage + 1);
 
-                // Penyesuaian agar tidak aneh di awal/akhir
                 if (currentPage === 1) { rangeEnd = 3; }
                 if (currentPage === totalPages) { rangeStart = totalPages - 2; }
 
@@ -1766,14 +1810,11 @@
                     paginationControls.appendChild(createEllipsis());
                 }
 
-                // Selalu tampilkan Halaman Terakhir
                 paginationControls.appendChild(createButton(totalPages, totalPages, totalPages === currentPage));
             }
 
-            // 3. Tombol Next (>>)
             paginationControls.appendChild(createButton('»', currentPage + 1, false, currentPage === totalPages));
             
-            // 4. Info Halaman (Opsional - agar admin tahu total data)
             const infoSpan = document.createElement('div');
             infoSpan.className = 'page-info';
             infoSpan.textContent = `Halaman ${currentPage} dari ${totalPages}`;
@@ -1784,22 +1825,19 @@
             const newStatus = selectElement.value;
             const previousValue = selectElement.getAttribute('data-previous-value');
 
-            // Simpan konteks
             statusChangeContext = {
                 rowIndex: rowIndex,
                 selectElement: selectElement,
                 previousValue: previousValue
             };
             
-            // Isi keterangan default
             document.getElementById('keterangan-text').value = newStatus;
             
-            // Tampilkan modal
             statusKeteranganModal.style.display = 'flex';
         }
 
         function updateSelectColor(selectElement) {
-            selectElement.className = ''; // Hapus kelas lama
+            selectElement.className = ''; 
             const statusClass = 'status-' + selectElement.value.toLowerCase().replace(/ /g, '-');
             selectElement.classList.add(statusClass);
         }
@@ -1807,7 +1845,6 @@
         async function updateStatus(newStatus, rowIndex, reason) {
             showLoading(true, "Memperbarui status...");
             try {
-                // [PERBAIKAN] Menggunakan POST dengan FormData
                 const formData = new FormData();
                 formData.append('action', 'updateStatus');
                 formData.append('rowIndex', rowIndex);
@@ -1818,10 +1855,8 @@
                 const result = await response.json();
                 
                 if (result.status === 'success') {
-                    // Update UI
                     statusChangeContext.selectElement.setAttribute('data-previous-value', newStatus);
                     updateSelectColor(statusChangeContext.selectElement);
-                    // [UPDATE] Notifikasi Sukses dengan SweetAlert2
                     Swal.fire({
                         title: 'Status Diperbarui!',
                         text: `Status berhasil diubah menjadi "${newStatus}"`,
@@ -1830,25 +1865,22 @@
                         showConfirmButton: false
                     });
                     
-                    // [BARU] Refresh data untuk memperbarui hitungan
                     fetchPage(currentPage);
                 } else {
                     throw new Error(result.message);
                 }
             } catch(e) {
                 console.error("Gagal memperbarui status:", e);
-                // [UPDATE] Notifikasi Error
                 Swal.fire({
                     title: 'Gagal',
                     text: 'Gagal memperbarui status: ' + e.message,
                     icon: 'error'
                 });
-                // Kembalikan ke nilai lama jika gagal
                 statusChangeContext.selectElement.value = statusChangeContext.previousValue;
             } finally {
                 statusKeteranganModal.style.display = 'none';
                 showLoading(false);
-                statusChangeContext = {}; // Bersihkan konteks
+                statusChangeContext = {}; 
             }
         }
         
@@ -1868,21 +1900,16 @@
                     const worksheet = XLSX.utils.aoa_to_sheet([headers, ...rows]);
                     const workbook = XLSX.utils.book_new();
                     XLSX.utils.book_append_sheet(workbook, worksheet, "Submisi");
-                    XLSX.writeFile(workbook, "Data_Evaluasi_CoreTax.xlsx"); // Nama file diubah
+                    XLSX.writeFile(workbook, "Data_Evaluasi_CoreTax.xlsx"); 
                 } else { 
-                    // [UPDATE] Notifikasi Info
                     Swal.fire({ icon: 'info', title: 'Data Kosong', text: "Tidak ada data untuk diunduh." }); 
                 }
             } catch(e) { 
-                // [UPDATE] Notifikasi Error
                 Swal.fire({ icon: 'error', title: 'Gagal', text: "Gagal mengunduh data." });
             } 
             finally { showLoading(false); }
         }
 
-        // --- FUNGSI HELPERS & INISIALISASI ---
-        
-        // [MODIFIKASI] Memeriksa status untuk kedua form
         async function checkFormStatusForUser() { 
             try { 
                 const response = await fetch(`${webAppUrl}?action=getSettings`); 
@@ -1891,17 +1918,13 @@
                 if (result.status === 'success') {
                     const isOff = result.data.formStatus === 'OFF';
                     
-                    // Terapkan ke form "SUDAH"
                     document.getElementById('form-sudah').classList.toggle('hidden', isOff); 
                     document.getElementById('form-closed-message-sudah').classList.toggle('hidden', !isOff); 
                     
-                    // Terapkan ke form "BELUM"
                     document.getElementById('form-belum').classList.toggle('hidden', isOff); 
                     document.getElementById('form-closed-message-belum').classList.toggle('hidden', !isOff); 
 
-                    // Tampilkan Popup Selamat Datang
                     if (result.data.popupMessage) {
-                        // [PERBAIKAN] Hapus .replace() agar bisa merender HTML dari admin
                         document.getElementById('welcome-message-content').innerHTML = result.data.popupMessage;
                         welcomeModal.style.display = 'flex';
                     }
@@ -1911,7 +1934,6 @@
             } 
         }
         
-        // [MODIFIKASI] handleRuanganChange dibuat generik
         function handleRuanganChange(select, groupId, inputId){ 
             const lainnyaGroup = document.getElementById(groupId); 
             const lainnyaInput = document.getElementById(inputId); 
@@ -1921,10 +1943,8 @@
             if (!isLainnya) lainnyaInput.value = ''; 
         }
 
-        // [DIAKTIFKAN] Fungsi kompresi file
         function compressAndReadFile(file){ 
             return new Promise((resolve, reject) => { 
-                // Jika PDF, jangan kompres, baca langsung
                 if (file.type === 'application/pdf') {
                     const reader = new FileReader(); 
                     reader.onload = () => resolve({ base64: reader.result.split(',')[1], type: file.type, name: file.name }); 
@@ -1933,7 +1953,6 @@
                     return; 
                 }
                 
-                // Jika Gambar, kompres
                 if (file.type.startsWith('image/')) {
                     const reader = new FileReader(); 
                     reader.onload = e => { 
@@ -1941,12 +1960,12 @@
                         img.onload = () => { 
                             const canvas = document.createElement('canvas'); 
                             const ctx = canvas.getContext('2d'); 
-                            const MAX_WIDTH = 1024; // Kompres ke lebar maks 1024px
+                            const MAX_WIDTH = 1024; 
                             const scaleSize = (img.width > MAX_WIDTH) ? MAX_WIDTH / img.width : 1;
                             canvas.width = img.width * scaleSize; 
                             canvas.height = img.height * scaleSize; 
                             ctx.drawImage(img, 0, 0, canvas.width, canvas.height); 
-                            const dataUrl = canvas.toDataURL('image/jpeg', 0.8); // Kompresi 80%
+                            const dataUrl = canvas.toDataURL('image/jpeg', 0.8); 
                             resolve({ base64: dataUrl.split(',')[1], type: 'image/jpeg', name: 'compressed_screenshot.jpg' }); 
                         }; 
                         img.onerror = reject;
@@ -1955,7 +1974,6 @@
                     reader.onerror = reject; 
                     reader.readAsDataURL(file);
                 } else {
-                    // Tipe file lain tidak didukung untuk upload
                     reject(new Error('Tipe file tidak didukung. Harap upload JPG, PNG, atau PDF.'));
                 }
             }); 
@@ -1967,24 +1985,21 @@
         }
         
         window.addEventListener('load', () => { 
-            // --- Event Listener Modal ---
             document.getElementById('welcome-modal-close-btn').addEventListener('click', () => {
                 welcomeModal.style.display = 'none';
             });
             
             document.getElementById('batal-keterangan-btn').addEventListener('click', () => {
-                // Kembalikan select ke nilai lama
                 if (statusChangeContext.selectElement) {
                     statusChangeContext.selectElement.value = statusChangeContext.previousValue;
                 }
                 statusKeteranganModal.style.display = 'none';
-                statusChangeContext = {}; // Bersihkan konteks
+                statusChangeContext = {}; 
             });
 
             document.getElementById('simpan-keterangan-btn').addEventListener('click', () => {
                 const keterangan = document.getElementById('keterangan-text').value;
                 if (!keterangan) {
-                    // [UPDATE] Gunakan Swal
                     Swal.fire({icon: 'warning', title: 'Perhatian', text: 'Keterangan tidak boleh kosong.'});
                     return;
                 }
@@ -1994,7 +2009,6 @@
                 }
             });
 
-            // --- Setup Validasi & Hint ---
             function setupHint(inputId, hintId) {
                 const input = document.getElementById(inputId);
                 const hint = document.getElementById(hintId);
@@ -2026,18 +2040,14 @@
                 }
             }
 
-            // Setup hints untuk form "SUDAH"
             setupHint('nama-sudah', 'nama-hint-sudah');
             setupHint('email-sudah', 'email-hint-sudah');
             setupNikValidation('nik-sudah', 'nik-hint-sudah');
-            // [PERBAIKAN] ID hint sudah benar
             setupHint('nomorHp-sudah', 'nomorHp-hint-sudah');
             
-            // Setup hints untuk form "BELUM"
             setupHint('nama-belum', 'nama-hint-belum');
             setupHint('email-belum', 'email-hint-belum');
             setupNikValidation('nik-belum', 'nik-hint-belum');
-            // [PERBAIKAN] ID hint sudah benar
             setupHint('nomorHp-belum', 'nomorHp-hint-belum');
         });
     </script>
