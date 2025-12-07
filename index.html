@@ -692,6 +692,49 @@
         </div>
     </div>
 
+    <!-- [BARU] Modal Pengaturan Sistem (Dipindah dari halaman utama admin) -->
+    <div id="settings-modal" class="overlay">
+        <div class="modal-box">
+            <h2>⚙️ Pengaturan Sistem</h2>
+            <div class="modal-content" style="text-align: left;">
+                
+                <div class="toggle-wrapper">
+                    <div class="toggle-switch">
+                        <label style="min-width: 150px;">Status Formulir:</label>
+                        <div id="form-status-toggle" onclick="toggleFormStatus()"><span></span></div>
+                        <strong id="form-status-text" style="margin-left: 10px;">ON</strong>
+                    </div>
+                </div>
+
+                <div class="toggle-wrapper">
+                    <div class="toggle-switch">
+                        <label style="min-width: 150px;">API StarSender:</label>
+                        <div id="starsender-status-toggle" onclick="toggleStarSenderStatus()"><span></span></div>
+                        <strong id="starsender-status-text" style="margin-left: 10px;">ON</strong>
+                    </div>
+                </div>
+
+                <div class="toggle-wrapper">
+                    <div class="toggle-switch">
+                        <label style="min-width: 150px;">API Wablas:</label>
+                        <div id="wablas-status-toggle" onclick="toggleWablasStatus()"><span></span></div>
+                        <strong id="wablas-status-text" style="margin-left: 10px;">OFF</strong>
+                    </div>
+                </div>
+
+                <div class="admin-setting-group">
+                    <label for="popup-message-input">Pesan Popup Selamat Datang (HTML didukung)</label>
+                    <textarea id="popup-message-input"></textarea>
+                    <button id="save-popup-message-btn" class="button" onclick="savePopupMessage()">Simpan Pesan Popup</button>
+                </div>
+
+            </div>
+            <div class="modal-buttons">
+                <button id="btn-close-settings" class="button" style="background-color: #6c757d; color:white;">Tutup</button>
+            </div>
+        </div>
+    </div>
+
     <div id="confirmation-modal" class="overlay">
         <div class="modal-box">
             <h2>Konfirmasi Data Anda</h2>
@@ -814,43 +857,18 @@
         <div class="container">
             <header><h1>Dashboard Admin</h1></header>
             <div class="admin-container">
-                <div class="admin-section">
-                    <h2>Pengaturan Formulir & Notifikasi</h2>
-                    
-                    <div class="toggle-wrapper">
-                        <div class="toggle-switch">
-                            <label style="min-width: 150px;">Status Formulir:</label>
-                            <div id="form-status-toggle" onclick="toggleFormStatus()"><span></span></div>
-                            <strong id="form-status-text" style="margin-left: 10px;">ON</strong>
-                        </div>
-                    </div>
+                
+                <!-- [MODIFIKASI] Bagian Admin Section Lama Dihapus -->
+                <!-- Sebagai gantinya, tombol pengaturan ditambahkan di atas tabel data -->
 
-                    <div class="toggle-wrapper">
-                        <div class="toggle-switch">
-                            <label style="min-width: 150px;">API StarSender:</label>
-                            <div id="starsender-status-toggle" onclick="toggleStarSenderStatus()"><span></span></div>
-                            <strong id="starsender-status-text" style="margin-left: 10px;">ON</strong>
-                        </div>
-                    </div>
-
-                    <div class="toggle-wrapper">
-                        <div class="toggle-switch">
-                            <label style="min-width: 150px;">API Wablas:</label>
-                            <div id="wablas-status-toggle" onclick="toggleWablasStatus()"><span></span></div>
-                            <strong id="wablas-status-text" style="margin-left: 10px;">OFF</strong>
-                        </div>
-                    </div>
-
-                    <div class="admin-setting-group">
-                        <label for="popup-message-input">Pesan Popup Selamat Datang (HTML didukung)</label>
-                        <textarea id="popup-message-input"></textarea>
-                        <button id="save-popup-message-btn" class="button" onclick="savePopupMessage()">Simpan Pesan Popup</button>
-                    </div>
-                </div>
                 <div class="admin-section">
                     <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
                         <h2>Data Submisi</h2>
-                        <button id="refresh-data" style="width:auto; padding: 5px 10px; font-size: 0.8em;" onclick="fetchPage(1)">Refresh</button>
+                        <div style="display: flex; gap: 10px;">
+                             <!-- [BARU] Tombol untuk membuka popup pengaturan -->
+                            <button id="btn-open-settings" style="width:auto; padding: 5px 15px; font-size: 0.9em; background-color: #6c757d; border:none; border-radius: 4px; color: white; cursor: pointer;">⚙️ Pengaturan Sistem</button>
+                            <button id="refresh-data" style="width:auto; padding: 5px 10px; font-size: 0.8em;" onclick="fetchPage(1)">Refresh</button>
+                        </div>
                     </div>
                     <div class="admin-controls">
                         <input type="text" id="search-input" placeholder="Cari data...">
@@ -906,6 +924,11 @@
         const welcomeModal = document.getElementById('welcome-modal');
         const confirmationModal = document.getElementById('confirmation-modal');
         const statusKeteranganModal = document.getElementById('status-keterangan-modal');
+        
+        // [BARU] Modal Settings Elements
+        const settingsModal = document.getElementById('settings-modal');
+        const btnOpenSettings = document.getElementById('btn-open-settings');
+        const btnCloseSettings = document.getElementById('btn-close-settings');
 
         document.getElementById('btn-sudah').addEventListener('click', () => {
             pilihanAwalContainer.classList.add('hidden');
@@ -1290,6 +1313,18 @@
         searchInput.addEventListener('keyup', () => fetchPage(1));
         statusFilter.addEventListener('change', () => fetchPage(1));
         downloadButton.addEventListener('click', downloadXLSX);
+        
+        // [BARU] Event Listener untuk tombol Pengaturan
+        if(btnOpenSettings){
+            btnOpenSettings.addEventListener('click', () => {
+                settingsModal.style.display = 'flex';
+            });
+        }
+        if(btnCloseSettings){
+            btnCloseSettings.addEventListener('click', () => {
+                settingsModal.style.display = 'none';
+            });
+        }
 
         async function adminLogin() {
             const password = document.getElementById('admin-password').value;
