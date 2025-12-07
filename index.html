@@ -28,6 +28,11 @@
             --sertifikat-bg: #f3e5f5; 
             --sertifikat-color: #6a1b9a;
             --sertifikat-border: #e1bee7;
+            
+            /* [BARU] Styling untuk status Arsip */
+            --arsip-bg: #e0e0e0;
+            --arsip-color: #424242;
+            --arsip-border: #bdbdbd;
 
             --wa-color: #25D366;
             --wa-dark: #128C7E;
@@ -465,6 +470,9 @@
         .status-bisa-login { background-color: var(--bisa-login-bg); color: var(--bisa-login-color); border-color: var(--bisa-login-border); }
         .status-sudah-punya-sertifikat-elektronik { background-color: var(--sertifikat-bg); color: var(--sertifikat-color); border-color: var(--sertifikat-border); }
         
+        /* [BARU] Styling untuk Status Arsip */
+        .status-arsip { background-color: var(--arsip-bg); color: var(--arsip-color); border-color: var(--arsip-border); }
+        
         .input-hint { font-size: 0.8em; color: #555; margin-top: 5px; }
         .input-hint.error { color: var(--error-color); font-weight: 600; }
         body.admin-view { padding: 0; background-image: none; background-color: #f0f2f5; }
@@ -665,6 +673,7 @@
                     <option value="Sudah Sesuai">Sudah Sesuai</option>
                     <option value="Telah Disesuaikan">Telah Disesuaikan</option>
                     <option value="Lainnya">Lainnya</option>
+                    <option value="Arsip">Arsip</option>
                 </select>
                 <button onclick="executeBatchUpdate()" class="fab-btn">Update Massal</button>
             </div>
@@ -853,6 +862,7 @@
                             <option value="Telah Disesuaikan">Telah Disesuaikan</option>
                             <option value="Sudah Punya Sertifikat Elektronik">Sudah Punya Sertifikat Elektronik</option>
                             <option value="Lainnya">Lainnya</option>
+                            <option value="Arsip">Arsip</option>
                         </select>
                         <button id="download-xlsx" class="download-button">Unduh .xlsx</button>
                     </div>
@@ -1542,7 +1552,8 @@
                             <option value="Sudah Punya Sertifikat Elektronik">Sudah Punya Sertifikat Elektronik</option>
                             <option value="Sudah Sesuai">Sudah Sesuai</option>
                             <option value="Telah Disesuaikan">Telah Disesuaikan</option>
-                            <option value="Lainnya">Lainnya</option>`;
+                            <option value="Lainnya">Lainnya</option>
+                            <option value="Arsip">Arsip</option>`;
                         select.value = cell;
                         select.setAttribute('data-previous-value', cell);
                         select.onchange = (event) => handleStatusChange(event.target, originalIndex);
