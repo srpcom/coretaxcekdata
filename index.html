@@ -1662,9 +1662,15 @@
             if (isDismissed || !keterangan) return;
 
             try {
+                // [MODIFIKASI] Pesan loading dinamis berdasarkan status
+                let loadingText = 'Sedang mengirim notifikasi WhatsApp...';
+                if (newStatus === 'Arsip') {
+                    loadingText = 'Sedang menyimpan data arsip...';
+                }
+
                 Swal.fire({
                     title: 'Memproses Batch Update',
-                    html: 'Mohon jangan tutup halaman ini.<br>Sedang mengirim notifikasi WhatsApp...',
+                    html: 'Mohon jangan tutup halaman ini.<br>' + loadingText,
                     allowOutsideClick: false,
                     didOpen: () => { Swal.showLoading(); }
                 });
@@ -1729,7 +1735,16 @@
         }
 
         async function submitKeteranganUpdate(rowIndex, status, newKeterangan) {
-            showLoading(true, "Menyimpan keterangan & Mengirim WA...");
+            // [MODIFIKASI] Teks loading dan sukses dinamis berdasarkan status 'Arsip'
+            let loadingMsg = "Menyimpan keterangan & Mengirim WA...";
+            let successMsg = "Keterangan diperbarui & Notifikasi WA terkirim.";
+
+            if (status === 'Arsip') {
+                loadingMsg = "Menyimpan keterangan...";
+                successMsg = "Keterangan diperbarui.";
+            }
+
+            showLoading(true, loadingMsg);
             try {
                 const formData = new FormData();
                 formData.append('action', 'updateStatus');
@@ -1743,7 +1758,7 @@
                 if (result.status === 'success') {
                     Swal.fire({
                         title: 'Berhasil!',
-                        text: 'Keterangan diperbarui & Notifikasi WA terkirim.',
+                        text: successMsg,
                         icon: 'success',
                         timer: 2000,
                         showConfirmButton: false
