@@ -1561,11 +1561,13 @@
             let data = {};
             headers.forEach((h, i) => data[h] = rowData[i]);
 
-            // 3. Replikasi Logika Pesan dari gas.gs (createSubmissionWhatsAppMessage)
+            // 3. Replikasi Logika Pesan dari gas.gs
             const nama = data['NAMA'] || '';
             const tipeLaporan = data['Tipe Laporan'] || 'Laporan';
-            let tipeLaporanLabel = 'Laporan'; 
+            const currentStatus = data['Status'];
+            const keterangan = data['Keterangan'] || '-';
             
+            let tipeLaporanLabel = 'Laporan'; 
             if (tipeLaporan === 'SUDAH') {
                 tipeLaporanLabel = 'Dapat LOGIN';
             } else if (tipeLaporan === 'BELUM') {
@@ -1579,32 +1581,59 @@
             const nomorHp = data['NOMOR HP'] || '';
             const ruangan = data['RUANGAN'] || '';
             const statusKepeg = data['Status Kepegawaian'] || '';
-            const statusLaporan = data['Status'] || 'Dalam Proses'; 
             const linkBukti = data['Link Bukti Screenshot'] || '';
 
-            // Construct Message
-            let msg = `*Konfirmasi Laporan SPT CoreTax*\n\n`;
-            msg += `Assalamu'alaikum *_${nama}_*,\n\n`;
-            msg += `Laporan Anda (${tipeLaporanLabel}) dengan data berikut telah kami terima:\n\n`;
-            
-            msg += `*ID Laporan*: ${idPermohonan}\n`;
-            msg += `*Timestamp*: ${timestamp}\n`; 
-            msg += `*Nama*: ${nama}\n`;
-            msg += `*NIK*: ${nik}\n`;
-            msg += `*Email*: ${email}\n`;
-            msg += `*Nomor HP*: ${nomorHp}\n`;
-            msg += `*Ruangan*: ${ruangan}\n`;
-            msg += `*Status Kepeg.*: ${statusKepeg}\n`;
-            
+            let msg = "";
+
+            // [LOGIKA BARU] Cek apakah Status masih "Initial" atau sudah berubah
+            const isInitialSudah = (tipeLaporan === 'SUDAH' && currentStatus === 'Bisa Login');
+            const isInitialBelum = (tipeLaporan === 'BELUM' && currentStatus === 'Dalam Proses');
+
+            // --- FORMAT PESAN BODY (SAMA UNTUK KEDUANYA) ---
+            let body = `*ID Laporan*: ${idPermohonan}\n`;
+            body += `*Timestamp*: ${timestamp}\n`; 
+            body += `*Nama*: ${nama}\n`;
+            body += `*NIK*: ${nik}\n`;
+            body += `*Email*: ${email}\n`;
+            body += `*Nomor HP*: ${nomorHp}\n`;
+            body += `*Ruangan*: ${ruangan}\n`;
+            body += `*Status Kepeg.*: ${statusKepeg}\n`;
             if (linkBukti && linkBukti.startsWith('http')) {
-                msg += `*Link Bukti*: ${linkBukti}\n`;
+                body += `*Link Bukti*: ${linkBukti}\n`;
             }
-            
-            msg += `\nStatus laporan Anda saat ini: *${statusLaporan}*.\n\n`;
-            msg += `apakah data diatas sudah benar ?\n`;
-            msg += `balas pesan ini dgn : Ya/Tidak\n\n`;
-            msg += `jika tidak silakan isi ulang form.\n\n`;
-            msg += `*Terima kasih*`;
+
+            if (isInitialSudah || isInitialBelum) {
+                // --- FORMAT A: KONFIRMASI LAPORAN (Status Awal) ---
+                msg = `*Konfirmasi Laporan SPT CoreTax*\n\n`;
+                msg += `Assalamu'alaikum *_${nama}_*,\n\n`;
+                msg += `Laporan Anda (${tipeLaporanLabel}) dengan data berikut telah kami terima:\n\n`;
+                msg += body;
+                msg += `\nStatus laporan Anda saat ini: *${currentStatus}*.\n\n`;
+                msg += `apakah data diatas sudah benar ?\n`;
+                msg += `balas pesan ini dgn : Ya/Tidak\n\n`;
+                msg += `jika tidak silakan isi ulang form.\n\n`;
+                msg += `*Terima kasih*`;
+            } else {
+                // --- FORMAT B: UPDATE STATUS (Status Berubah) ---
+                msg = `*Update Status Laporan SPT CoreTax*\n\n`;
+                msg += `Assalamu'alaikum *_${nama}_*,\n\n`;
+                msg += `Status untuk laporan Anda (${tipeLaporanLabel}) dengan data berikut telah diperbarui:\n\n`;
+                msg += body;
+                msg += `\n*Status Baru*: ${currentStatus}`;
+                msg += `\n*Keterangan*: ${keterangan}\n\n`;
+
+                if (currentStatus === 'Sudah Punya Sertifikat Elektronik') {
+                    msg += `Sertifikat ini dapat digunakan untuk pengisian SPT\n\n`;
+                }
+                else if (currentStatus && currentStatus.toLowerCase() === 'telah disesuaikan') {
+                    msg += `langkah selanjutnya \n`;
+                    msg += `1. silakan lakukan login pada https://coretaxdjp.pajak.go.id/identityproviderportal/Account/Login\n`;
+                    msg += `pilih lupa password.\n`;
+                    msg += `dan cukupi data\n`;
+                    msg += `2. isi formulir lagi bahwa anda sdh bisa login di https://koesmacoretax.tubankab.cloud/\n\n`;
+                }
+                msg += `Terima kasih.`;
+            }
 
             // 4. Encode Pesan untuk URL
             const encodedMsg = encodeURIComponent(msg);
