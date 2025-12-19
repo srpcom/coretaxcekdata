@@ -910,44 +910,155 @@
             previousValue: ''
         };
         
-        const pilihanAwalContainer = document.getElementById('pilihan-awal-container');
-        const formSudahContainer = document.getElementById('form-sudah-container');
-        const formBelumContainer = document.getElementById('form-belum-container');
-        const adminLoginPage = document.getElementById('admin-login-page');
-        const adminDashboard = document.getElementById('admin-dashboard');
+        // [BARU] Variable untuk Global Indexing
+        let certifiedNikSet = new Set();
+        let isGlobalDataLoaded = false;
+        let lastPageData = [];
 
-        const searchInput = document.getElementById('search-input');
-        const statusFilter = document.getElementById('status-filter');
-        const downloadButton = document.getElementById('download-xlsx');
-        
-        const loadingOverlay = document.getElementById('loading-overlay');
-        const welcomeModal = document.getElementById('welcome-modal');
-        const confirmationModal = document.getElementById('confirmation-modal');
-        const statusKeteranganModal = document.getElementById('status-keterangan-modal');
-        
-        // [BARU] Modal Settings Elements
-        const settingsModal = document.getElementById('settings-modal');
-        const btnOpenSettings = document.getElementById('btn-open-settings');
-        const btnCloseSettings = document.getElementById('btn-close-settings');
+        // DOM Element References (Initialized in DOMContentLoaded)
+        let pilihanAwalContainer, formSudahContainer, formBelumContainer, adminLoginPage, adminDashboard;
+        let searchInput, statusFilter, downloadButton;
+        let loadingOverlay, welcomeModal, confirmationModal, statusKeteranganModal;
+        let settingsModal, btnOpenSettings, btnCloseSettings;
 
-        document.getElementById('btn-sudah').addEventListener('click', () => {
-            pilihanAwalContainer.classList.add('hidden');
-            formSudahContainer.classList.remove('hidden');
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize DOM Elements
+            pilihanAwalContainer = document.getElementById('pilihan-awal-container');
+            formSudahContainer = document.getElementById('form-sudah-container');
+            formBelumContainer = document.getElementById('form-belum-container');
+            adminLoginPage = document.getElementById('admin-login-page');
+            adminDashboard = document.getElementById('admin-dashboard');
+
+            searchInput = document.getElementById('search-input');
+            statusFilter = document.getElementById('status-filter');
+            downloadButton = document.getElementById('download-xlsx');
+            
+            loadingOverlay = document.getElementById('loading-overlay');
+            welcomeModal = document.getElementById('welcome-modal');
+            confirmationModal = document.getElementById('confirmation-modal');
+            statusKeteranganModal = document.getElementById('status-keterangan-modal');
+            
+            settingsModal = document.getElementById('settings-modal');
+            btnOpenSettings = document.getElementById('btn-open-settings');
+            btnCloseSettings = document.getElementById('btn-close-settings');
+
+            // Attach Event Listeners
+            document.getElementById('btn-sudah')?.addEventListener('click', () => {
+                pilihanAwalContainer.classList.add('hidden');
+                formSudahContainer.classList.remove('hidden');
+            });
+
+            document.getElementById('btn-belum')?.addEventListener('click', () => {
+                pilihanAwalContainer.classList.add('hidden');
+                formBelumContainer.classList.remove('hidden');
+            });
+
+            document.querySelectorAll('.btn-kembali').forEach(button => {
+                button.addEventListener('click', showMainForm);
+            });
+            
+            document.getElementById('btn-cek-dataku')?.addEventListener('click', showCheckDataModal);
+
+            window.addEventListener('hashchange', handleRouteChange);
+            
+            // Setup Forms
+            document.getElementById('form-sudah')?.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const invalidFields = getInvalidFields(this);
+                if (invalidFields.length > 0) {
+                    Swal.fire({icon: 'warning', title: 'Data Belum Lengkap', text: 'Mohon lengkapi kolom berikut:\n\n' + invalidFields.join(', '), confirmButtonColor: '#d33'});
+                    return;
+                }
+                const fileInput = document.getElementById('fileBukti');
+                const file = fileInput.files[0];
+                if (file.size > 5 * 1024 * 1024) {
+                     Swal.fire({icon: 'error', title: 'File Terlalu Besar', text: 'Ukuran file maksimal 5MB.', confirmButtonColor: '#d33'});
+                     return;
+                }
+                formDataToSubmit = new FormData(this);
+                displayConfirmationSummary(formDataToSubmit);
+            });
+
+            document.getElementById('form-belum')?.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const invalidFields = getInvalidFields(this);
+                if (invalidFields.length > 0) {
+                    Swal.fire({icon: 'warning', title: 'Data Belum Lengkap', text: 'Mohon lengkapi kolom berikut:\n\n' + invalidFields.join(', '), confirmButtonColor: '#d33'});
+                    return;
+                }
+                formDataToSubmit = new FormData(this);
+                displayConfirmationSummary(formDataToSubmit);
+            });
+
+            // Modal Buttons
+            document.getElementById('edit-data-btn')?.addEventListener('click', () => {
+                confirmationModal.style.display = 'none';
+                formDataToSubmit = null;
+            });
+            document.getElementById('confirm-submit-btn')?.addEventListener('click', () => {
+                confirmationModal.style.display = 'none';
+                if (formDataToSubmit) submitFinalData(formDataToSubmit);
+            });
+
+            // Admin Logic
+            document.getElementById('admin-login-button')?.addEventListener('click', adminLogin);
+            document.getElementById('logout-button')?.addEventListener('click', adminLogout);
+            
+            searchInput?.addEventListener('keyup', () => fetchPage(1, true)); 
+            statusFilter?.addEventListener('change', () => fetchPage(1, true)); 
+            downloadButton?.addEventListener('click', downloadXLSX);
+            
+            // Settings Logic
+            if(btnOpenSettings){
+                btnOpenSettings.addEventListener('click', () => {
+                    settingsModal.style.display = 'flex';
+                });
+            }
+            if(btnCloseSettings){
+                btnCloseSettings.addEventListener('click', () => {
+                    settingsModal.style.display = 'none';
+                });
+            }
+
+            // Other Modals
+            document.getElementById('welcome-modal-close-btn')?.addEventListener('click', () => {
+                welcomeModal.style.display = 'none';
+            });
+            
+            document.getElementById('batal-keterangan-btn')?.addEventListener('click', () => {
+                if (statusChangeContext.selectElement) {
+                    statusChangeContext.selectElement.value = statusChangeContext.previousValue;
+                }
+                statusKeteranganModal.style.display = 'none';
+                statusChangeContext = {}; 
+            });
+
+            document.getElementById('simpan-keterangan-btn')?.addEventListener('click', () => {
+                const keterangan = document.getElementById('keterangan-text').value;
+                if (!keterangan) {
+                    Swal.fire({icon: 'warning', title: 'Perhatian', text: 'Keterangan tidak boleh kosong.'});
+                    return;
+                }
+                const { rowIndex, selectElement } = statusChangeContext;
+                if (rowIndex && selectElement) {
+                    updateStatus(selectElement.value, rowIndex, keterangan);
+                }
+            });
+
+            // Setup Hints
+            setupHint('nama-sudah', 'nama-hint-sudah');
+            setupHint('email-sudah', 'email-hint-sudah');
+            setupNikValidation('nik-sudah', 'nik-hint-sudah');
+            setupHint('nomorHp-sudah', 'nomorHp-hint-sudah');
+            
+            setupHint('nama-belum', 'nama-hint-belum');
+            setupHint('email-belum', 'email-hint-belum');
+            setupNikValidation('nik-belum', 'nik-hint-belum');
+            setupHint('nomorHp-belum', 'nomorHp-hint-belum');
+
+            // Initial Load Logic
+            handleRouteChange();
         });
-
-        document.getElementById('btn-belum').addEventListener('click', () => {
-            pilihanAwalContainer.classList.add('hidden');
-            formBelumContainer.classList.remove('hidden');
-        });
-
-        document.querySelectorAll('.btn-kembali').forEach(button => {
-            button.addEventListener('click', showMainForm);
-        });
-        
-        document.getElementById('btn-cek-dataku').addEventListener('click', showCheckDataModal);
-
-        window.addEventListener('hashchange', handleRouteChange);
-        window.addEventListener('load', handleRouteChange);
 
         // [MODIFIKASI: ROUTING BARU]
         function handleRouteChange() {
@@ -962,6 +1073,11 @@
                 }
                 
                 showDashboard(); // Tampilkan UI Dashboard
+
+                // [BARU] Trigger background fetch jika belum loaded
+                if (!isGlobalDataLoaded) {
+                     fetchAllNiksBackground();
+                }
 
                 // PARSING URL: #admin/STATUS/HALAMAN
                 // 1. Hilangkan '#admin'
@@ -1000,32 +1116,32 @@
         }
         
         function showMainForm() {
-            adminLoginPage.classList.add('hidden');
-            adminDashboard.classList.add('hidden');
-            formSudahContainer.classList.add('hidden');
-            formBelumContainer.classList.add('hidden');
+            adminLoginPage?.classList.add('hidden');
+            adminDashboard?.classList.add('hidden');
+            formSudahContainer?.classList.add('hidden');
+            formBelumContainer?.classList.add('hidden');
             
-            pilihanAwalContainer.classList.remove('hidden');
+            pilihanAwalContainer?.classList.remove('hidden');
             document.body.classList.remove('admin-view');
             
             checkFormStatusForUser();
         }
         
         function showAdminLogin() {
-            pilihanAwalContainer.classList.add('hidden');
-            formSudahContainer.classList.add('hidden');
-            formBelumContainer.classList.add('hidden');
-            adminLoginPage.classList.remove('hidden');
-            adminDashboard.classList.add('hidden');
+            pilihanAwalContainer?.classList.add('hidden');
+            formSudahContainer?.classList.add('hidden');
+            formBelumContainer?.classList.add('hidden');
+            adminLoginPage?.classList.remove('hidden');
+            adminDashboard?.classList.add('hidden');
             document.body.classList.remove('admin-view');
         }
         
         function showDashboard() {
-            pilihanAwalContainer.classList.add('hidden');
-            formSudahContainer.classList.add('hidden');
-            formBelumContainer.classList.add('hidden');
-            adminLoginPage.classList.add('hidden');
-            adminDashboard.classList.remove('hidden');
+            pilihanAwalContainer?.classList.add('hidden');
+            formSudahContainer?.classList.add('hidden');
+            formBelumContainer?.classList.add('hidden');
+            adminLoginPage?.classList.add('hidden');
+            adminDashboard?.classList.remove('hidden');
             document.body.classList.add('admin-view');
             
             // [MODIFIKASI] loadAdminData() dihapus dari sini.
@@ -1209,54 +1325,6 @@
             
             return [...new Set(invalidFields)];
         }
-        
-        document.getElementById('form-sudah').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const invalidFields = getInvalidFields(this);
-            if (invalidFields.length > 0) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Data Belum Lengkap',
-                    text: 'Mohon lengkapi kolom berikut:\n\n' + invalidFields.join(', '),
-                    confirmButtonColor: '#d33'
-                });
-                return;
-            }
-            
-            const fileInput = document.getElementById('fileBukti');
-            const file = fileInput.files[0];
-            if (file.size > 5 * 1024 * 1024) {
-                 Swal.fire({
-                    icon: 'error',
-                    title: 'File Terlalu Besar',
-                    text: 'Ukuran file maksimal 5MB.',
-                    confirmButtonColor: '#d33'
-                });
-                 return;
-            }
-
-            formDataToSubmit = new FormData(this);
-            displayConfirmationSummary(formDataToSubmit);
-        });
-
-        document.getElementById('form-belum').addEventListener('submit', function(e) {
-            e.preventDefault();
-
-            const invalidFields = getInvalidFields(this);
-            if (invalidFields.length > 0) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Data Belum Lengkap',
-                    text: 'Mohon lengkapi kolom berikut:\n\n' + invalidFields.join(', '),
-                    confirmButtonColor: '#d33'
-                });
-                return;
-            }
-            
-            formDataToSubmit = new FormData(this);
-            displayConfirmationSummary(formDataToSubmit);
-        });
 
         function displayConfirmationSummary(formData) {
             const summaryContainer = document.getElementById('summary-content');
@@ -1290,15 +1358,6 @@
             summaryContainer.innerHTML = summaryHTML;
             confirmationModal.style.display = 'flex';
         }
-        
-        document.getElementById('edit-data-btn').addEventListener('click', () => {
-            confirmationModal.style.display = 'none';
-            formDataToSubmit = null;
-        });
-        document.getElementById('confirm-submit-btn').addEventListener('click', () => {
-            confirmationModal.style.display = 'none';
-            if (formDataToSubmit) submitFinalData(formDataToSubmit);
-        });
 
         async function submitFinalData(formData) {
             showLoading(true, "Mengirim data...");
@@ -1353,29 +1412,6 @@
                 formDataToSubmit = null;
             }
         }
-        
-        document.getElementById('admin-login-button').addEventListener('click', adminLogin);
-        document.getElementById('logout-button').addEventListener('click', adminLogout);
-        
-        // [MODIFIKASI] Event Listeners untuk fetchPage
-        // Jika search berubah, refresh page 1 (URL update)
-        searchInput.addEventListener('keyup', () => fetchPage(1, true)); 
-        // Jika status filter berubah, refresh page 1 (URL update)
-        statusFilter.addEventListener('change', () => fetchPage(1, true)); 
-        
-        downloadButton.addEventListener('click', downloadXLSX);
-        
-        // [BARU] Event Listener untuk tombol Pengaturan
-        if(btnOpenSettings){
-            btnOpenSettings.addEventListener('click', () => {
-                settingsModal.style.display = 'flex';
-            });
-        }
-        if(btnCloseSettings){
-            btnCloseSettings.addEventListener('click', () => {
-                settingsModal.style.display = 'none';
-            });
-        }
 
         async function adminLogin() {
             const password = document.getElementById('admin-password').value;
@@ -1391,7 +1427,7 @@
                     
                     // Setelah login berhasil, arahkan ke URL standar
                     window.location.hash = '#admin/Semua/1';
-                    // hashchange akan mentrigger showDashboard & fetch
+                    // handleRouteChange akan mentrigger fetch page, dan juga fetchAllNiksBackground
                 } else {
                     loginError.textContent = result.message || "Password salah.";
                     loginError.classList.remove('hidden');
@@ -1538,6 +1574,47 @@
             }
         }
         
+        // [BARU] Fungsi Background Fetch
+        async function fetchAllNiksBackground() {
+            if (isGlobalDataLoaded) return;
+            console.log("Memulai background indexing NIK...");
+            try {
+                const url = new URL(webAppUrl);
+                url.searchParams.append('action', 'downloadData'); // Menggunakan endpoint yang sudah ada
+                
+                const response = await fetch(url);
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    const headers = result.data.headers;
+                    const rows = result.data.rows;
+                    const nikIndex = headers.indexOf('NIK');
+                    const statusIndex = headers.indexOf('Status');
+                    
+                    if (nikIndex !== -1 && statusIndex !== -1) {
+                        certifiedNikSet.clear();
+                        rows.forEach(row => {
+                            const nik = row[nikIndex];
+                            const status = row[statusIndex];
+                            if (status === 'Sudah Punya Sertifikat Elektronik') {
+                                certifiedNikSet.add(nik);
+                            }
+                        });
+                        
+                        isGlobalDataLoaded = true;
+                        console.log("Indexing selesai. Jumlah NIK Certified:", certifiedNikSet.size);
+                        
+                        // Re-render jika ada data yang sedang ditampilkan
+                        if (lastPageData && lastPageData.length > 0) {
+                            displayData(lastPageData);
+                        }
+                    }
+                }
+            } catch (e) {
+                console.error("Background fetch error:", e);
+            }
+        }
+
         // [MODIFIKASI] fetchPage sekarang menerima parameter updateUrl
         async function fetchPage(page, updateUrl = true) {
             currentPage = page;
@@ -1555,7 +1632,6 @@
                 if (window.location.hash !== newHash) {
                     window.location.hash = newHash;
                     // Return agar tidak fetch 2x (biarkan hashchange yang menghandle fetch)
-                    // Kecuali jika kita ingin fetch langsung, tapi lebih aman biarkan hashchange
                     return; 
                 }
             }
@@ -1583,6 +1659,8 @@
                         updateStatusFilterLabels(statusCounts);
                     }
 
+                    // [BARU] Simpan data page terakhir untuk re-render
+                    lastPageData = pageData;
                     displayData(pageData);
                     setupPagination(currentPage, totalPages);
                 } else { 
@@ -1787,6 +1865,16 @@
                                 <a href="#" onclick="handleEditKeterangan(${originalIndex}, '${safeStatus}', '${safeKeterangan}'); return false;" style="font-size:0.8em; color: var(--primary-color); cursor:pointer;">[edit]</a>
                             </div>
                         `;
+                    }
+                    // [BARU] Styling Khusus untuk Kolom NIK jika masuk dalam Global Index
+                    else if (header === 'NIK') {
+                        td.textContent = cell;
+                        if (certifiedNikSet.has(cell)) {
+                            td.style.color = 'var(--success-color-dark)';
+                            td.style.fontWeight = 'bold';
+                            td.title = 'NIK ini memiliki riwayat status: Sudah Punya Sertifikat Elektronik';
+                            td.innerHTML = `${cell} <span style="color:var(--success-color); margin-left:5px;">&#10003;</span>`;
+                        }
                     }
                     else { 
                         td.textContent = cell; 
@@ -2157,15 +2245,16 @@
                 if (result.status === 'success') {
                     const isOff = result.data.formStatus === 'OFF';
                     
-                    document.getElementById('form-sudah').classList.toggle('hidden', isOff); 
-                    document.getElementById('form-closed-message-sudah').classList.toggle('hidden', !isOff); 
+                    document.getElementById('form-sudah')?.classList.toggle('hidden', isOff); 
+                    document.getElementById('form-closed-message-sudah')?.classList.toggle('hidden', !isOff); 
                     
-                    document.getElementById('form-belum').classList.toggle('hidden', isOff); 
-                    document.getElementById('form-closed-message-belum').classList.toggle('hidden', !isOff); 
+                    document.getElementById('form-belum')?.classList.toggle('hidden', isOff); 
+                    document.getElementById('form-closed-message-belum')?.classList.toggle('hidden', !isOff); 
 
                     if (result.data.popupMessage) {
-                        document.getElementById('welcome-message-content').innerHTML = result.data.popupMessage;
-                        welcomeModal.style.display = 'flex';
+                        const msgContent = document.getElementById('welcome-message-content');
+                        if(msgContent) msgContent.innerHTML = result.data.popupMessage;
+                        if(welcomeModal) welcomeModal.style.display = 'flex';
                     }
                 }
             } catch(e) { 
@@ -2219,76 +2308,42 @@
         }
         
         function showLoading(show, message = "Mohon tunggu...") { 
-            loadingOverlay.style.display = show ? 'flex' : 'none'; 
-            loadingOverlay.querySelector('p').textContent = message; 
+            if(loadingOverlay) {
+                loadingOverlay.style.display = show ? 'flex' : 'none'; 
+                loadingOverlay.querySelector('p').textContent = message; 
+            }
         }
         
-        window.addEventListener('load', () => { 
-            document.getElementById('welcome-modal-close-btn').addEventListener('click', () => {
-                welcomeModal.style.display = 'none';
-            });
-            
-            document.getElementById('batal-keterangan-btn').addEventListener('click', () => {
-                if (statusChangeContext.selectElement) {
-                    statusChangeContext.selectElement.value = statusChangeContext.previousValue;
-                }
-                statusKeteranganModal.style.display = 'none';
-                statusChangeContext = {}; 
-            });
-
-            document.getElementById('simpan-keterangan-btn').addEventListener('click', () => {
-                const keterangan = document.getElementById('keterangan-text').value;
-                if (!keterangan) {
-                    Swal.fire({icon: 'warning', title: 'Perhatian', text: 'Keterangan tidak boleh kosong.'});
-                    return;
-                }
-                const { rowIndex, selectElement } = statusChangeContext;
-                if (rowIndex && selectElement) {
-                    updateStatus(selectElement.value, rowIndex, keterangan);
-                }
-            });
-
-            function setupHint(inputId, hintId) {
-                const input = document.getElementById(inputId);
-                const hint = document.getElementById(hintId);
-                if (input && hint) {
-                    input.addEventListener('focus', () => { hint.classList.remove('hidden'); hint.classList.remove('error'); });
-                    input.addEventListener('blur', () => { hint.classList.add('hidden'); hint.classList.remove('error'); });
-                }
+        function setupHint(inputId, hintId) {
+            const input = document.getElementById(inputId);
+            const hint = document.getElementById(hintId);
+            if (input && hint) {
+                input.addEventListener('focus', () => { hint.classList.remove('hidden'); hint.classList.remove('error'); });
+                input.addEventListener('blur', () => { hint.classList.add('hidden'); hint.classList.remove('error'); });
             }
-            
-            function setupNikValidation(inputId, hintId) {
-                const nikInput = document.getElementById(inputId);
-                const nikHint = document.getElementById(hintId);
-                if (nikInput && nikHint) {
-                    const validateNik = () => {
-                        const value = nikInput.value;
-                        if (value.length > 0 && value.length < 16) {
-                            nikHint.classList.add('error');
-                            nikHint.classList.remove('hidden');
-                        } else {
-                            nikHint.classList.remove('error');
-                            if (document.activeElement !== nikInput) {
-                                nikHint.classList.add('hidden');
-                            }
+        }
+        
+        function setupNikValidation(inputId, hintId) {
+            const nikInput = document.getElementById(inputId);
+            const nikHint = document.getElementById(hintId);
+            if (nikInput && nikHint) {
+                const validateNik = () => {
+                    const value = nikInput.value;
+                    if (value.length > 0 && value.length < 16) {
+                        nikHint.classList.add('error');
+                        nikHint.classList.remove('hidden');
+                    } else {
+                        nikHint.classList.remove('error');
+                        if (document.activeElement !== nikInput) {
+                            nikHint.classList.add('hidden');
                         }
-                    };
-                    nikInput.addEventListener('input', validateNik);
-                    nikInput.addEventListener('focus', () => { nikHint.classList.remove('hidden'); validateNik(); });
-                    nikInput.addEventListener('blur', validateNik);
-                }
+                    }
+                };
+                nikInput.addEventListener('input', validateNik);
+                nikInput.addEventListener('focus', () => { nikHint.classList.remove('hidden'); validateNik(); });
+                nikInput.addEventListener('blur', validateNik);
             }
-
-            setupHint('nama-sudah', 'nama-hint-sudah');
-            setupHint('email-sudah', 'email-hint-sudah');
-            setupNikValidation('nik-sudah', 'nik-hint-sudah');
-            setupHint('nomorHp-sudah', 'nomorHp-hint-sudah');
-            
-            setupHint('nama-belum', 'nama-hint-belum');
-            setupHint('email-belum', 'email-hint-belum');
-            setupNikValidation('nik-belum', 'nik-hint-belum');
-            setupHint('nomorHp-belum', 'nomorHp-hint-belum');
-        });
+        }
     </script>
 </body>
 </html>
